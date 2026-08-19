@@ -1,0 +1,18 @@
+[Unit]
+Description=Qixi letter website for SiyI
+After=network.target
+
+[Service]
+Type=simple
+User=admin
+Group=admin
+WorkingDirectory=/home/admin/for-siyi
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=3000
+ExecStart=/usr/bin/node /home/admin/for-siyi/server.js
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
