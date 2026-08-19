@@ -83,3 +83,27 @@ footer { background: linear-gradient(90deg, #9a526c, #ad6378 50%, #8d4a65); colo
 .capsule__form--sealed .capsule__form-content { opacity: 0; pointer-events: none; transform: translateY(25px) scaleY(.12); }.capsule__form--sealed .capsule__envelope { opacity: 1; transform: translateY(0) scale(1); }.capsule__form--sealed .capsule__envelope::after { transform: rotateX(0); }.capsule__form--sealed .capsule__envelope span { opacity: 1; transform: translateY(0); }.capsule__form--sealed .capsule__envelope b { opacity: 1; transform: translate(-50%, 0); }.capsule__form--sealed .capsule__envelope i { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 @keyframes capsule-letter-fold { 0% { opacity: 1; transform: scale(1); } 68% { opacity: .75; transform: translateY(16px) scaleY(.24); } 100% { opacity: 0; transform: translateY(25px) scaleY(.12); } } @keyframes envelope-arrive { from { opacity: 0; transform: translateY(25px) scale(.9); } to { opacity: 1; transform: translateY(0) scale(1); } } @keyframes envelope-flap { to { transform: rotateX(0); } } @keyframes envelope-writing { to { opacity: 1; transform: translateY(0); } } @keyframes wax-seal { 0% { opacity: 0; transform: translate(-50%, -130%) scale(.15); } 65% { opacity: 1; transform: translate(-50%, -50%) scale(1.16); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
 @media (max-width: 720px) { .capsule__form { min-height: 292px; }.capsule__form > .capsule__envelope { inset: 14px; }.capsule__envelope b { bottom: 20px; font-size: 29px; } }
+
+/* Keep the portrait unobstructed on the narrow, phone-sized crop. */
+@media (max-width: 720px) {
+  .interlude__photo { background-position: 16% center; }
+
+  .interlude__copy {
+    left: 22px;
+    right: auto;
+    max-width: 43%;
+    padding-left: 14px;
+  }
+
+  .interlude__copy h2 {
+    font-size: clamp(34px, 9.5vw, 43px);
+    line-height: 1.04;
+  }
+
+  .interlude__copy p {
+    font-size: 10px;
+    line-height: 1.7;
+  }
+
+  .interlude__copy > span { margin-top: 20px; }
+}
