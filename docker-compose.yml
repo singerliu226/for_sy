@@ -1,0 +1,7 @@
+services:
+  qixi-siyi:
+    build: .
+    container_name: qixi-siyi
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
