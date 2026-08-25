@@ -255,3 +255,11 @@ footer { background: linear-gradient(90deg, #9a526c, #ad6378 50%, #8d4a65); colo
   .app-list__item { align-items: start; gap: 8px; grid-template-columns: 1fr; padding: 18px 0; }
   .campus-contact a { font-size: 17px; }
 }
+
+/* Dark-blue action buttons must retain clear text in every link state. */
+.guide-card__go,
+.guide-card__go:visited,
+.guide-card__go:hover,
+.guide-card__go:focus-visible {
+  color: #fffaf3 !important;
+}
