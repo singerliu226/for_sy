@@ -22,12 +22,6 @@ export default function AssistantPage() {
 
       <MagicAssistant />
 
-      <section className="assistant-boundary" aria-label="小助手怎么帮你">
-        <div><span>适合查询</span><p>临时路线、当日营业、末班、天气、机场抵达。</p></div>
-        <div><span>没有可靠结果时</span><p>改查官方入口，或查看已经核验过的魔都攻略。</p></div>
-        <a href="/guide">查看魔都攻略 →</a>
-      </section>
-
       <footer className="molwan-footer guide-footer"><span>通勤、报到、生活与紧急情况。</span><a href="/guide">查看魔都攻略 →</a></footer>
     </main>
   );
