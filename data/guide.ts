@@ -433,7 +433,7 @@ export const guideCards: GuideCard[] = [
     actionUrl: "https://hello.tongji.edu.cn/",
     source: contentSources.tongjiWelcome,
     crossChecks: [contentSources.tongjiCard],
-    keywords: ["校园网", "校园卡", "图书馆", "教务", "迎新", "校医院", "办事"],
+    keywords: ["图书馆", "教务", "迎新", "校医院", "办事", "新生清单"],
   },
   {
     id: "reporting-day-check",
