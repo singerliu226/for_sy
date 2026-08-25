@@ -129,7 +129,7 @@ export default function GuidePage() {
       <section className="guide-hero">
         <div className="guide-hero__train" aria-hidden="true"><i /><i /><i /><span /></div>
         <p className="molwan-kicker">SIYI&apos;S SHANGHAI GUIDE</p>
-        <h1>思怡的<br /><em>魔都攻略</em></h1>
+        <h1>思怡的<br /><em>魔都落地攻略</em></h1>
         <p>按现在要解决的事进入对应板块。</p>
         <div className="guide-hero__choices" aria-label="快速进入攻略">
           {guideViews.map((view) => <button type="button" key={view.id} onClick={() => chooseSection(view.id)}>{view.title} →</button>)}
