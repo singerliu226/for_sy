@@ -17,7 +17,7 @@ export default function AssistantPage() {
       <section className="assistant-hero">
         <p className="molwan-kicker">SHANGHAI QUICK CHECK</p>
         <h1>魔王派给你的<br /><em>AI小助手</em></h1>
-        <p>它读了一些迎新网的内容，能回答一些基本问题，其他问题，记得直接找魔王！</p>
+        <p>目前的小助手可能还笨笨的，魔王正在训练他，如果他答不出来不要生气，直接去找魔王哇。</p>
       </section>
 
       <MagicAssistant />
