@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   campusContacts,
   GuideCard,
@@ -8,14 +8,6 @@ import {
   essentialApps,
   guideCards,
 } from "@/data/guide";
-
-const storageKeys = {
-  note: "molwan-personal-note",
-  shortcuts: "molwan-personal-shortcuts",
-  recent: "molwan-recent-guides",
-};
-
-type PersonalShortcut = { id: string; title: string; detail: string };
 
 const freshnessCopy = {
   "长期有效": "可以先放心记着",
@@ -26,7 +18,7 @@ const freshnessCopy = {
 const guideViews = [
   { id: "arrival", index: "01", title: "落地通勤", description: "从机场到学校，先把这段路走稳。", sections: ["arrival"] },
   { id: "report", index: "02", title: "新生报到", description: "报到、进校、宿舍、校园卡和网络，只做眼前需要的。", sections: ["campus"] },
-  { id: "daily", index: "03", title: "生活必需", description: "找路、买药、快递和日常出门，先让生活顺起来。", sections: ["nearby", "daily"] },
+  { id: "daily", index: "03", title: "生活必需", description: "常用入口，名字和用途留在这儿。", sections: ["nearby", "daily"] },
   { id: "emergency", index: "04", title: "紧急求助", description: "四平路校区常用号码。", sections: ["emergency"] },
 ] as const satisfies ReadonlyArray<{
   id: "arrival" | "report" | "daily" | "emergency";
@@ -37,34 +29,6 @@ const guideViews = [
 }>;
 
 type GuideViewId = typeof guideViews[number]["id"];
-
-function viewForSection(section: GuideSectionId): GuideViewId {
-  if (section === "arrival") return "arrival";
-  if (section === "campus") return "report";
-  if (section === "nearby" || section === "daily") return "daily";
-  return "emergency";
-}
-
-function readList(key: string) {
-  try {
-    const value = JSON.parse(window.localStorage.getItem(key) ?? "[]");
-    return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
-  } catch {
-    return [];
-  }
-}
-
-function readShortcuts() {
-  try {
-    const value = JSON.parse(window.localStorage.getItem(storageKeys.shortcuts) ?? "[]");
-    if (!Array.isArray(value)) return [];
-    return value.filter((item): item is PersonalShortcut => (
-      item && typeof item.id === "string" && typeof item.title === "string" && typeof item.detail === "string"
-    )).slice(0, 12);
-  } catch {
-    return [];
-  }
-}
 
 function guideCopyText(card: GuideCard) {
   return [
@@ -102,60 +66,13 @@ async function copyText(text: string) {
 
 export default function GuidePage() {
   const [activeSection, setActiveSection] = useState<GuideViewId>("arrival");
-  const [note, setNote] = useState("");
-  const [shortcuts, setShortcuts] = useState<PersonalShortcut[]>([]);
-  const [recent, setRecent] = useState<string[]>([]);
-  const [shortcutTitle, setShortcutTitle] = useState("");
-  const [shortcutDetail, setShortcutDetail] = useState("");
-  const [shortcutFeedback, setShortcutFeedback] = useState("");
   const [copyFeedback, setCopyFeedback] = useState<{ id: string; message: string } | null>(null);
   const [expandedCards, setExpandedCards] = useState<string[]>([]);
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    setNote(window.localStorage.getItem(storageKeys.note) ?? "");
-    setShortcuts(readShortcuts());
-    setRecent(readList(storageKeys.recent));
-    setReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (ready) window.localStorage.setItem(storageKeys.note, note);
-  }, [ready, note]);
-
-  useEffect(() => {
-    if (ready) window.localStorage.setItem(storageKeys.shortcuts, JSON.stringify(shortcuts));
-  }, [ready, shortcuts]);
-
-  useEffect(() => {
-    if (ready) window.localStorage.setItem(storageKeys.recent, JSON.stringify(recent.slice(0, 6)));
-  }, [ready, recent]);
-
-  const recentCards = recent.map((id) => guideCards.find((card) => card.id === id)).filter((card): card is GuideCard => Boolean(card));
-
-  function recordRecent(id: string) {
-    setRecent((current) => [id, ...current.filter((item) => item !== id)].slice(0, 6));
-  }
-
-  function addShortcut(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const title = shortcutTitle.trim();
-    const detail = shortcutDetail.trim();
-    if (!title || !detail) {
-      setShortcutFeedback("先把名字和提醒写上，我才能替你留住它。");
-      return;
-    }
-    setShortcuts((current) => [{ id: `${Date.now()}-${title}`, title: title.slice(0, 36), detail: detail.slice(0, 100) }, ...current].slice(0, 12));
-    setShortcutTitle("");
-    setShortcutDetail("");
-    setShortcutFeedback("替你留好了，下次不用重新想。");
-  }
 
   function copyGuide(card: GuideCard) {
     void copyText(guideCopyText(card))
       .then(() => {
         setCopyFeedback({ id: card.id, message: "已复制" });
-        recordRecent(card.id);
         window.setTimeout(() => setCopyFeedback((current) => current?.id === card.id ? null : current), 2200);
       })
       .catch(() => setCopyFeedback({ id: card.id, message: "没复制上，长按这条也可以" }));
@@ -236,29 +153,20 @@ export default function GuidePage() {
         {guideViews.map((view) => {
           const cards = guideCards.filter((card) => (view.sections as readonly GuideSectionId[]).includes(card.section));
           const isEmergency = view.id === "emergency";
+          const isDaily = view.id === "daily";
           return (
             <section className={`guide-section guide-section--${view.id}`} id={`guide-${view.id}`} key={view.id}>
               <header className="guide-section__header"><p>先解决眼前这件 · {view.index}</p><h2>{view.title}</h2><span>{view.description}</span></header>
-              {view.id === "daily" && (
-                <section className="app-kit" aria-labelledby="app-kit-title">
-                  <details className="app-kit__details">
-                    <summary><p>别为了“必备”瞎下载</p><h3 id="app-kit-title">上海刚来，只留这 3 个入口</h3><span>支付宝、微信、高德和外卖 App 已经有就继续用；真正能补上信息差的，是上海交通、城市办事和同济官方入口。</span><b>展开 →</b></summary>
-                    <div className="app-kit__grid">
-                      {essentialApps.map((app) => (
-                        <article className="app-kit__card" key={app.id}>
-                          <span>{app.badge}</span><h4>{app.name}</h4><p>{app.summary}</p><dl><div><dt>什么时候用</dt><dd>{app.when}</dd></div><div><dt>小提醒</dt><dd>{app.tip}</dd></div></dl>
-                          <footer>
-                            <a href={app.actionUrl} target="_blank" rel="noreferrer">{app.actionLabel} ↗</a>
-                            <a href={app.source.url} target="_blank" rel="noreferrer">我查到的官方入口 ↗</a>
-                            {app.crossChecks?.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.kind === "经验旁证" ? "顺手看过的经验" : "我再核了一遍"} · {source.label} ↗</a>)}
-                          </footer><small>我上次核对 · {app.verifiedAt}</small>
-                        </article>
-                      ))}
-                    </div>
-                  </details>
+              {isDaily ? (
+                <section className="app-list" aria-label="上海常用 App">
+                  {essentialApps.map((app) => (
+                    <article className="app-list__item" key={app.id}>
+                      <h3>{app.name}</h3>
+                      <p>{app.summary}</p>
+                    </article>
+                  ))}
                 </section>
-              )}
-              {isEmergency ? (
+              ) : isEmergency ? (
                 <div className="campus-contact-list" aria-label="四平路校区常用号码">
                   {campusContacts.map((contact) => (
                     <article className="campus-contact" key={contact.id}>
@@ -277,7 +185,7 @@ export default function GuidePage() {
                       <div className="guide-card__top"><span className={`freshness freshness--${card.freshness}`}>{freshnessCopy[card.freshness]}</span></div>
                       <h3>{card.title}</h3>
                       <p className="guide-card__summary">{card.summary}</p>
-                      <a className="guide-card__go" href={card.actionUrl} target="_blank" rel="noreferrer" onClick={() => recordRecent(card.id)}>{card.actionLabel} ↗</a>
+                      <a className="guide-card__go" href={card.actionUrl} target="_blank" rel="noreferrer">{card.actionLabel} ↗</a>
                       <button className="guide-card__details-toggle" type="button" onClick={() => toggleCard(card.id)}>{expandedCards.includes(card.id) ? "收起细节" : "需要再看细一点"}</button>
                       {expandedCards.includes(card.id) && (
                         <div className="guide-card__details">
@@ -310,30 +218,6 @@ export default function GuidePage() {
             </section>
           );
         })}
-        <section className="guide-section guide-section--saved" id="guide-saved">
-          <header className="guide-section__header"><p>留给自己 · 只放在这里</p><h2>我的小角落</h2><span>常用地点、提醒和最近翻过的攻略，都慢慢留在这里。</span></header>
-          <div className="personal-desk">
-            <article className="personal-desk__note">
-              <p>给以后的自己留句话</p>
-              <label className="sr-only" htmlFor="personal-note">给以后的自己留句话</label>
-              <textarea id="personal-note" value={note} onChange={(event) => setNote(event.target.value)} maxLength={180} placeholder="比如：常用快递点在…… / 这条回宿舍的路晚上更亮。" />
-              <small>悄悄留在这台设备里</small>
-            </article>
-            <article className="personal-desk__shortcut">
-              <p>我的地点 / 小提醒</p>
-              <form onSubmit={addShortcut}>
-                <label className="sr-only" htmlFor="shortcut-title">地点或事项名称</label>
-                <input id="shortcut-title" value={shortcutTitle} onChange={(event) => setShortcutTitle(event.target.value)} maxLength={36} placeholder="例如：常用快递点" />
-                <label className="sr-only" htmlFor="shortcut-detail">地点或事项说明</label>
-                <input id="shortcut-detail" value={shortcutDetail} onChange={(event) => setShortcutDetail(event.target.value)} maxLength={100} placeholder="地址、路线或一句提醒" />
-                <button type="submit">保存提醒</button>
-              </form>
-              {shortcutFeedback && <small className="personal-desk__feedback" aria-live="polite">{shortcutFeedback}</small>}
-              {shortcuts.length > 0 && <ul>{shortcuts.slice(0, 3).map((shortcut) => <li key={shortcut.id}><span><b>{shortcut.title}</b>{shortcut.detail}</span><button type="button" onClick={() => setShortcuts((current) => current.filter((item) => item.id !== shortcut.id))}>移除</button></li>)}</ul>}
-            </article>
-            <article className="personal-desk__recent"><p>你最近翻过</p>{recentCards.length ? <ul>{recentCards.slice(0, 3).map((card) => <li key={card.id}><button type="button" onClick={() => chooseSection(viewForSection(card.section))}>{card.title} →</button></li>)}</ul> : <span>你问过或点开过的，会留在这里。</span>}</article>
-          </div>
-        </section>
       </section>
 
       <footer className="molwan-footer guide-footer"><span>路会越走越熟，你也会越来越像在这里生活。</span><a href="/anniversaries">去看看我们记下的日子 →</a></footer>

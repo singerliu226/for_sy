@@ -239,3 +239,15 @@ footer { background: linear-gradient(90deg, #9a526c, #ad6378 50%, #8d4a65); colo
   .guide-card__route ol { font-size: 13px; }
   .guide-card__sources a { align-items: flex-start; }
 }
+
+/* Keep the app list and campus contacts legible at a glance. */
+.app-list { border-top: 1px solid rgba(40, 51, 76, .18); }
+.app-list__item { align-items: baseline; border-bottom: 1px solid rgba(40, 51, 76, .18); display: grid; gap: 28px; grid-template-columns: minmax(180px, .55fr) minmax(0, 1fr); padding: 22px 0; }
+.app-list__item h3 { color: var(--m-blue-deep); font-family: var(--ui); font-size: 16px; font-weight: 700; letter-spacing: .02em; margin: 0; }
+.app-list__item p { color: rgba(40, 51, 76, .72); font-family: var(--ui); font-size: 14px; line-height: 1.7; margin: 0; }
+.campus-contact a { font-family: var(--ui); font-size: 18px; font-weight: 650; letter-spacing: .02em; }
+
+@media (max-width: 620px) {
+  .app-list__item { align-items: start; gap: 8px; grid-template-columns: 1fr; padding: 18px 0; }
+  .campus-contact a { font-size: 17px; }
+}

@@ -32,15 +32,7 @@ export type CampusContact = {
 export type EssentialApp = {
   id: string;
   name: string;
-  badge: string;
   summary: string;
-  when: string;
-  tip: string;
-  actionLabel: string;
-  actionUrl: string;
-  source: GuideSource;
-  crossChecks?: GuideSource[];
-  verifiedAt: string;
 };
 
 const guideVerifiedAt = "2026-08-25";
@@ -464,42 +456,18 @@ export const quickPrompts = [
 export const essentialApps: EssentialApp[] = [
   {
     id: "metro-daduhui",
-    name: "Metro 大都会（按需）",
-    badge: "想看上海地铁官方服务时",
-    summary: "不是来了上海就必须下载。你想用独立乘车码、查看上海地铁官方服务时，再装它就够了。",
-    when: "第一次单独坐地铁、需要确认运营信息，或支付宝 / 微信乘车码不方便时。",
-    tip: "已有常用乘车码可以不装；出门前按当天运营信息和手机电量决定，不看旧帖硬赶。",
-    actionLabel: "打开官方 App",
-    actionUrl: "https://apps.apple.com/cn/app/metro%E5%A4%A7%E9%83%BD%E4%BC%9A/id1202750238",
-    source: { label: "上海申通地铁集团 · Metro 大都会", url: "https://apps.apple.com/cn/app/metro%E5%A4%A7%E9%83%BD%E4%BC%9A/id1202750238" },
-    crossChecks: [contentSources.xhsShanghaiLife],
-    verifiedAt: guideVerifiedAt,
+    name: "Metro 大都会",
+    summary: "查上海地铁运营信息、使用地铁乘车码。",
   },
   {
     id: "suishenban",
-    name: "随申办（按需）",
-    badge: "碰到城市办事再打开",
-    summary: "这是上海的官方城市服务入口，不是落地第一天就要注册的任务；真要办事、查官方事项时再进。",
-    when: "需要办理上海公共服务、查官方事项，或校方明确让你走政务流程时。",
-    tip: "微信或支付宝小程序能完成的，就不用为同一件事重复装 App；验证码和证件照片只留在自己手里。",
-    actionLabel: "查看官方说明",
-    actionUrl: "https://www.shanghai.gov.cn/nw17239/20260630/427c849d95dc4fe782555410b45290cb.html",
-    source: { label: "上海市政府 · 随申办入口说明", url: "https://www.shanghai.gov.cn/nw17239/20260630/427c849d95dc4fe782555410b45290cb.html" },
-    crossChecks: [contentSources.xhsShanghaiLife],
-    verifiedAt: guideVerifiedAt,
+    name: "随申办",
+    summary: "办上海政务、查询官方城市服务。",
   },
   {
     id: "tongji-official-entry",
-    name: "同济官方入口（不用下载）",
-    badge: "要紧的事只认学校通知",
-    summary: "不用再装一个来路不明的校园 App。迎新网和学校通知入口收藏好，报到、校园卡、校园网的当期要求都从这里核对。",
-    when: "报到前后、查待办，或遇到任何“学校让你做”的事情时。",
-    tip: "不凭群聊截图下载软件、交费或填写证件；开学任务以当年迎新网、学院和官方系统为准。",
-    actionLabel: "打开同济迎新网",
-    actionUrl: "https://hello.tongji.edu.cn/",
-    source: contentSources.tongjiWelcome,
-    crossChecks: [contentSources.xhsFreshmanChecklist],
-    verifiedAt: guideVerifiedAt,
+    name: "同济迎新网",
+    summary: "查报到、校园卡、校园网等学校官方安排。",
   },
 ];
 
