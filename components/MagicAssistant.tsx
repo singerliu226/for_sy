@@ -147,6 +147,7 @@ export function MagicAssistant() {
         <div><p>SHANGHAI QUICK CHECK</p><h2 id="magic-title">输入你现在要解决的事</h2></div>
         <span className="magic-console__status"><i />可查询最新信息</span>
       </div>
+      <p className="magic-console__intro">帮你判断落地后怎么走、哪儿还开着、会不会下雨或错过末班车。</p>
       <form onSubmit={submitQuestion} className="magic-console__form">
         <label className="sr-only" htmlFor="magic-question">输入问题</label>
         <input id="magic-question" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="比如：今晚同济附近还有药店开着吗？" autoComplete="off" />
