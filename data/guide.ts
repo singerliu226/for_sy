@@ -535,9 +535,9 @@ export function makeStaticAssistantAnswer(query: string) {
   const fallbackCard = fallbackCards[0];
   if (!fallbackCard) {
     return {
-      answer: "先做什么：这件事暂未收录为可执行攻略，先不要按猜测行动。\n\n推荐方案：打开地图或对应官方入口，确认地点、营业状态或当天通知。\n\n备选方案：在机场、地铁或学校，直接询问服务台、安保或值班老师。\n\n注意事项：证件号码、银行卡、宿舍号和实时位置不要写在这里；紧急情况直接拨打 110、120 或 119。\n\n来源状态：暂未识别到可靠主题，不会用其他攻略代答。",
+      answer: "哎呀，小助手不会啊啊啊，快去找魔王吧",
       sources: [],
-      sourceStatus: "暂未识别到可靠主题",
+      sourceStatus: "这个问题暂时不在小助手的可靠攻略里",
       cards: [],
     };
   }
