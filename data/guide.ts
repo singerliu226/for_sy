@@ -35,6 +35,12 @@ export type EssentialApp = {
   summary: string;
 };
 
+export type EssentialMiniProgram = {
+  id: string;
+  name: string;
+  summary: string;
+};
+
 const guideVerifiedAt = "2026-08-25";
 
 const contentSources = {
@@ -440,10 +446,18 @@ export const essentialApps: EssentialApp[] = [
     name: "随申办",
     summary: "上海官方政务和城市服务入口。",
   },
+];
+
+export const essentialMiniPrograms: EssentialMiniProgram[] = [
   {
-    id: "dingdong",
-    name: "叮咚买菜",
-    summary: "适合刚安顿时补水果、牛奶和日常消耗品。",
+    id: "wechat-transit-code",
+    name: "乘车码",
+    summary: "微信里开通上海公交、地铁、轮渡等公共交通乘车码。",
+  },
+  {
+    id: "tongji-mobile-portal",
+    name: "同济大学移动门户",
+    summary: "看校园待办和消息；校园卡查询、挂失和宿舍购电都在“一卡通”里。",
   },
 ];
 

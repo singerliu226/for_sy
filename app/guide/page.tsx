@@ -6,6 +6,7 @@ import {
   GuideCard,
   GuideSectionId,
   essentialApps,
+  essentialMiniPrograms,
   guideCards,
 } from "@/data/guide";
 
@@ -18,7 +19,7 @@ const freshnessCopy = {
 const guideViews = [
   { id: "arrival", index: "01", title: "落地通勤", description: "从机场到学校，先把这段路走稳。", sections: ["arrival"] },
   { id: "report", index: "02", title: "新生报到", description: "报到、进校、宿舍、校园卡和网络，只做眼前需要的。", sections: ["campus"] },
-  { id: "daily", index: "03", title: "必需APP", description: "通用工具默认已有；这里只留上海和同济真正用得上的入口。", sections: ["nearby", "daily"] },
+  { id: "daily", index: "03", title: "生活必需", description: "要下载的 App，和微信里直接能用的小程序。", sections: ["nearby", "daily"] },
   { id: "emergency", index: "04", title: "紧急求助", description: "四平路校区常用号码。", sections: ["emergency"] },
 ] as const satisfies ReadonlyArray<{
   id: "arrival" | "report" | "daily" | "emergency";
@@ -158,14 +159,26 @@ export default function GuidePage() {
             <section className={`guide-section guide-section--${view.id}`} id={`guide-${view.id}`} key={view.id}>
               <header className="guide-section__header"><p>先解决眼前这件 · {view.index}</p><h2>{view.title}</h2><span>{view.description}</span></header>
               {isDaily ? (
-                <section className="app-list" aria-label="必需APP">
-                  {essentialApps.map((app) => (
-                    <article className="app-list__item" key={app.id}>
-                      <h3>{app.name}</h3>
-                      <p>{app.summary}</p>
-                    </article>
-                  ))}
-                </section>
+                <div className="utility-lists">
+                  <section className="app-list" aria-label="需要下载的 App">
+                    <header className="utility-list__header"><p>需要下载</p><h3>App</h3></header>
+                    {essentialApps.map((app) => (
+                      <article className="app-list__item" key={app.id}>
+                        <h3>{app.name}</h3>
+                        <p>{app.summary}</p>
+                      </article>
+                    ))}
+                  </section>
+                  <section className="app-list" aria-label="微信小程序">
+                    <header className="utility-list__header"><p>微信里直接用</p><h3>小程序</h3></header>
+                    {essentialMiniPrograms.map((miniProgram) => (
+                      <article className="app-list__item" key={miniProgram.id}>
+                        <h3>{miniProgram.name}</h3>
+                        <p>{miniProgram.summary}</p>
+                      </article>
+                    ))}
+                  </section>
+                </div>
               ) : isEmergency ? (
                 <div className="campus-contact-list" aria-label="四平路校区常用号码">
                   {campusContacts.map((contact) => (
