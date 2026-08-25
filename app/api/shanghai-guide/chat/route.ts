@@ -144,7 +144,7 @@ export async function POST(request: Request) {
             { role: "user", content: message },
           ],
           tools: [{ type: "web_search" }],
-          tool_choice: "auto",
+          tool_choice: { type: "web_search" },
           // Flash spends part of this budget on server-side search reasoning. Leave
           // enough room for a short, complete answer after the search finishes.
           max_output_tokens: 2200,
@@ -156,7 +156,7 @@ export async function POST(request: Request) {
         timeout = setTimeout(() => {
           controller.abort();
           reject(new Error("live_search_timeout"));
-        }, 8_000);
+        }, 18_000);
       });
       const upstream = await Promise.race([liveRequest, deadline]);
 
@@ -188,7 +188,7 @@ export async function POST(request: Request) {
     return Response.json({
       ...localAnswer,
       sourceStatus: timedOut
-        ? "实时查询超过 8 秒，已回退到已核验攻略"
+        ? "实时查询超过 18 秒，已回退到已核验攻略"
         : "魔丸暂时没有接上实时信息，已回退到攻略资料库",
       mode: "fallback",
     });
