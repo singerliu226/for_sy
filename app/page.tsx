@@ -9,13 +9,6 @@ export default function Home() {
         <p>思怡的上海生活地图</p>
       </header>
 
-      <section className="molwan-home__hero">
-        <div className="molwan-home__orbit" aria-hidden="true"><i /><i /><i /></div>
-        <p className="molwan-kicker">FOR SIYI · SHANGHAI</p>
-        <h1>思怡，<br /><em>来上海别慌。</em></h1>
-        <p className="molwan-home__intro">落地、报到和生活，从今天需要的一件开始。</p>
-      </section>
-
       <section className="molwan-home__doors" aria-label="选择一个入口">
         <a className="molwan-door molwan-door--assistant" href="/assistant">
           <span className="molwan-door__number">01</span>

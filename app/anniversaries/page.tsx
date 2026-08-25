@@ -39,7 +39,7 @@ export default function AnniversariesPage() {
         <p className="anniversary-list__future">以后还有很多天，会慢慢长到这里。</p>
       </section>
 
-      <footer className="molwan-footer"><span>每一次认真记得，都会变成以后能回来的路。</span><a href="/">回到魔丸小助手 →</a></footer>
+      <footer className="molwan-footer"><span>每一次认真记得，都会变成以后能回来的路。</span></footer>
     </main>
   );
 }
