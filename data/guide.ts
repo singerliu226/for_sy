@@ -76,42 +76,42 @@ export const guideSections: Array<{
     index: "01",
     title: "落地通勤",
     eyebrow: "ARRIVE & MOVE",
-    description: "从广州落地，到同济四平路校区的每一个分岔口。",
+    description: "你落地以后，怎么不慌不忙地到学校，我先替你顺在这里。",
   },
   {
     id: "nearby",
     index: "02",
     title: "学校周边",
     eyebrow: "AROUND TONGJI",
-    description: "把同济大学站、校门和五角场先变成熟悉的地名。",
+    description: "先陪你把校门、同济大学站和五角场走熟，其他地方慢慢来。",
   },
   {
     id: "daily",
     index: "03",
     title: "上海日常",
     eyebrow: "CITY LIFE",
-    description: "交通、支付、快递、买药与这座城市的日常节奏。",
+    description: "这些琐碎的上海日常，我想让你少临时手忙脚乱一点。",
   },
   {
     id: "emergency",
     index: "04",
     title: "紧急求助",
     eyebrow: "JUST IN CASE",
-    description: "先让人安心，再处理那些不在计划里的时刻。",
+    description: "真遇到突然的事，先照顾好自己，剩下的我们再慢慢处理。",
   },
   {
     id: "saved",
     index: "05",
     title: "我的常用",
     eyebrow: "MY SHORTCUTS",
-    description: "把真正用得上的路线、清单和小备注留在这里。",
+    description: "你后来摸熟的路和小习惯，也值得留给以后的你。",
   },
   {
     id: "campus",
     index: "06",
     title: "校园办事",
     eyebrow: "ON CAMPUS",
-    description: "迎新、校园网、校园卡和所有需要慢慢办好的事。",
+    description: "学校里要办的事不用一口气做完，我们一件一件来。",
   },
 ];
 
@@ -119,8 +119,8 @@ export const guideCards: GuideCard[] = [
   {
     id: "hongqiao-to-tongji",
     section: "arrival",
-    title: "虹桥落地后，先到同济大学站",
-    summary: "白天优先坐地铁 10 号线；抵达时间很晚或带很多行李，再考虑网约车。",
+    title: "虹桥落地后，先把你带到同济",
+    summary: "你白天到的话，10 号线最省心；要是已经很晚、行李又多，就别逞强，直接打车也没关系。",
     steps: [
       "确认自己在虹桥机场 1 号或 2 号航站楼，再跟随“地铁 10 号线”指示。",
       "乘坐开往市区方向的 10 号线，在“同济大学站”下车。",
@@ -140,8 +140,8 @@ export const guideCards: GuideCard[] = [
   {
     id: "pudong-to-tongji",
     section: "arrival",
-    title: "浦东落地后，给自己留足换乘时间",
-    summary: "浦东距离更远。白天地铁可行，晚到或疲惫时优先把“安全抵达”排在省钱前面。",
+    title: "浦东落地，给自己留一点余地",
+    summary: "浦东离学校远一些。白天地铁没问题；要是你又累又晚，先平安到学校，比省这一点车费重要。",
     steps: [
       "先在到达层确认航站楼、行李和电量；不急着在拥挤处决定路线。",
       "白天可按校方公开路线乘 2 号线至南京东路，换乘 10 号线到同济大学站。",
@@ -161,8 +161,8 @@ export const guideCards: GuideCard[] = [
   {
     id: "first-night",
     section: "arrival",
-    title: "第一晚只完成最小闭环",
-    summary: "进校、能充电、能洗漱、能睡觉，就已经是很好的第一天。",
+    title: "第一晚，先让自己好好睡下",
+    summary: "能进校、能充电、能洗漱、能睡觉，第一天就已经做得很好了，别逼自己一次弄完。",
     steps: [
       "证件、手机、充电宝、银行卡放在最容易拿到的小包里。",
       "到校后先确认宿舍与门禁，再处理行李；不要一口气采购所有东西。",
@@ -182,8 +182,8 @@ export const guideCards: GuideCard[] = [
   {
     id: "flight-delay-replan",
     section: "arrival",
-    title: "航班晚点后，重新判断，不沿用白天路线",
-    summary: "飞机晚到时，最容易出错的不是不会坐车，而是照着出发前的路线硬赶末班。",
+    title: "飞机晚点了，就重新给自己选条路",
+    summary: "飞机晚到最怕的不是不会走，是硬拿白天的路线去赶末班。你落地后，我们按那一刻的时间再看。",
     steps: [
       "落地、取行李后再看一次当前时间；不要用原定航班到达时间判断还能不能赶上地铁。",
       "依次打开上海机场地面交通页、上海地铁运营信息和地图，确认公共交通是否仍可完整走通。",
@@ -203,8 +203,8 @@ export const guideCards: GuideCard[] = [
   {
     id: "tongji-anchor",
     section: "nearby",
-    title: "先记住三个地点：校门、同济大学站、五角场",
-    summary: "不必一开始记住整片杨浦；先把最常用的三个锚点走熟。",
+    title: "先记住三个地方，就够了",
+    summary: "刚来不用急着认遍杨浦。先把校门、同济大学站和五角场走熟，上海会慢慢变小。",
     steps: [
       "同济四平路校区地址为杨浦区四平路 1239 号。",
       "同济大学站 5 号口可作为日常出入校与找路的起点。",
@@ -224,8 +224,8 @@ export const guideCards: GuideCard[] = [
   {
     id: "nearby-supplies",
     section: "nearby",
-    title: "附近补给：先用地图解决，再决定常去哪里",
-    summary: "药店、便利店、超市、快递点和打印店都可能变动；先找离此刻最近且仍营业的。",
+    title: "缺东西了，先找离你最近的那一家",
+    summary: "药店、便利店和快递点会变，别死记店名。你现在在哪、它现在开不开，才最重要。",
     steps: [
       "在高德或常用地图中搜索具体需求，例如“同济大学站 药店”。",
       "先查看步行距离、营业状态与最新评价，再决定是否出发。",
@@ -245,8 +245,8 @@ export const guideCards: GuideCard[] = [
   {
     id: "parcel-without-guesswork",
     section: "nearby",
-    title: "快递地址和取件点：跟通知走，不背旧地址",
-    summary: "校园快递站、宿舍准入和代收方式会调整；取件短信/快递 App 的当次通知，比任何旧攻略都更可信。",
+    title: "快递这件事，听这一次的通知就好",
+    summary: "校园里的快递点会变，你收到的那条取件通知，比任何旧攻略都靠谱；别为了背地址把自己绕晕。",
     steps: [
       "第一件寄校物品不要放证件、电脑或当天必须用的东西；先用普通包裹验证当期的地址、站点和取件流程。",
       "收到通知后核对三项：收件人姓名/手机号、具体取件点、最晚取件时间；地址写法与通知不一致时，优先问承运方或驿站。",
@@ -266,8 +266,8 @@ export const guideCards: GuideCard[] = [
   {
     id: "metro-basics",
     section: "daily",
-    title: "在上海出门，先让地铁成为默认选项",
-    summary: "短距离步行加地铁通常最稳定；赶时间时先看首末班与换乘次数。",
+    title: "在上海出门，地铁先当你的底气",
+    summary: "走一小段再坐地铁，通常最稳。赶时间的时候，少换一次乘，比地图上快两分钟更让人放心。",
     steps: [
       "安装或打开“Metro 大都会”，也可使用常用支付工具内的交通乘车码。",
       "进站前确认目的地与末班，换乘少通常比理论最短时间更稳妥。",
@@ -287,8 +287,8 @@ export const guideCards: GuideCard[] = [
   {
     id: "city-services",
     section: "daily",
-    title: "城市办事，先从随申办开始找",
-    summary: "医保、政务、证明和本地公共服务优先走官方入口，少被搜索广告带偏。",
+    title: "城市里的手续，先从随申办找",
+    summary: "医保、证明这些事看着烦，先从官方入口进就好，别让乱七八糟的搜索广告把你带偏。",
     steps: [
       "下载或打开“随申办市民云”，完成自己的账户登录。",
       "用具体事项关键词搜索，例如“医保”“社保”“居住证”“公共服务”。",
@@ -308,8 +308,8 @@ export const guideCards: GuideCard[] = [
   {
     id: "choose-a-city-route",
     section: "daily",
-    title: "地铁、骑行还是打车：用三个问题做决定",
-    summary: "路线不该只比“最快几分钟”，还要看电量、天气、行李和是否熟路。",
+    title: "今天怎么走，别只看最快那几分钟",
+    summary: "下雨、没电、带行李或者路不熟，就选让你更轻松的那条；慢一点没关系。",
     steps: [
       "先问：我有行李、下雨、身体不舒服或快到末班吗？任一为“是”，优先地铁/网约车，不勉强骑行或长距离步行。",
       "再看：地铁是否一线直达或换乘很少？是就优先地铁；短距离且白天、路线熟，再考虑共享单车。",
@@ -329,8 +329,8 @@ export const guideCards: GuideCard[] = [
   {
     id: "emergency-now",
     section: "emergency",
-    title: "遇到紧急情况：先找人，再解决事",
-    summary: "人身安全、医疗与火情优先；手机没电或迷路时，先进入有人值守、明亮的公共区域。",
+    title: "真遇到事，先去有人的地方",
+    summary: "你的人身安全永远排第一。手机没电、迷路或者心里发慌，先去明亮、有工作人员的地方，别一个人硬扛。",
     steps: [
       "遇到危及人身安全的情况拨打 110；医疗急救拨打 120；火情拨打 119。",
       "在机场、地铁站、校园内优先寻找服务台、安保或值班人员。",
@@ -356,8 +356,8 @@ export const guideCards: GuideCard[] = [
   {
     id: "phone-dead-or-lost",
     section: "emergency",
-    title: "手机没电或找不到路：先进入有人值守的地方",
-    summary: "手机没电时，第一目标不是继续搜路线，而是进地铁站、机场服务台、校门岗亭或便利店等有人且明亮的位置。",
+    title: "手机没电了，先别站在路边着急",
+    summary: "先去地铁站、服务台、校门岗亭或便利店。有人、明亮、能充电，比继续在路边刷路线重要。",
     steps: [
       "直接向工作人员说“手机没电、需要充电/联系家人/确认路线”，并说明自己所在的可见位置。",
       "先补电或借电话报平安，再打开地图；不要在路边把手机、身份证或充电宝交给陌生人保管。",
@@ -377,8 +377,8 @@ export const guideCards: GuideCard[] = [
   {
     id: "medical-or-not",
     section: "emergency",
-    title: "身体不舒服：分清急救、咨询和就医",
-    summary: "出现急危重症才拨 120；一般医疗咨询不要占用急救线路，先走 12320、校方安排或正规医疗机构。",
+    title: "身体不舒服，先把你自己放在前面",
+    summary: "严重到呼吸困难、意识异常或受伤时就打 120；其他不舒服也别硬撑，按校方安排或正规医院慢慢看。",
     steps: [
       "出现呼吸困难、意识异常、严重受伤等急危重情况，拨 120；接通后如实描述位置、症状和联系方式，不夸大也不隐瞒。",
       "等待急救时保持电话畅通；条件允许时，让人在明显入口或路口等候引导。",
@@ -399,8 +399,8 @@ export const guideCards: GuideCard[] = [
   {
     id: "cannot-enter-campus",
     section: "emergency",
-    title: "深夜进不了校：不翻门，不单独去陌生地点等",
-    summary: "门禁、报到点和临时进校规则会变化；被拦在外面时，先停在校门、地铁站或商场服务台等公开安全的位置。",
+    title: "深夜进不了校，也别一个人乱跑",
+    summary: "门禁和报到安排会变。真被拦在外面，就先待在校门、地铁站或商场服务台这些明亮公开的地方。",
     steps: [
       "核对录取通知书/学院通知里的报到校区、校门和联络方式；报到校区不等于每个人的宿舍生活区。",
       "向校门安保或学院/迎新联系人说明姓名、学院、抵达时间和当前困难；只出示被要求的必要证件，不把证件照片发给陌生人。",
@@ -420,8 +420,8 @@ export const guideCards: GuideCard[] = [
   {
     id: "campus-setup",
     section: "campus",
-    title: "校园办事不必一口气办完",
-    summary: "迎新通知是唯一优先级最高的清单；其余事项按“能上课、能联网、能生活”慢慢补齐。",
+    title: "学校里的事，不用一口气全办完",
+    summary: "先跟着迎新通知走，剩下校园卡、校园网这些，按能上课、能联网、能生活的顺序慢慢补就好。",
     steps: [
       "先登录迎新网，核对报到、住宿、缴费和学院通知。",
       "依次确认校园身份、校园卡、校园网与邮箱；把卡号、入口和需要补办的事项写进“我的地点 / 小提醒”。",
@@ -441,8 +441,8 @@ export const guideCards: GuideCard[] = [
   {
     id: "reporting-day-check",
     section: "campus",
-    title: "报到前只核对四件事：日期、校区、地点、联系人",
-    summary: "学校通知、学院通知和个人录取通知书可能分别给出不同层级的信息；最终行动以你的学院和个人系统为准。",
+    title: "报到前，我们只确认四件事",
+    summary: "日期、校区、地点、联系人。别被一堆通知弄乱，最后就以你学院和自己系统里的信息为准。",
     steps: [
       "打开迎新网与学院通知，截图保存：报到日期、报到校区、具体接待点、学院联系人/值班方式。",
       "确认“能进校的时间”与“能进宿舍的时间”是否分别写明；没有明确写就不要把行李和快递押在某一个日期上。",
@@ -462,8 +462,8 @@ export const guideCards: GuideCard[] = [
   {
     id: "identity-card-network",
     section: "campus",
-    title: "身份、校园卡、网络：按“能进、能用、能补办”排序",
-    summary: "先完成身份与入校相关事项，再让校园卡、邮箱和校园网可用；遇到问题要留官方入口，而不是只记群聊截图。",
+    title: "身份、校园卡、网络，慢慢把它们弄顺",
+    summary: "先让你能进学校，再让卡、邮箱和网络都能用。遇到问题不用翻群聊，我把官方入口留在这里。",
     steps: [
       "迎新系统中先确认同济身份激活、人脸信息、个人邮箱和“一网通办”等待办是否出现。",
       "校园卡先解决查询/消费密码与充值入口；网络问题走信息化办公室的网络服务入口，记录报障时间和编号。",
@@ -483,20 +483,20 @@ export const guideCards: GuideCard[] = [
 ];
 
 export const quickPrompts = [
-  "我在虹桥 T2，带行李怎么去同济？",
-  "今晚宿舍缺日用品，先买什么？",
-  "从同济去五角场怎么方便？",
-  "附近哪里可以寄快递或买药？",
+  "我刚到虹桥 T2，带行李怎么去学校呀？",
+  "今晚宿舍缺东西，我先买什么好？",
+  "从同济去五角场，怎么走会轻松一点？",
+  "我附近哪里能寄快递或者买药？",
 ];
 
 export const essentialApps: EssentialApp[] = [
   {
     id: "metro-daduhui",
     name: "Metro 大都会",
-    badge: "出门前装好",
-    summary: "上海地铁的官方乘车应用。先开通乘车码，进站时不必临时买票。",
-    when: "机场落地、第一次坐地铁、需要查站点或运营状态时。",
-    tip: "若已经习惯用支付宝或微信乘车码，也可以保留一个备用；进站前先确认网络和电量。",
+    badge: "我想让你先装好",
+    summary: "坐地铁前把乘车码开好，别拖着行李站在闸机口临时研究。",
+    when: "你刚落地、第一次坐地铁，或者想看看运营状态的时候。",
+    tip: "支付宝或微信乘车码也能当备用；出门前记得看一眼网络和电量。",
     actionLabel: "查看官方 App",
     actionUrl: "https://apps.apple.com/cn/app/metro%E5%A4%A7%E9%83%BD%E4%BC%9A/id1202750238",
     source: { label: "上海申通地铁集团 · Metro 大都会", url: "https://apps.apple.com/cn/app/metro%E5%A4%A7%E9%83%BD%E4%BC%9A/id1202750238" },
@@ -506,10 +506,10 @@ export const essentialApps: EssentialApp[] = [
   {
     id: "amap",
     name: "高德地图",
-    badge: "出门前装好",
-    summary: "步行、公交、地铁、打车和附近营业状态，都先交给它判断。",
-    when: "去校门、五角场、药店、快递点，或不确定哪条路更安全时。",
-    tip: "出发前看一眼步行距离与营业状态；晚上优先选路亮、人多、换乘少的路线。",
+    badge: "出门时靠它",
+    summary: "去哪儿、怎么走、附近还开着什么，先让它帮你看一眼。",
+    when: "去校门、五角场、药店、快递点，或者哪条路走着更安心的时候。",
+    tip: "出门前看步行距离和营业状态；晚上选路亮、人多、少换乘的那条。",
     actionLabel: "下载高德地图",
     actionUrl: "https://www.amap.com/dl/download_map.jsp",
     source: { label: "高德地图 · 官方下载", url: "https://www.amap.com/dl/download_map.jsp" },
@@ -518,10 +518,10 @@ export const essentialApps: EssentialApp[] = [
   {
     id: "meituan",
     name: "美团",
-    badge: "第一晚会用到",
-    summary: "晚到时订饭、补水、买纸巾和应急买药，比在陌生街区找店更省心。",
-    when: "宿舍刚安顿、附近店打烊，或身体不舒服不适合独自出门时。",
-    tip: "下单前确认地址写到校门、宿舍区或可被骑手找到的公开地点；不要把宿舍号写进公开备注。",
+    badge: "第一晚大概会用上",
+    summary: "晚到的时候，饭、水、纸巾和应急药让它送来，会比你一个人出去找店轻松。",
+    when: "宿舍刚安顿、附近店关了，或者你不舒服不想一个人出门的时候。",
+    tip: "地址写校门或公开好找的位置就行，宿舍号别放在公开备注里。",
     actionLabel: "下载美团",
     actionUrl: "https://i.meituan.com/client/download",
     source: { label: "美团 · 官方下载", url: "https://i.meituan.com/client/download" },
@@ -530,10 +530,10 @@ export const essentialApps: EssentialApp[] = [
   {
     id: "suishenban",
     name: "随申办市民云",
-    badge: "办事时装",
-    summary: "上海的政务与公共服务入口；需要查、办城市事项时优先从这里或官方小程序进入。",
-    when: "办理城市公共服务、查官方政策或需要身份核验的事项时。",
-    tip: "按需要再做实名认证；不要把验证码、证件照片或密码发给任何人。",
+    badge: "办事时来这里",
+    summary: "上海要办什么城市里的手续，先从这儿进，少走一点弯路。",
+    when: "查政策、办公共服务，或者需要身份核验的时候。",
+    tip: "需要时再认证就好；验证码、证件照片和密码只留在你自己手里。",
     actionLabel: "查看官方说明",
     actionUrl: "https://www.shanghai.gov.cn/nw17239/20260630/427c849d95dc4fe782555410b45290cb.html",
     source: { label: "上海市政府 · 随申办入口说明", url: "https://www.shanghai.gov.cn/nw17239/20260630/427c849d95dc4fe782555410b45290cb.html" },
@@ -542,10 +542,10 @@ export const essentialApps: EssentialApp[] = [
   {
     id: "payment-check",
     name: "支付宝或微信",
-    badge: "确认已能用",
-    summary: "不一定需要新装，但落地前要确认至少一个支付工具能正常登录、付款和打开乘车码。",
-    when: "坐地铁、买饭、打车、收快递前。",
-    tip: "把支付密码、验证码和身份证信息留在自己手里；支付异常时先暂停操作，找平台官方客服。",
+    badge: "出发前确认一下",
+    summary: "不用新装，但出发前确认至少有一个能登录、能付款、能打开乘车码就放心了。",
+    when: "坐地铁、买饭、打车、收快递之前。",
+    tip: "支付密码、验证码和身份证信息只留在你手里；不对劲就先停一下，找官方客服。",
     actionLabel: "查看官方办事入口",
     actionUrl: "https://www.shanghai.gov.cn/nw17239/20260630/427c849d95dc4fe782555410b45290cb.html",
     source: { label: "上海市政府 · 随申办可使用微信/支付宝入口", url: "https://www.shanghai.gov.cn/nw17239/20260630/427c849d95dc4fe782555410b45290cb.html" },
@@ -579,16 +579,16 @@ export function makeStaticAssistantAnswer(query: string) {
   const card = matched[0];
   if (!card) {
     return {
-      answer: "先做什么：这条问题还没有进入魔丸的已核验攻略，不要把猜测当成路线。\n\n推荐方案：先打开地图或对应官方入口，确认地点、营业状态或当日通知。\n\n备选方案：在机场、地铁或校园内直接找服务台、安保或值班人员说明情况。\n\n注意事项：不要输入证件号码、银行卡、宿舍号或实时位置；紧急情况直接拨打 110、120 或 119。\n\n来源状态：暂未匹配到可复用攻略，建议以官方页面和现场信息为准。",
+      answer: "先做什么：这件事我还没提前查到能让你放心照着走的答案，先别拿猜测去跑。\n\n推荐方案：先打开地图或对应的官方入口，确认地点、营业状态或当天通知。\n\n备选方案：在机场、地铁或学校里，直接找服务台、安保或值班老师问一声就好。\n\n注意事项：证件号码、银行卡、宿舍号和实时位置别写在这里；真有紧急情况直接打 110、120 或 119。\n\n来源状态：这条我还没收进攻略，先以官方页面和现场消息为准。",
       sources: [],
-      sourceStatus: "未匹配到已核验攻略",
+      sourceStatus: "这条我还没提前查明白",
       cards: [],
     };
   }
   return {
     answer: `先做什么：${card.summary}\n\n推荐方案：${card.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}\n\n备选方案：${card.backup}\n\n注意事项：${card.tip}\n\n来源状态：${card.freshness}；最近核验 ${card.verifiedAt}，出发前再打开官方链接确认。`,
     sources: [card.source, ...(card.crossChecks ?? [])],
-    sourceStatus: card.crossChecks?.length ? "已匹配攻略资料库（含交叉核验来源）" : "已匹配攻略资料库",
+    sourceStatus: card.crossChecks?.length ? "我提前给你放好的攻略（也留了交叉核验）" : "我提前给你放好的攻略",
     cards: matched.slice(0, 3),
   };
 }

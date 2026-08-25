@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { MagicAssistant } from "@/components/MagicAssistant";
 
 export const metadata: Metadata = {
-  title: "魔丸小助手｜思怡的上海即时助手",
-  description: "每次提问联网核验，帮思怡处理上海当下真正要办的事。",
+  title: "魔丸小助手｜有事就跟我说",
+  description: "给思怡留的一处上海小入口：有事就说，我先帮你查。",
 };
 
 export default function AssistantPage() {
@@ -15,20 +15,20 @@ export default function AssistantPage() {
       </header>
 
       <section className="assistant-hero">
-        <p className="molwan-kicker">LIVE, NOT JUST SAVED</p>
-        <h1>今天的事，<br /><em>问魔丸。</em></h1>
-        <p>它不替你猜。每次提问都尝试联网核验，把能确认的来源放在回答下面。</p>
+        <p className="molwan-kicker">A LITTLE HELP, FROM ME</p>
+        <h1>今天遇到的事，<br /><em>跟我说。</em></h1>
+        <p>不一定立刻都有答案，但我会先帮你查清楚。能确认的我写明白，没查到的也不让你瞎跑。</p>
       </section>
 
       <MagicAssistant />
 
-      <section className="assistant-boundary" aria-label="小助手的使用边界">
-        <div><span>它适合</span><p>临时路线、当日营业、末班、天气、机场抵达和眼下要办的事。</p></div>
-        <div><span>它会诚实停下</span><p>没有可核验的最新来源时，不会把猜测包装成答案；这时会引导你看官方入口或魔都攻略。</p></div>
-        <a href="/guide">提前翻阅魔都攻略 →</a>
+      <section className="assistant-boundary" aria-label="小助手怎么帮你">
+        <div><span>这些时候就来找我</span><p>临时路线、当日营业、末班、天气、机场抵达，或者你现在有点不知道怎么办的事。</p></div>
+        <div><span>查不到的时候我也直说</span><p>没有能确认的新消息，我不会拿猜测糊弄你；这时就一起看官方入口，或者先翻魔都攻略。</p></div>
+        <a href="/guide">我提前给你整理的攻略 →</a>
       </section>
 
-      <footer className="molwan-footer guide-footer"><span>最新的一次，才是这一次该用的答案。</span><a href="/guide">去魔都攻略看看 →</a></footer>
+      <footer className="molwan-footer guide-footer"><span>到了新的地方，也不用什么都一个人摸索。</span><a href="/guide">去翻翻我给你留的攻略 →</a></footer>
     </main>
   );
 }

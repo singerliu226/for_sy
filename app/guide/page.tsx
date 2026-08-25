@@ -17,6 +17,12 @@ const storageKeys = {
 
 type PersonalShortcut = { id: string; title: string; detail: string };
 
+const freshnessCopy = {
+  "长期有效": "可以先放心记着",
+  "开学季核验": "开学前再看一眼",
+  "请实时查询": "出发前再确认",
+} as const;
+
 function readList(key: string) {
   try {
     const value = JSON.parse(window.localStorage.getItem(key) ?? "[]");
@@ -42,16 +48,16 @@ function guideCopyText(card: GuideCard) {
   return [
     card.title,
     "",
-    `一句话结论：${card.summary}`,
-    "推荐方案：",
+    `我先跟你说：${card.summary}`,
+    "我帮你顺好的路：",
     ...card.steps.map((step, index) => `${index + 1}. ${step}`),
     "",
-    `备选方案：${card.backup}`,
-    `注意事项：${card.tip}`,
-    `时间 / 费用提示：${card.time}`,
-    `立即操作：${card.actionLabel} ${card.actionUrl}`,
-    `来源：${card.source.label} ${card.source.url}`,
-    `最近核验：${card.verifiedAt}`,
+    `要是临时有变：${card.backup}`,
+    `我想提醒你：${card.tip}`,
+    `大概多久：${card.time}`,
+    `现在就看：${card.actionLabel} ${card.actionUrl}`,
+    `我留的来源：${card.source.label} ${card.source.url}`,
+    `我上次核对：${card.verifiedAt}`,
   ].join("\n");
 }
 
@@ -113,13 +119,13 @@ export default function GuidePage() {
     const title = shortcutTitle.trim();
     const detail = shortcutDetail.trim();
     if (!title || !detail) {
-      setShortcutFeedback("先写下名称和提醒，再保存到这里。");
+      setShortcutFeedback("先把名字和提醒写上，我才能替你留住它。");
       return;
     }
     setShortcuts((current) => [{ id: `${Date.now()}-${title}`, title: title.slice(0, 36), detail: detail.slice(0, 100) }, ...current].slice(0, 12));
     setShortcutTitle("");
     setShortcutDetail("");
-    setShortcutFeedback("已经保存到“我的地点 / 小提醒”。");
+    setShortcutFeedback("替你留好了，下次不用重新想。");
   }
 
   function copyGuide(card: GuideCard) {
@@ -129,7 +135,7 @@ export default function GuidePage() {
         recordRecent(card.id);
         window.setTimeout(() => setCopyFeedback((current) => current?.id === card.id ? null : current), 2200);
       })
-      .catch(() => setCopyFeedback({ id: card.id, message: "复制失败，请长按复制" }));
+      .catch(() => setCopyFeedback({ id: card.id, message: "没复制上，长按这条也可以" }));
   }
 
   useEffect(() => {
@@ -169,9 +175,9 @@ export default function GuidePage() {
       <section className="guide-hero">
         <div className="guide-hero__train" aria-hidden="true"><i /><i /><i /><span /></div>
         <p className="molwan-kicker">SIYI&apos;S SHANGHAI GUIDE</p>
-        <h1>思怡的<br /><em>魔都攻略</em></h1>
-        <p>把会反复遇到的事，提前整理成一张能随时翻开的城市地图。</p>
-        <a className="guide-hero__assistant-link" href="/assistant">要问今天的事，去找魔丸小助手 ↗</a>
+        <h1>我给你留的<br /><em>魔都攻略</em></h1>
+        <p>会反复遇到的事，我先替你记好了。真到了上海，你不用每次都临时一个人查。</p>
+        <a className="guide-hero__assistant-link" href="/assistant">今天卡在哪儿，就跟我说 ↗</a>
       </section>
 
       <nav className="guide-float-nav" aria-label="攻略分区">
@@ -195,10 +201,10 @@ export default function GuidePage() {
                 <header className="guide-section__header"><p>{section.eyebrow} · {section.index}</p><h2>{section.title}</h2><span>{section.description}</span></header>
                 <div className="personal-desk">
                   <article className="personal-desk__note">
-                    <p>给以后的自己留一句话</p>
-                    <label className="sr-only" htmlFor="personal-note">给以后的自己留一句话</label>
+                    <p>给以后的自己留句话</p>
+                    <label className="sr-only" htmlFor="personal-note">给以后的自己留句话</label>
                     <textarea id="personal-note" value={note} onChange={(event) => setNote(event.target.value)} maxLength={180} placeholder="比如：常用快递点在…… / 这条回宿舍的路晚上更亮。" />
-                    <small>只保存在这台设备里</small>
+                    <small>悄悄留在这台设备里</small>
                   </article>
                   <article className="personal-desk__shortcut">
                     <p>我的地点 / 小提醒</p>
@@ -212,7 +218,7 @@ export default function GuidePage() {
                     {shortcutFeedback && <small className="personal-desk__feedback" aria-live="polite">{shortcutFeedback}</small>}
                     {shortcuts.length > 0 && <ul>{shortcuts.slice(0, 3).map((shortcut) => <li key={shortcut.id}><span><b>{shortcut.title}</b>{shortcut.detail}</span><button type="button" onClick={() => setShortcuts((current) => current.filter((item) => item.id !== shortcut.id))}>移除</button></li>)}</ul>}
                   </article>
-                  <article className="personal-desk__recent"><p>最近用过</p>{recentCards.length ? <ul>{recentCards.slice(0, 3).map((card) => <li key={card.id}><button type="button" onClick={() => chooseSection(card.section)}>{card.title} →</button></li>)}</ul> : <span>问过或点开过的攻略，会留在这里。</span>}</article>
+                  <article className="personal-desk__recent"><p>你最近翻过</p>{recentCards.length ? <ul>{recentCards.slice(0, 3).map((card) => <li key={card.id}><button type="button" onClick={() => chooseSection(card.section)}>{card.title} →</button></li>)}</ul> : <span>你问过或点开过的，会留在这里。</span>}</article>
                 </div>
               </section>
             );
@@ -224,16 +230,16 @@ export default function GuidePage() {
               <header className="guide-section__header"><p>{section.eyebrow} · {section.index}</p><h2>{section.title}</h2><span>{section.description}</span></header>
               {section.id === "daily" && (
                 <section className="app-kit" aria-labelledby="app-kit-title">
-                  <div className="app-kit__heading"><p>先装好，再慢慢熟悉</p><h3 id="app-kit-title">落地上海，手机里先有这 5 个</h3><span>前四个按需下载安装；支付工具通常已有，只要确认能正常使用。</span></div>
+                  <div className="app-kit__heading"><p>我想让你先装好的</p><h3 id="app-kit-title">落地上海，手机里先有这 5 个</h3><span>前四个按需要装就好；支付工具大多已经有了，确认能用就行。</span></div>
                   <div className="app-kit__grid">
                     {essentialApps.map((app) => (
                       <article className="app-kit__card" key={app.id}>
                         <span>{app.badge}</span><h4>{app.name}</h4><p>{app.summary}</p><dl><div><dt>什么时候用</dt><dd>{app.when}</dd></div><div><dt>小提醒</dt><dd>{app.tip}</dd></div></dl>
                         <footer>
                           <a href={app.actionUrl} target="_blank" rel="noreferrer">{app.actionLabel} ↗</a>
-                          <a href={app.source.url} target="_blank" rel="noreferrer">官方来源 ↗</a>
-                          {app.crossChecks?.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.kind === "经验旁证" ? "经验旁证" : "交叉核验"} · {source.label} ↗</a>)}
-                        </footer><small>最近核验 · {app.verifiedAt}</small>
+                          <a href={app.source.url} target="_blank" rel="noreferrer">我查到的官方入口 ↗</a>
+                          {app.crossChecks?.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.kind === "经验旁证" ? "顺手看过的经验" : "我再核了一遍"} · {source.label} ↗</a>)}
+                        </footer><small>我上次核对 · {app.verifiedAt}</small>
                       </article>
                     ))}
                   </div>
@@ -242,18 +248,18 @@ export default function GuidePage() {
               <div className="guide-cards">
                 {cards.map((card) => (
                   <article className="guide-card" key={card.id}>
-                    <div className="guide-card__top"><span className={`freshness freshness--${card.freshness}`}>{card.freshness}</span><button type="button" onClick={() => copyGuide(card)}>{copyFeedback?.id === card.id ? copyFeedback.message : "一键复制"}</button></div>
+                    <div className="guide-card__top"><span className={`freshness freshness--${card.freshness}`}>{freshnessCopy[card.freshness]}</span><button type="button" onClick={() => copyGuide(card)}>{copyFeedback?.id === card.id ? copyFeedback.message : "复制这条"}</button></div>
                     <h3>{card.title}</h3>
                     <p className="guide-card__summary">{card.summary}</p>
                     <ol>{card.steps.map((step) => <li key={step}>{step}</li>)}</ol>
-                    <dl><div><dt>大约需要</dt><dd>{card.time}</dd></div><div><dt>小提醒</dt><dd>{card.tip}</dd></div></dl>
+                    <dl><div><dt>大概多久</dt><dd>{card.time}</dd></div><div><dt>我想提醒你</dt><dd>{card.tip}</dd></div></dl>
                     <footer className="guide-card__footer">
                       <a href={card.actionUrl} target="_blank" rel="noreferrer" onClick={() => recordRecent(card.id)}>{card.actionLabel} ↗</a>
-                      <a href={card.source.url} target="_blank" rel="noreferrer">官方来源 · {card.source.label} ↗</a>
-                      {card.crossChecks?.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.kind === "经验旁证" ? "经验旁证" : "交叉核验"} · {source.label} ↗</a>)}
+                      <a href={card.source.url} target="_blank" rel="noreferrer">我帮你留的官方链接 · {card.source.label} ↗</a>
+                      {card.crossChecks?.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.kind === "经验旁证" ? "顺手看过的经验" : "我再核了一遍"} · {source.label} ↗</a>)}
                     </footer>
                     {card.quickActions && <div className="guide-card__quick-actions">{card.quickActions.map((action) => <a href={action.url} key={action.url}>{action.label}</a>)}</div>}
-                    <small className="guide-card__verified">最近核验 · {card.verifiedAt}</small>
+                    <small className="guide-card__verified">我上次核对 · {card.verifiedAt}</small>
                   </article>
                 ))}
               </div>
@@ -262,7 +268,7 @@ export default function GuidePage() {
         })}
       </section>
 
-      <footer className="molwan-footer guide-footer"><span>资料会更新，真正走过的路会留下来。</span><a href="/anniversaries">去看看纪念日 →</a></footer>
+      <footer className="molwan-footer guide-footer"><span>路会越走越熟，你也会越来越像在这里生活。</span><a href="/anniversaries">去看看我们记下的日子 →</a></footer>
     </main>
   );
 }

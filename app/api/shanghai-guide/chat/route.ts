@@ -6,13 +6,13 @@ const requestBuckets = new Map<string, number[]>();
 const REQUEST_WINDOW_MS = 10 * 60 * 1000;
 const REQUEST_LIMIT = 12;
 
-const helperInstructions = `你是“魔丸小助手”，只服务思怡在同济四平路校区和上海的日常生活。
+const helperInstructions = `你是“魔丸小助手”，只服务思怡在同济四平路校区和上海的日常生活。你的口吻是她男朋友给她留话：自然、温柔、简短，像“你先别急”“我先帮你看了一下”“要是临时有变就这样做”，不要像客服、说明书或 AI。
 回答必须使用中文，并固定成五段：先做什么、推荐方案、备选方案、注意事项、来源状态。
 每一次提问都必须先使用一次网页搜索核验；即使问题看似稳定，也要优先确认最新官方规则、运营状态或页面发布日期。只搜索一次，得到可靠结果后立刻回答，不要反复搜索。
 涉及人身安全、医疗、火情或违法风险时，优先建议联系现场工作人员或紧急电话。
 不要编造精确班次、价格、营业时间、校内规则或来源链接。若网页搜索没有提供可靠链接，在“来源状态”中明确说明“动态检索未返回可核验出处”。
 不要索取、复述或存储身份证号、银行卡号、宿舍号、实时位置等敏感信息。
-不要描述你的搜索过程、工具调用或内部推理。每段简洁明白，优先给最重要的 2–3 步。若给出任何动态的具体事实，末尾必须逐行附上 1–3 条完整的 https:// 来源链接；没有链接就不要给出该事实。`;
+不要描述你的搜索过程、工具调用或内部推理。每段简洁明白，优先给最重要的 2–3 步。可以用“你”“我”，但不要滥用昵称、煽情、承诺自己就在现场，或把未查到的事说得笃定。若给出任何动态的具体事实，末尾必须逐行附上 1–3 条完整的 https:// 来源链接；没有链接就不要给出该事实。`;
 
 function clientAddress(request: Request) {
   const realAddress = request.headers.get("x-real-ip");
@@ -121,7 +121,7 @@ export async function POST(request: Request) {
   if (!apiKey) {
     return Response.json({
       ...localAnswer,
-      sourceStatus: "魔丸暂时离线，已先从攻略资料库里找到了可用答案",
+      sourceStatus: "这次没接上最新信息，我先把提前替你核过的攻略放在这里",
       mode: "fallback",
     });
   }
@@ -167,14 +167,14 @@ export async function POST(request: Request) {
       if (!citations.length) {
         return Response.json({
           ...localAnswer,
-          sourceStatus: "本次联网核验未返回可验证来源，未展示未经证实的动态结论",
+          sourceStatus: "这次没查到能让你放心照着走的来源，所以没有拿猜测糊弄你",
           mode: "fallback",
         });
       }
       return Response.json({
         answer: removeSourceUrls(answer),
         sources: citations,
-        sourceStatus: "本次联网核验已返回可验证来源；动态信息请以原始页面为准",
+        sourceStatus: "我这次查到了可以自己打开确认的来源；临时变化还是以原页面为准",
         cards: findGuideCards(message).slice(0, 3),
         checkedAt: checkedAt(),
         mode: "live",
@@ -187,8 +187,8 @@ export async function POST(request: Request) {
     return Response.json({
       ...localAnswer,
       sourceStatus: timedOut
-        ? "实时查询超过 12 秒，已回退到已核验攻略"
-        : "魔丸暂时没有接上实时信息，已回退到攻略资料库",
+        ? "我查得有点久了，先把之前替你核过的攻略放在这里"
+        : "这次没接上最新信息，我先把提前替你核过的攻略放在这里",
       mode: "fallback",
     });
   }
