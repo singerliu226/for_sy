@@ -8,7 +8,7 @@ const REQUEST_LIMIT = 12;
 
 const helperInstructions = `你是“魔丸小助手”，只服务思怡在同济四平路校区和上海的日常生活。
 回答必须使用中文，并固定成五段：先做什么、推荐方案、备选方案、注意事项、来源状态。
-只在需要当日信息、附近门店、天气、末班车、航班或营业状态时使用网页搜索。
+每一次提问都必须先使用网页搜索核验；即使问题看似稳定，也要优先确认最新官方规则、运营状态或页面发布日期。
 涉及人身安全、医疗、火情或违法风险时，优先建议联系现场工作人员或紧急电话。
 不要编造精确班次、价格、营业时间、校内规则或来源链接。若网页搜索没有提供可靠链接，在“来源状态”中明确说明“动态检索未返回可核验出处”。
 不要索取、复述或存储身份证号、银行卡号、宿舍号、实时位置等敏感信息。
@@ -44,10 +44,6 @@ function parseHistory(value: unknown): HistoryItem[] {
     .slice(-6);
 }
 
-function needsLiveSearch(message: string) {
-  return /今天|今晚|明天|附近|营业|末班|航班|天气|临时|堵车|实时|现在|几点/.test(message);
-}
-
 function extractText(response: unknown) {
   if (!response || typeof response !== "object") return "";
   const record = response as { output_text?: unknown; output?: unknown };
@@ -68,6 +64,24 @@ function extractText(response: unknown) {
       });
     })
     .join("\n")
+    .trim();
+}
+
+function checkedAt() {
+  return new Intl.DateTimeFormat("zh-CN", {
+    timeZone: "Asia/Shanghai",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date()).replace(/\//g, "-");
+}
+
+function removeSourceUrls(answer: string) {
+  return answer
+    .replace(/https?:\/\/[^\s)\]}>，。；、]+/g, "")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
 
@@ -102,9 +116,6 @@ export async function POST(request: Request) {
 
   const history = parseHistory(body.history);
   const localAnswer = makeStaticAssistantAnswer(message);
-  if (!needsLiveSearch(message)) {
-    return Response.json({ ...localAnswer, mode: "library" });
-  }
 
   const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {
@@ -157,15 +168,16 @@ export async function POST(request: Request) {
       if (!citations.length) {
         return Response.json({
           ...localAnswer,
-          sourceStatus: "实时检索未返回可核验来源，未展示未经证实的动态结论",
+          sourceStatus: "本次联网核验未返回可验证来源，未展示未经证实的动态结论",
           mode: "fallback",
         });
       }
       return Response.json({
-        answer,
+        answer: removeSourceUrls(answer),
         sources: citations,
-        sourceStatus: "已展示本次回答中可校验的外部链接；动态信息请以原始页面为准",
+        sourceStatus: "本次联网核验已返回可验证来源；动态信息请以原始页面为准",
         cards: findGuideCards(message).slice(0, 3),
+        checkedAt: checkedAt(),
         mode: "live",
       });
     } finally {

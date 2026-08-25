@@ -17,17 +17,26 @@ export default function Home() {
       </section>
 
       <section className="molwan-home__doors" aria-label="选择一个入口">
-        <a className="molwan-door molwan-door--guide" href="/guide">
+        <a className="molwan-door molwan-door--assistant" href="/assistant">
           <span className="molwan-door__number">01</span>
           <div>
-            <p>今天想先解决一件事</p>
-            <h2>日常攻略</h2>
+            <p>现在就想解决一件事</p>
+            <h2>小助手</h2>
+            <strong>每次提问，联网核验最新信息 <i>→</i></strong>
+          </div>
+          <span className="molwan-door__map" aria-hidden="true"><i /><i /><i /></span>
+        </a>
+        <a className="molwan-door molwan-door--guide" href="/guide">
+          <span className="molwan-door__number">02</span>
+          <div>
+            <p>提前把日常理清楚</p>
+            <h2>魔都攻略</h2>
             <strong>落地、同济、上海生活与救急 <i>→</i></strong>
           </div>
           <span className="molwan-door__map" aria-hidden="true"><i /><i /><i /></span>
         </a>
         <a className="molwan-door molwan-door--anniversary" href="/anniversaries">
-          <span className="molwan-door__number">02</span>
+          <span className="molwan-door__number">03</span>
           <div>
             <p>把值得记得的日子收好</p>
             <h2>纪念日</h2>
@@ -39,7 +48,7 @@ export default function Home() {
 
       <footer className="molwan-footer">
         <span>不急，魔丸在这里。</span>
-        <a href="/guide">先去看看今天的地图 →</a>
+        <a href="/assistant">先问问魔丸 →</a>
       </footer>
     </main>
   );
