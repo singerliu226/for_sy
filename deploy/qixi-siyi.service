@@ -1,5 +1,5 @@
 [Unit]
-Description=Qixi letter website for SiyI
+Description=Magic helper website for SiyI
 After=network.target
 
 [Service]
@@ -10,6 +10,7 @@ WorkingDirectory=/home/admin/for-siyi
 Environment=NODE_ENV=production
 Environment=HOST=127.0.0.1
 Environment=PORT=3000
+EnvironmentFile=-/etc/qixi-siyi.env
 ExecStart=/usr/bin/node /home/admin/for-siyi/server.js
 Restart=always
 RestartSec=5

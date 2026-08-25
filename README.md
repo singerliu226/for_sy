@@ -1,6 +1,13 @@
-# 今夜，银河为思怡降临
+# 魔丸小助手
 
-一张手机优先的七夕互动星图。照片放在 `public/photos/`，文字与照片顺序在 `app/page.tsx` 的 `memories` 中维护。
+给思怡的上海生活地图，以及慢慢收好的纪念日。
+
+- `/`：魔丸小助手首页
+- `/guide`：日常攻略与“魔丸小助手”搜索
+- `/anniversaries`：纪念日归档
+- `/anniversaries/qixi`：完整保留的七夕互动星图
+
+攻略资料维护在 `data/guide.ts`。思怡的收藏、完成状态、备注与有限轮次对话仅保存在浏览器本机。
 
 ## 本地预览
 
@@ -8,15 +15,20 @@
 npm run dev
 ```
 
-## 部署到自己的服务器
+## 魔丸小助手的联网能力
 
-服务器安装 Docker Compose 后，在项目目录运行：
+不配置 key 时，助手会始终从本地攻略资料库回答。若要启用 DeepSeek 的实时网页检索，在服务器创建仅 root 可读的 `/etc/qixi-siyi.env`：
 
-```bash
-docker compose up -d --build
+```ini
+DEEPSEEK_API_KEY=你的真实密钥
+SITE_URL=http://47.103.122.202:3001
 ```
 
-网站会仅监听服务器本机的 `127.0.0.1:3000`，建议由现有 Nginx 或 Caddy 反向代理并签发 HTTPS 证书。Nginx 示例：
+然后重启 `qixi-siyi` 服务。密钥不得写入仓库、前端代码或浏览器。
+
+## 自有服务器部署
+
+网站仅监听服务器本机的 `127.0.0.1:3000`，由现有 Nginx 反向代理。示例：
 
 ```nginx
 server {
@@ -33,4 +45,4 @@ server {
 }
 ```
 
-将 `qixi.example.com` 换成你的域名，再通过 Certbot 或既有的 Caddy 配置启用 HTTPS。若你把服务器 SSH 信息和域名告诉我，我可以继续完成上线。
+将 `qixi.example.com` 换成你的域名，再通过 Certbot 或既有的 Caddy 配置启用 HTTPS。当前数字网址可使用，但含实时助手时建议后续迁移到 HTTPS 子域名。
