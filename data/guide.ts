@@ -398,42 +398,148 @@ export const essentialMiniPrograms: EssentialMiniProgram[] = [
   },
 ];
 
+export type GuideIntent =
+  | "airport-hongqiao-transit"
+  | "airport-pudong-transit"
+  | "airport-hongqiao-taxi"
+  | "airport-pudong-taxi"
+  | "nearby-food"
+  | "nearby-supplies"
+  | "parcel"
+  | "freshman-reporting"
+  | "city-transit"
+  | "city-services"
+  | "city-route"
+  | "emergency"
+  | "unknown";
+
+export type GuideIntentMatch = {
+  id: GuideIntent;
+  label: string;
+  cardIds: string[];
+};
+
+const intentDefinitions: Record<GuideIntent, Omit<GuideIntentMatch, "id">> = {
+  "airport-hongqiao-transit": { label: "虹桥机场到同济的公共交通", cardIds: ["hongqiao-to-tongji"] },
+  "airport-pudong-transit": { label: "浦东机场到同济的公共交通", cardIds: ["pudong-to-tongji"] },
+  "airport-hongqiao-taxi": { label: "虹桥机场打车", cardIds: ["hongqiao-taxi"] },
+  "airport-pudong-taxi": { label: "浦东机场打车", cardIds: ["pudong-taxi"] },
+  "nearby-food": { label: "同济附近吃什么", cardIds: [] },
+  "nearby-supplies": { label: "附近买药、日用品或打印", cardIds: ["nearby-supplies"] },
+  parcel: { label: "校园快递与寄件", cardIds: ["parcel-without-guesswork"] },
+  "freshman-reporting": { label: "新生报到与校园开通", cardIds: ["campus-setup"] },
+  "city-transit": { label: "上海地铁与公共交通", cardIds: ["metro-basics"] },
+  "city-services": { label: "上海政务与城市办事", cardIds: ["city-services"] },
+  "city-route": { label: "同济及上海市内出行", cardIds: ["choose-a-city-route", "tongji-anchor"] },
+  emergency: { label: "紧急求助", cardIds: [] },
+  unknown: { label: "未识别到可靠主题", cardIds: [] },
+};
+
+function includesAny(query: string, terms: readonly string[]) {
+  return terms.some((term) => query.includes(term));
+}
+
+/**
+ * Route a question by its intent before looking up guide cards. A place name on
+ * its own is never enough to select a route: “同济附近有什么吃的” must not
+ * fall through to “机场到同济”.
+ */
+export function recognizeGuideIntent(query: string): GuideIntentMatch {
+  const normalized = query.toLowerCase().replace(/\s+/g, "");
+  const hongqiao = includesAny(normalized, ["虹桥", "sha"]);
+  const pudong = includesAny(normalized, ["浦东", "pvg"]);
+  const taxi = includesAny(normalized, ["打车", "网约车", "出租车", "上车点", "停车楼", "p1", "p2", "p6", "p7"]);
+  const food = includesAny(normalized, ["吃", "饭", "餐", "外卖", "咖啡", "奶茶", "早餐", "午饭", "晚饭", "夜宵", "食堂"]);
+  const nearby = includesAny(normalized, ["附近", "周边", "旁边", "五角场", "四平路", "同济大学站", "同济"]);
+
+  if (food && nearby) return { id: "nearby-food", ...intentDefinitions["nearby-food"] };
+  if (hongqiao && taxi) return { id: "airport-hongqiao-taxi", ...intentDefinitions["airport-hongqiao-taxi"] };
+  if (pudong && taxi) return { id: "airport-pudong-taxi", ...intentDefinitions["airport-pudong-taxi"] };
+  if (hongqiao) return { id: "airport-hongqiao-transit", ...intentDefinitions["airport-hongqiao-transit"] };
+  if (pudong) return { id: "airport-pudong-transit", ...intentDefinitions["airport-pudong-transit"] };
+  if (includesAny(normalized, ["快递", "寄件", "取件", "驿站", "包裹", "菜鸟"])) return { id: "parcel", ...intentDefinitions.parcel };
+  if (includesAny(normalized, ["报到", "迎新", "新生", "入住", "宿舍", "进校", "校园卡", "校园网", "一网通办", "身份激活", "人脸", "邮箱"])) return { id: "freshman-reporting", ...intentDefinitions["freshman-reporting"] };
+  if (includesAny(normalized, ["药店", "买药", "日用品", "便利店", "超市", "打印", "缺东西"])) return { id: "nearby-supplies", ...intentDefinitions["nearby-supplies"] };
+  if (includesAny(normalized, ["医保", "社保", "居住证", "随申办", "市民云", "政务"])) return { id: "city-services", ...intentDefinitions["city-services"] };
+  if (includesAny(normalized, ["急诊", "报警", "火警", "丢失", "没电", "进不了校", "紧急", "不舒服", "生病"])) return { id: "emergency", ...intentDefinitions.emergency };
+  if (includesAny(normalized, ["地铁", "公交", "末班", "乘车码", "metro大都会", "随申行"])) return { id: "city-transit", ...intentDefinitions["city-transit"] };
+  if (includesAny(normalized, ["怎么走", "路线", "五角场", "骑车", "共享单车", "去哪里"])) return { id: "city-route", ...intentDefinitions["city-route"] };
+  return { id: "unknown", ...intentDefinitions.unknown };
+}
+
+function cardsForIntent(intent: GuideIntentMatch) {
+  return intent.cardIds
+    .map((id) => guideCards.find((card) => card.id === id))
+    .filter((card): card is GuideCard => Boolean(card));
+}
+
 export function findGuideCards(query: string) {
   const normalized = query.trim().toLowerCase();
   if (!normalized) return [];
 
+  const intentCards = cardsForIntent(recognizeGuideIntent(normalized));
+  if (intentCards.length) return intentCards;
+
+  // A fallback is only allowed for a specific, meaningful keyword. Broad words
+  // such as “同济” and “附近” are locations, not topics, so they cannot summon
+  // an unrelated airport card.
+  const broadTerms = new Set(["同济", "学校", "上海", "附近", "周边", "怎么", "哪里", "今天", "今晚", "现在", "有没有", "机场"]);
   return guideCards
     .map((card, index) => {
-    const haystack = [card.title, card.summary, card.tip, ...card.steps, ...card.keywords]
-      .join(" ")
-      .toLowerCase();
-    const keywordHits = card.keywords.filter((keyword) => normalized.includes(keyword.toLowerCase()));
-    const score =
-      (haystack.includes(normalized) ? 12 : 0)
-      + (normalized.includes(card.title.toLowerCase()) ? 8 : 0)
-      + keywordHits.reduce((total, keyword) => total + Math.min(keyword.length, 4), 0);
-    return { card, index, score };
-  })
-    .filter((item) => item.score > 0)
+      const keywordHits = card.keywords.filter((keyword) => !broadTerms.has(keyword) && normalized.includes(keyword.toLowerCase()));
+      const score = keywordHits.reduce((total, keyword) => total + Math.min(keyword.length, 4), 0);
+      return { card, index, score };
+    })
+    .filter((item) => item.score >= 2)
     .sort((a, b) => b.score - a.score || a.index - b.index)
     .map((item) => item.card);
 }
 
+function answerFromCard(card: GuideCard, intent: GuideIntentMatch) {
+  return {
+    answer: `先做什么：${card.summary}\n\n推荐方案：${card.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}\n\n备选方案：${card.backup}\n\n注意事项：${card.tip}\n\n来源状态：已识别为“${intent.label}”；${card.freshness === "请实时查询" ? "出发前查询当天页面" : card.freshness === "开学季核验" ? "开学前核验官方通知" : "已完成核验"}；核验日期 ${card.verifiedAt}。`,
+    sources: [card.source, ...(card.crossChecks ?? [])],
+    sourceStatus: `已按“${intent.label}”匹配攻略`,
+    cards: cardsForIntent(intent),
+  };
+}
+
+function foodAnswer() {
+  const mapSource: GuideSource = { label: "高德地图 · 实时地点查询", url: "https://ditu.amap.com/", kind: "官方规则" };
+  return {
+    answer: "先做什么：打开地图 App，搜索“同济大学站 + 想吃的类别”，先看距离、营业状态和步行路线。\n\n推荐方案：不知道吃什么时，直接搜“同济大学站 简餐”“同济大学站 面馆”或“同济大学站 咖啡”；从步行距离近、正在营业的结果里选。\n\n备选方案：太晚、下雨或不想出门时，在外卖 App 搜同济大学或所在校门，先确认配送地址和预计送达时间。\n\n注意事项：餐饮店营业、排队和配送范围变化很快，不维护固定店铺名单，也不要按旧推荐专门绕路。\n\n来源状态：这是“同济附近吃什么”的实时地点问题，请以地图显示的营业状态、距离和评价为准。",
+    sources: [mapSource],
+    sourceStatus: "已识别为附近餐饮；未用通勤攻略代答",
+    cards: [],
+  };
+}
+
+function emergencyAnswer() {
+  return {
+    answer: "先做什么：先到有工作人员、照明和人流的位置；涉及人身安全或急症，直接拨打 110、120 或 119。\n\n推荐方案：在校内优先联系保卫处、校医院或学院值班老师；在机场、地铁或商场直接找服务台。\n\n备选方案：手机没电时借服务台电话或使用现场充电点；行李、证件丢失时先保留订单、位置和时间。\n\n注意事项：不要把身份证号、银行卡号、宿舍号或验证码发给陌生人。\n\n来源状态：紧急情况优先现场处置，不等待在线回答。",
+    sources: [],
+    sourceStatus: "已识别为紧急求助",
+    cards: [],
+  };
+}
+
 export function makeStaticAssistantAnswer(query: string) {
-  const matched = findGuideCards(query);
-  const card = matched[0];
-  if (!card) {
+  const intent = recognizeGuideIntent(query);
+  if (intent.id === "nearby-food") return foodAnswer();
+  if (intent.id === "emergency") return emergencyAnswer();
+
+  const cards = cardsForIntent(intent);
+  if (cards[0]) return answerFromCard(cards[0], intent);
+
+  const fallbackCards = findGuideCards(query);
+  const fallbackCard = fallbackCards[0];
+  if (!fallbackCard) {
     return {
-      answer: "先做什么：这件事暂未收录为可执行攻略，先不要按猜测行动。\n\n推荐方案：打开地图或对应官方入口，确认地点、营业状态或当天通知。\n\n备选方案：在机场、地铁或学校，直接询问服务台、安保或值班老师。\n\n注意事项：证件号码、银行卡、宿舍号和实时位置不要写在这里；紧急情况直接拨打 110、120 或 119。\n\n来源状态：暂未收录，先以官方页面和现场消息为准。",
+      answer: "先做什么：这件事暂未收录为可执行攻略，先不要按猜测行动。\n\n推荐方案：打开地图或对应官方入口，确认地点、营业状态或当天通知。\n\n备选方案：在机场、地铁或学校，直接询问服务台、安保或值班老师。\n\n注意事项：证件号码、银行卡、宿舍号和实时位置不要写在这里；紧急情况直接拨打 110、120 或 119。\n\n来源状态：暂未识别到可靠主题，不会用其他攻略代答。",
       sources: [],
-      sourceStatus: "暂未收录可验证攻略",
+      sourceStatus: "暂未识别到可靠主题",
       cards: [],
     };
   }
-  return {
-    answer: `先做什么：${card.summary}\n\n推荐方案：${card.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}\n\n备选方案：${card.backup}\n\n注意事项：${card.tip}\n\n来源状态：${card.freshness === "请实时查询" ? "出发前查询当天页面" : card.freshness === "开学季核验" ? "开学前核验官方通知" : "已完成核验"}；核验日期 ${card.verifiedAt}。`,
-    sources: [card.source, ...(card.crossChecks ?? [])],
-    sourceStatus: card.crossChecks?.length ? "已收录攻略 · 含交叉核验" : "已收录攻略",
-    cards: matched.slice(0, 3),
-  };
+  return answerFromCard(fallbackCard, { id: "unknown", label: "精确关键词", cardIds: [fallbackCard.id] });
 }

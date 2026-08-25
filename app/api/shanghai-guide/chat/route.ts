@@ -1,4 +1,4 @@
-import { GuideSource, findGuideCards, makeStaticAssistantAnswer } from "@/data/guide";
+import { GuideSource, findGuideCards, makeStaticAssistantAnswer, recognizeGuideIntent } from "@/data/guide";
 
 type HistoryItem = { role: "user" | "assistant"; text: string };
 
@@ -8,7 +8,7 @@ const REQUEST_LIMIT = 12;
 
 const helperInstructions = `你是“魔丸小助手”，只服务思怡在同济四平路校区和上海的日常生活。口吻自然、温柔、简短，优先给可执行步骤，不像客服、说明书或 AI。避免反复描述“我查了”“我替你整理了”等过程性自述。
 回答必须使用中文，并固定成五段：先做什么、推荐方案、备选方案、注意事项、来源状态。
-每一次提问都必须先使用一次网页搜索核验；即使问题看似稳定，也要优先确认最新官方规则、运营状态或页面发布日期。只搜索一次，得到可靠结果后立刻回答，不要反复搜索。
+每一次提问都必须先判断用户在问什么主题；地点词本身不是主题，绝不能因为用户提到“同济”就回答机场通勤。最新一条用户问题优先，不要沿用对话历史中的旧主题。动态问题可使用一次网页搜索核验；得到可靠结果后立刻回答，不要反复搜索。
 涉及人身安全、医疗、火情或违法风险时，优先建议联系现场工作人员或紧急电话。
 不要编造精确班次、价格、营业时间、校内规则或来源链接。若网页搜索没有提供可靠链接，在“来源状态”中明确说明“动态检索未返回可核验出处”。
 不要索取、复述或存储身份证号、银行卡号、宿舍号、实时位置等敏感信息。
@@ -115,13 +115,21 @@ export async function POST(request: Request) {
   if (!message) return Response.json({ error: "先写下一句想问魔丸的话吧。" }, { status: 400 });
 
   const history = parseHistory(body.history);
+  const intent = recognizeGuideIntent(message);
   const localAnswer = makeStaticAssistantAnswer(message);
+
+  // These two topics are deliberately answered from a safe, real-time entry
+  // point instead of asking a model to invent a restaurant list or delay an
+  // urgent action. They also make the intent boundary visible to the user.
+  if (intent.id === "nearby-food" || intent.id === "emergency") {
+    return Response.json({ ...localAnswer, mode: "intent" });
+  }
 
   const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {
     return Response.json({
       ...localAnswer,
-      sourceStatus: "暂时无法获取最新信息，以下为已收录攻略",
+      sourceStatus: `暂时无法获取最新信息；${localAnswer.sourceStatus}`,
       mode: "fallback",
     });
   }
@@ -138,7 +146,7 @@ export async function POST(request: Request) {
         },
         body: JSON.stringify({
           model: "deepseek-v4-flash",
-          instructions: helperInstructions,
+          instructions: `${helperInstructions}\n\n本次用户问题已识别为「${intent.label}」。只回答这个主题；若搜索结果与此主题无关，宁可说明无法确认，也不能改答机场、通勤或其他主题。`,
           input: [
             ...history.map((item) => ({ role: item.role, content: item.text })),
             { role: "user", content: message },
@@ -187,8 +195,8 @@ export async function POST(request: Request) {
     return Response.json({
       ...localAnswer,
       sourceStatus: timedOut
-        ? "查询超时，以下为已收录攻略"
-        : "暂时无法获取最新信息，以下为已收录攻略",
+        ? `查询超时；${localAnswer.sourceStatus}`
+        : `暂时无法获取最新信息；${localAnswer.sourceStatus}`,
       mode: "fallback",
     });
   }
