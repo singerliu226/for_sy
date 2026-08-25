@@ -422,7 +422,8 @@ export default function GuidePage() {
                     <dl><div><dt>大约需要</dt><dd>{card.time}</dd></div><div><dt>小提醒</dt><dd>{card.tip}</dd></div></dl>
                     <footer className="guide-card__footer">
                       <a href={card.actionUrl} target="_blank" rel="noreferrer" onClick={() => recordRecent(card.id)}>{card.actionLabel} ↗</a>
-                      <a href={card.source.url} target="_blank" rel="noreferrer">来源 · {card.source.label} ↗</a>
+                      <a href={card.source.url} target="_blank" rel="noreferrer">官方来源 · {card.source.label} ↗</a>
+                      {card.crossChecks?.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.kind === "经验旁证" ? "经验旁证" : "交叉核验"} · {source.label} ↗</a>)}
                     </footer>
                     {card.quickActions && <div className="guide-card__quick-actions">{card.quickActions.map((action) => <a href={action.url} key={action.url}>{action.label}</a>)}</div>}
                     <small className="guide-card__verified">最近核验 · {card.verifiedAt}</small>
