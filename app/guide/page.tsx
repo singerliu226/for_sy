@@ -18,7 +18,7 @@ const freshnessCopy = {
 const guideViews = [
   { id: "arrival", index: "01", title: "落地通勤", description: "从机场到学校，先把这段路走稳。", sections: ["arrival"] },
   { id: "report", index: "02", title: "新生报到", description: "报到、进校、宿舍、校园卡和网络，只做眼前需要的。", sections: ["campus"] },
-  { id: "daily", index: "03", title: "生活必需", description: "常用入口，名字和用途留在这儿。", sections: ["nearby", "daily"] },
+  { id: "daily", index: "03", title: "必需APP", description: "只留上海和同济真正用得上的入口。", sections: ["nearby", "daily"] },
   { id: "emergency", index: "04", title: "紧急求助", description: "四平路校区常用号码。", sections: ["emergency"] },
 ] as const satisfies ReadonlyArray<{
   id: "arrival" | "report" | "daily" | "emergency";
@@ -158,7 +158,7 @@ export default function GuidePage() {
             <section className={`guide-section guide-section--${view.id}`} id={`guide-${view.id}`} key={view.id}>
               <header className="guide-section__header"><p>先解决眼前这件 · {view.index}</p><h2>{view.title}</h2><span>{view.description}</span></header>
               {isDaily ? (
-                <section className="app-list" aria-label="上海常用 App">
+                <section className="app-list" aria-label="必需APP">
                   {essentialApps.map((app) => (
                     <article className="app-list__item" key={app.id}>
                       <h3>{app.name}</h3>

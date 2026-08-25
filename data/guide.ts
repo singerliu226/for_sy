@@ -457,17 +457,22 @@ export const essentialApps: EssentialApp[] = [
   {
     id: "metro-daduhui",
     name: "Metro 大都会",
-    summary: "查上海地铁运营信息、使用地铁乘车码。",
+    summary: "上海地铁官方乘车码，也能查运营信息。",
+  },
+  {
+    id: "suishenxing",
+    name: "随申行",
+    summary: "把地铁、公交、轮渡和磁浮放在一个出行入口；可查实时到站与换乘。",
   },
   {
     id: "suishenban",
     name: "随申办",
-    summary: "办上海政务、查询官方城市服务。",
+    summary: "上海官方政务和城市服务入口。",
   },
   {
-    id: "tongji-official-entry",
-    name: "同济迎新网",
-    summary: "查报到、校园卡、校园网等学校官方安排。",
+    id: "dingdong",
+    name: "叮咚买菜",
+    summary: "适合刚安顿时补水果、牛奶和日常消耗品。",
   },
 ];
 
