@@ -23,12 +23,12 @@ const freshnessCopy = {
 } as const;
 
 const guideViews = [
-  { id: "arrival", index: "01", title: "刚到上海", description: "落地、进学校、报到这些事，先把最要紧的做完。", sections: ["arrival", "campus"] },
-  { id: "daily", index: "02", title: "把日常过好", description: "找路、买东西、坐地铁，先让生活顺起来。", sections: ["nearby", "daily"] },
-  { id: "emergency", index: "03", title: "现在有事", description: "别看长篇解释，先点最下面那个能帮到你的按钮。", sections: ["emergency"] },
-  { id: "saved", index: "04", title: "我的常用", description: "慢慢把你真正用得上的地方留在这里。", sections: ["saved"] },
+  { id: "arrival", index: "01", title: "落地通勤", description: "从机场到学校，先把这段路走稳。", sections: ["arrival"] },
+  { id: "report", index: "02", title: "新生报到", description: "报到、进校、宿舍、校园卡和网络，只做眼前需要的。", sections: ["campus"] },
+  { id: "daily", index: "03", title: "生活必需", description: "找路、买药、快递和日常出门，先让生活顺起来。", sections: ["nearby", "daily"] },
+  { id: "emergency", index: "04", title: "紧急求助", description: "真的着急时，先点电话，再看说明。", sections: ["emergency"] },
 ] as const satisfies ReadonlyArray<{
-  id: "arrival" | "daily" | "emergency" | "saved";
+  id: "arrival" | "report" | "daily" | "emergency";
   index: string;
   title: string;
   description: string;
@@ -38,10 +38,10 @@ const guideViews = [
 type GuideViewId = typeof guideViews[number]["id"];
 
 function viewForSection(section: GuideSectionId): GuideViewId {
-  if (section === "arrival" || section === "campus") return "arrival";
+  if (section === "arrival") return "arrival";
+  if (section === "campus") return "report";
   if (section === "nearby" || section === "daily") return "daily";
-  if (section === "emergency") return "emergency";
-  return "saved";
+  return "emergency";
 }
 
 function readList(key: string) {
@@ -204,7 +204,7 @@ export default function GuidePage() {
         <h1>我给你留的<br /><em>魔都攻略</em></h1>
         <p>不用把所有事都看完。你现在要解决哪件，就点哪一块。</p>
         <div className="guide-hero__choices" aria-label="快速进入攻略">
-          {guideViews.slice(0, 3).map((view) => <button type="button" key={view.id} onClick={() => chooseSection(view.id)}>{view.title} →</button>)}
+          {guideViews.map((view) => <button type="button" key={view.id} onClick={() => chooseSection(view.id)}>{view.title} →</button>)}
           <a href="/assistant">还不知道怎么办，就跟我说 →</a>
         </div>
       </section>
@@ -224,35 +224,6 @@ export default function GuidePage() {
 
       <section className="guide-content" aria-label="魔都攻略内容">
         {guideViews.map((view) => {
-          if (view.id === "saved") {
-            return (
-              <section className="guide-section guide-section--saved" id="guide-saved" key={view.id}>
-                <header className="guide-section__header"><p>留给自己 · {view.index}</p><h2>{view.title}</h2><span>{view.description}</span></header>
-                <div className="personal-desk">
-                  <article className="personal-desk__note">
-                    <p>给以后的自己留句话</p>
-                    <label className="sr-only" htmlFor="personal-note">给以后的自己留句话</label>
-                    <textarea id="personal-note" value={note} onChange={(event) => setNote(event.target.value)} maxLength={180} placeholder="比如：常用快递点在…… / 这条回宿舍的路晚上更亮。" />
-                    <small>悄悄留在这台设备里</small>
-                  </article>
-                  <article className="personal-desk__shortcut">
-                    <p>我的地点 / 小提醒</p>
-                    <form onSubmit={addShortcut}>
-                      <label className="sr-only" htmlFor="shortcut-title">地点或事项名称</label>
-                      <input id="shortcut-title" value={shortcutTitle} onChange={(event) => setShortcutTitle(event.target.value)} maxLength={36} placeholder="例如：常用快递点" />
-                      <label className="sr-only" htmlFor="shortcut-detail">地点或事项说明</label>
-                      <input id="shortcut-detail" value={shortcutDetail} onChange={(event) => setShortcutDetail(event.target.value)} maxLength={100} placeholder="地址、路线或一句提醒" />
-                      <button type="submit">保存提醒</button>
-                    </form>
-                    {shortcutFeedback && <small className="personal-desk__feedback" aria-live="polite">{shortcutFeedback}</small>}
-                    {shortcuts.length > 0 && <ul>{shortcuts.slice(0, 3).map((shortcut) => <li key={shortcut.id}><span><b>{shortcut.title}</b>{shortcut.detail}</span><button type="button" onClick={() => setShortcuts((current) => current.filter((item) => item.id !== shortcut.id))}>移除</button></li>)}</ul>}
-                  </article>
-                  <article className="personal-desk__recent"><p>你最近翻过</p>{recentCards.length ? <ul>{recentCards.slice(0, 3).map((card) => <li key={card.id}><button type="button" onClick={() => chooseSection(viewForSection(card.section))}>{card.title} →</button></li>)}</ul> : <span>你问过或点开过的，会留在这里。</span>}</article>
-                </div>
-              </section>
-            );
-          }
-
           const cards = guideCards.filter((card) => (view.sections as readonly GuideSectionId[]).includes(card.section));
           const isEmergency = view.id === "emergency";
           return (
@@ -309,6 +280,30 @@ export default function GuidePage() {
             </section>
           );
         })}
+        <section className="guide-section guide-section--saved" id="guide-saved">
+          <header className="guide-section__header"><p>留给自己 · 只放在这里</p><h2>我的小角落</h2><span>常用地点、提醒和最近翻过的攻略，都慢慢留在这里。</span></header>
+          <div className="personal-desk">
+            <article className="personal-desk__note">
+              <p>给以后的自己留句话</p>
+              <label className="sr-only" htmlFor="personal-note">给以后的自己留句话</label>
+              <textarea id="personal-note" value={note} onChange={(event) => setNote(event.target.value)} maxLength={180} placeholder="比如：常用快递点在…… / 这条回宿舍的路晚上更亮。" />
+              <small>悄悄留在这台设备里</small>
+            </article>
+            <article className="personal-desk__shortcut">
+              <p>我的地点 / 小提醒</p>
+              <form onSubmit={addShortcut}>
+                <label className="sr-only" htmlFor="shortcut-title">地点或事项名称</label>
+                <input id="shortcut-title" value={shortcutTitle} onChange={(event) => setShortcutTitle(event.target.value)} maxLength={36} placeholder="例如：常用快递点" />
+                <label className="sr-only" htmlFor="shortcut-detail">地点或事项说明</label>
+                <input id="shortcut-detail" value={shortcutDetail} onChange={(event) => setShortcutDetail(event.target.value)} maxLength={100} placeholder="地址、路线或一句提醒" />
+                <button type="submit">保存提醒</button>
+              </form>
+              {shortcutFeedback && <small className="personal-desk__feedback" aria-live="polite">{shortcutFeedback}</small>}
+              {shortcuts.length > 0 && <ul>{shortcuts.slice(0, 3).map((shortcut) => <li key={shortcut.id}><span><b>{shortcut.title}</b>{shortcut.detail}</span><button type="button" onClick={() => setShortcuts((current) => current.filter((item) => item.id !== shortcut.id))}>移除</button></li>)}</ul>}
+            </article>
+            <article className="personal-desk__recent"><p>你最近翻过</p>{recentCards.length ? <ul>{recentCards.slice(0, 3).map((card) => <li key={card.id}><button type="button" onClick={() => chooseSection(viewForSection(card.section))}>{card.title} →</button></li>)}</ul> : <span>你问过或点开过的，会留在这里。</span>}</article>
+          </div>
+        </section>
       </section>
 
       <footer className="molwan-footer guide-footer"><span>路会越走越熟，你也会越来越像在这里生活。</span><a href="/anniversaries">去看看我们记下的日子 →</a></footer>
