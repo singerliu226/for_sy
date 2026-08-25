@@ -6,7 +6,6 @@ import {
   GuideSectionId,
   essentialApps,
   guideCards,
-  guideSections,
 } from "@/data/guide";
 
 const storageKeys = {
@@ -22,6 +21,28 @@ const freshnessCopy = {
   "开学季核验": "开学前再看一眼",
   "请实时查询": "出发前再确认",
 } as const;
+
+const guideViews = [
+  { id: "arrival", index: "01", title: "刚到上海", description: "落地、进学校、报到这些事，先把最要紧的做完。", sections: ["arrival", "campus"] },
+  { id: "daily", index: "02", title: "把日常过好", description: "找路、买东西、坐地铁，先让生活顺起来。", sections: ["nearby", "daily"] },
+  { id: "emergency", index: "03", title: "现在有事", description: "别看长篇解释，先点最下面那个能帮到你的按钮。", sections: ["emergency"] },
+  { id: "saved", index: "04", title: "我的常用", description: "慢慢把你真正用得上的地方留在这里。", sections: ["saved"] },
+] as const satisfies ReadonlyArray<{
+  id: "arrival" | "daily" | "emergency" | "saved";
+  index: string;
+  title: string;
+  description: string;
+  sections: readonly GuideSectionId[];
+}>;
+
+type GuideViewId = typeof guideViews[number]["id"];
+
+function viewForSection(section: GuideSectionId): GuideViewId {
+  if (section === "arrival" || section === "campus") return "arrival";
+  if (section === "nearby" || section === "daily") return "daily";
+  if (section === "emergency") return "emergency";
+  return "saved";
+}
 
 function readList(key: string) {
   try {
@@ -79,7 +100,7 @@ async function copyText(text: string) {
 }
 
 export default function GuidePage() {
-  const [activeSection, setActiveSection] = useState<GuideSectionId>("arrival");
+  const [activeSection, setActiveSection] = useState<GuideViewId>("arrival");
   const [note, setNote] = useState("");
   const [shortcuts, setShortcuts] = useState<PersonalShortcut[]>([]);
   const [recent, setRecent] = useState<string[]>([]);
@@ -87,6 +108,7 @@ export default function GuidePage() {
   const [shortcutDetail, setShortcutDetail] = useState("");
   const [shortcutFeedback, setShortcutFeedback] = useState("");
   const [copyFeedback, setCopyFeedback] = useState<{ id: string; message: string } | null>(null);
+  const [expandedCards, setExpandedCards] = useState<string[]>([]);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -141,10 +163,10 @@ export default function GuidePage() {
   useEffect(() => {
     function updateActiveSection() {
       const marker = window.innerHeight * 0.4;
-      const closest = guideSections
+      const closest = guideViews
         .map((section) => ({ section, element: document.getElementById(`guide-${section.id}`) }))
-        .filter((item): item is { section: typeof guideSections[number]; element: HTMLElement } => Boolean(item.element))
-        .reduce<{ section: typeof guideSections[number]; distance: number } | null>((best, item) => {
+        .filter((item): item is { section: typeof guideViews[number]; element: HTMLElement } => Boolean(item.element))
+        .reduce<{ section: typeof guideViews[number]; distance: number } | null>((best, item) => {
           const distance = Math.abs(item.element.getBoundingClientRect().top - marker);
           return !best || distance < best.distance ? { section: item.section, distance } : best;
         }, null);
@@ -160,9 +182,13 @@ export default function GuidePage() {
     };
   }, []);
 
-  function chooseSection(section: GuideSectionId) {
+  function chooseSection(section: GuideViewId) {
     setActiveSection(section);
     window.setTimeout(() => document.getElementById(`guide-${section}`)?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+  }
+
+  function toggleCard(cardId: string) {
+    setExpandedCards((current) => current.includes(cardId) ? current.filter((id) => id !== cardId) : [...current, cardId]);
   }
 
   return (
@@ -176,12 +202,15 @@ export default function GuidePage() {
         <div className="guide-hero__train" aria-hidden="true"><i /><i /><i /><span /></div>
         <p className="molwan-kicker">SIYI&apos;S SHANGHAI GUIDE</p>
         <h1>我给你留的<br /><em>魔都攻略</em></h1>
-        <p>会反复遇到的事，我先替你记好了。真到了上海，你不用每次都临时一个人查。</p>
-        <a className="guide-hero__assistant-link" href="/assistant">今天卡在哪儿，就跟我说 ↗</a>
+        <p>不用把所有事都看完。你现在要解决哪件，就点哪一块。</p>
+        <div className="guide-hero__choices" aria-label="快速进入攻略">
+          {guideViews.slice(0, 3).map((view) => <button type="button" key={view.id} onClick={() => chooseSection(view.id)}>{view.title} →</button>)}
+          <a href="/assistant">还不知道怎么办，就跟我说 →</a>
+        </div>
       </section>
 
       <nav className="guide-float-nav" aria-label="攻略分区">
-        {guideSections.map((section) => (
+        {guideViews.map((section) => (
           <button
             className={activeSection === section.id ? "is-active" : ""}
             type="button"
@@ -194,11 +223,11 @@ export default function GuidePage() {
       </nav>
 
       <section className="guide-content" aria-label="魔都攻略内容">
-        {guideSections.map((section) => {
-          if (section.id === "saved") {
+        {guideViews.map((view) => {
+          if (view.id === "saved") {
             return (
-              <section className="guide-section guide-section--saved" id="guide-saved" key={section.id}>
-                <header className="guide-section__header"><p>{section.eyebrow} · {section.index}</p><h2>{section.title}</h2><span>{section.description}</span></header>
+              <section className="guide-section guide-section--saved" id="guide-saved" key={view.id}>
+                <header className="guide-section__header"><p>留给自己 · {view.index}</p><h2>{view.title}</h2><span>{view.description}</span></header>
                 <div className="personal-desk">
                   <article className="personal-desk__note">
                     <p>给以后的自己留句话</p>
@@ -218,48 +247,62 @@ export default function GuidePage() {
                     {shortcutFeedback && <small className="personal-desk__feedback" aria-live="polite">{shortcutFeedback}</small>}
                     {shortcuts.length > 0 && <ul>{shortcuts.slice(0, 3).map((shortcut) => <li key={shortcut.id}><span><b>{shortcut.title}</b>{shortcut.detail}</span><button type="button" onClick={() => setShortcuts((current) => current.filter((item) => item.id !== shortcut.id))}>移除</button></li>)}</ul>}
                   </article>
-                  <article className="personal-desk__recent"><p>你最近翻过</p>{recentCards.length ? <ul>{recentCards.slice(0, 3).map((card) => <li key={card.id}><button type="button" onClick={() => chooseSection(card.section)}>{card.title} →</button></li>)}</ul> : <span>你问过或点开过的，会留在这里。</span>}</article>
+                  <article className="personal-desk__recent"><p>你最近翻过</p>{recentCards.length ? <ul>{recentCards.slice(0, 3).map((card) => <li key={card.id}><button type="button" onClick={() => chooseSection(viewForSection(card.section))}>{card.title} →</button></li>)}</ul> : <span>你问过或点开过的，会留在这里。</span>}</article>
                 </div>
               </section>
             );
           }
 
-          const cards = guideCards.filter((card) => card.section === section.id);
+          const cards = guideCards.filter((card) => (view.sections as readonly GuideSectionId[]).includes(card.section));
+          const isEmergency = view.id === "emergency";
           return (
-            <section className="guide-section" id={`guide-${section.id}`} key={section.id}>
-              <header className="guide-section__header"><p>{section.eyebrow} · {section.index}</p><h2>{section.title}</h2><span>{section.description}</span></header>
-              {section.id === "daily" && (
+            <section className={`guide-section guide-section--${view.id}`} id={`guide-${view.id}`} key={view.id}>
+              <header className="guide-section__header"><p>先解决眼前这件 · {view.index}</p><h2>{view.title}</h2><span>{view.description}</span></header>
+              {isEmergency && <div className="emergency-intro"><strong>真的着急时，先点电话。</strong><span>别看细节，先让身边有人知道你在哪里、发生了什么。</span></div>}
+              {view.id === "daily" && (
                 <section className="app-kit" aria-labelledby="app-kit-title">
-                  <div className="app-kit__heading"><p>我想让你先装好的</p><h3 id="app-kit-title">落地上海，手机里先有这 5 个</h3><span>前四个按需要装就好；支付工具大多已经有了，确认能用就行。</span></div>
-                  <div className="app-kit__grid">
-                    {essentialApps.map((app) => (
-                      <article className="app-kit__card" key={app.id}>
-                        <span>{app.badge}</span><h4>{app.name}</h4><p>{app.summary}</p><dl><div><dt>什么时候用</dt><dd>{app.when}</dd></div><div><dt>小提醒</dt><dd>{app.tip}</dd></div></dl>
-                        <footer>
-                          <a href={app.actionUrl} target="_blank" rel="noreferrer">{app.actionLabel} ↗</a>
-                          <a href={app.source.url} target="_blank" rel="noreferrer">我查到的官方入口 ↗</a>
-                          {app.crossChecks?.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.kind === "经验旁证" ? "顺手看过的经验" : "我再核了一遍"} · {source.label} ↗</a>)}
-                        </footer><small>我上次核对 · {app.verifiedAt}</small>
-                      </article>
-                    ))}
-                  </div>
+                  <details className="app-kit__details">
+                    <summary><p>真用到再展开</p><h3 id="app-kit-title">上海刚来，先留这几个入口</h3><span>交通、地图、外卖、办事和支付。先看一眼，需要时再装。</span><b>展开 →</b></summary>
+                    <div className="app-kit__grid">
+                      {essentialApps.map((app) => (
+                        <article className="app-kit__card" key={app.id}>
+                          <span>{app.badge}</span><h4>{app.name}</h4><p>{app.summary}</p><dl><div><dt>什么时候用</dt><dd>{app.when}</dd></div><div><dt>小提醒</dt><dd>{app.tip}</dd></div></dl>
+                          <footer>
+                            <a href={app.actionUrl} target="_blank" rel="noreferrer">{app.actionLabel} ↗</a>
+                            <a href={app.source.url} target="_blank" rel="noreferrer">我查到的官方入口 ↗</a>
+                            {app.crossChecks?.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.kind === "经验旁证" ? "顺手看过的经验" : "我再核了一遍"} · {source.label} ↗</a>)}
+                          </footer><small>我上次核对 · {app.verifiedAt}</small>
+                        </article>
+                      ))}
+                    </div>
+                  </details>
                 </section>
               )}
-              <div className="guide-cards">
+              <div className={`guide-cards guide-cards--compact ${isEmergency ? "guide-cards--emergency" : ""}`}>
                 {cards.map((card) => (
-                  <article className="guide-card" key={card.id}>
-                    <div className="guide-card__top"><span className={`freshness freshness--${card.freshness}`}>{freshnessCopy[card.freshness]}</span><button type="button" onClick={() => copyGuide(card)}>{copyFeedback?.id === card.id ? copyFeedback.message : "复制这条"}</button></div>
+                  <article className={`guide-card guide-card--compact ${isEmergency ? "guide-card--emergency" : ""}`} key={card.id}>
+                    <div className="guide-card__top"><span className={`freshness freshness--${card.freshness}`}>{freshnessCopy[card.freshness]}</span></div>
                     <h3>{card.title}</h3>
                     <p className="guide-card__summary">{card.summary}</p>
-                    <ol>{card.steps.map((step) => <li key={step}>{step}</li>)}</ol>
-                    <dl><div><dt>大概多久</dt><dd>{card.time}</dd></div><div><dt>我想提醒你</dt><dd>{card.tip}</dd></div></dl>
-                    <footer className="guide-card__footer">
-                      <a href={card.actionUrl} target="_blank" rel="noreferrer" onClick={() => recordRecent(card.id)}>{card.actionLabel} ↗</a>
-                      <a href={card.source.url} target="_blank" rel="noreferrer">我帮你留的官方链接 · {card.source.label} ↗</a>
-                      {card.crossChecks?.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.kind === "经验旁证" ? "顺手看过的经验" : "我再核了一遍"} · {source.label} ↗</a>)}
-                    </footer>
-                    {card.quickActions && <div className="guide-card__quick-actions">{card.quickActions.map((action) => <a href={action.url} key={action.url}>{action.label}</a>)}</div>}
-                    <small className="guide-card__verified">我上次核对 · {card.verifiedAt}</small>
+                    {isEmergency && card.quickActions?.length ? (
+                      <div className="emergency-card__actions">{card.quickActions.map((action) => <a href={action.url} key={action.url}>{action.label}</a>)}</div>
+                    ) : (
+                      <a className="guide-card__go" href={card.actionUrl} target="_blank" rel="noreferrer" onClick={() => recordRecent(card.id)}>{isEmergency ? "现在就处理 ↗" : `${card.actionLabel} ↗`}</a>
+                    )}
+                    <button className="guide-card__details-toggle" type="button" onClick={() => toggleCard(card.id)}>{expandedCards.includes(card.id) ? "收起细节" : "需要再看细一点"}</button>
+                    {expandedCards.includes(card.id) && (
+                      <div className="guide-card__details">
+                        <ol>{card.steps.map((step) => <li key={step}>{step}</li>)}</ol>
+                        <dl><div><dt>大概多久</dt><dd>{card.time}</dd></div><div><dt>我想提醒你</dt><dd>{card.tip}</dd></div></dl>
+                        <p className="guide-card__backup"><b>要是临时有变：</b>{card.backup}</p>
+                        <footer className="guide-card__footer">
+                          <button type="button" onClick={() => copyGuide(card)}>{copyFeedback?.id === card.id ? copyFeedback.message : "复制这条"}</button>
+                          <a href={card.source.url} target="_blank" rel="noreferrer">我帮你留的官方链接 · {card.source.label} ↗</a>
+                          {card.crossChecks?.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.kind === "经验旁证" ? "顺手看过的经验" : "我再核了一遍"} · {source.label} ↗</a>)}
+                        </footer>
+                        <small className="guide-card__verified">我上次核对 · {card.verifiedAt}</small>
+                      </div>
+                    )}
                   </article>
                 ))}
               </div>
