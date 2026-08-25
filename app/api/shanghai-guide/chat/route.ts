@@ -8,11 +8,11 @@ const REQUEST_LIMIT = 12;
 
 const helperInstructions = `你是“魔丸小助手”，只服务思怡在同济四平路校区和上海的日常生活。
 回答必须使用中文，并固定成五段：先做什么、推荐方案、备选方案、注意事项、来源状态。
-每一次提问都必须先使用网页搜索核验；即使问题看似稳定，也要优先确认最新官方规则、运营状态或页面发布日期。
+每一次提问都必须先使用一次网页搜索核验；即使问题看似稳定，也要优先确认最新官方规则、运营状态或页面发布日期。只搜索一次，得到可靠结果后立刻回答，不要反复搜索。
 涉及人身安全、医疗、火情或违法风险时，优先建议联系现场工作人员或紧急电话。
 不要编造精确班次、价格、营业时间、校内规则或来源链接。若网页搜索没有提供可靠链接，在“来源状态”中明确说明“动态检索未返回可核验出处”。
 不要索取、复述或存储身份证号、银行卡号、宿舍号、实时位置等敏感信息。
-不要描述你的搜索过程、工具调用或内部推理。若给出任何动态的具体事实，末尾必须逐行附上 1–3 条完整的 https:// 来源链接；没有链接就不要给出该事实。`;
+不要描述你的搜索过程、工具调用或内部推理。每段简洁明白，优先给最重要的 2–3 步。若给出任何动态的具体事实，末尾必须逐行附上 1–3 条完整的 https:// 来源链接；没有链接就不要给出该事实。`;
 
 function clientAddress(request: Request) {
   const realAddress = request.headers.get("x-real-ip");
@@ -144,10 +144,9 @@ export async function POST(request: Request) {
             { role: "user", content: message },
           ],
           tools: [{ type: "web_search" }],
-          tool_choice: { type: "web_search" },
-          // Flash spends part of this budget on server-side search reasoning. Leave
-          // enough room for a short, complete answer after the search finishes.
-          max_output_tokens: 2200,
+          tool_choice: "auto",
+          reasoning: { effort: "low" },
+          max_output_tokens: 650,
           stream: false,
         }),
         signal: controller.signal,
@@ -156,7 +155,7 @@ export async function POST(request: Request) {
         timeout = setTimeout(() => {
           controller.abort();
           reject(new Error("live_search_timeout"));
-        }, 18_000);
+        }, 12_000);
       });
       const upstream = await Promise.race([liveRequest, deadline]);
 
@@ -188,7 +187,7 @@ export async function POST(request: Request) {
     return Response.json({
       ...localAnswer,
       sourceStatus: timedOut
-        ? "实时查询超过 18 秒，已回退到已核验攻略"
+        ? "实时查询超过 12 秒，已回退到已核验攻略"
         : "魔丸暂时没有接上实时信息，已回退到攻略资料库",
       mode: "fallback",
     });
