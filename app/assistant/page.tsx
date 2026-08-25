@@ -17,7 +17,7 @@ export default function AssistantPage() {
       <section className="assistant-hero">
         <p className="molwan-kicker">SHANGHAI QUICK CHECK</p>
         <h1>魔王派给你的<br /><em>AI小助手</em></h1>
-        <p>优先给出可确认的信息和可打开的来源；没有可靠结果时，转向官方入口或已有攻略。</p>
+        <p>它读了一些迎新网的内容，能回答一些基本问题，其他问题，记得直接找魔王！</p>
       </section>
 
       <MagicAssistant />

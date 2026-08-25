@@ -147,7 +147,6 @@ export function MagicAssistant() {
         <div><p>SHANGHAI QUICK CHECK</p><h2 id="magic-title">输入你现在要解决的事</h2></div>
         <span className="magic-console__status"><i />可查询最新信息</span>
       </div>
-      <p className="magic-console__intro">临时路线、当日营业、末班、天气和机场抵达，优先返回可打开确认的来源。</p>
       <form onSubmit={submitQuestion} className="magic-console__form">
         <label className="sr-only" htmlFor="magic-question">输入问题</label>
         <input id="magic-question" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="比如：今晚同济附近还有药店开着吗？" autoComplete="off" />
@@ -156,7 +155,6 @@ export function MagicAssistant() {
       <div className="magic-console__prompts">
         {quickPrompts.map((prompt) => <button type="button" onClick={() => void askAssistant(prompt)} key={prompt}>{prompt}</button>)}
       </div>
-      <p className="magic-console__privacy">住址、证件、银行卡和实时位置不要写在这里；动态信息以打开后的原页面为准。</p>
       {query.trim() && searchResults.length > 0 && (
         <div className="magic-console__matches" aria-live="polite">
           <span>相关攻略</span>
@@ -165,7 +163,7 @@ export function MagicAssistant() {
       )}
       {messages.length > 0 && (
         <div className="magic-console__conversation" aria-live="polite">
-          <div className="magic-console__conversation-head"><span>最近查询仅保存在这台设备</span><button type="button" onClick={() => setMessages([])}>清除记录</button></div>
+          <div className="magic-console__conversation-head"><button type="button" onClick={() => setMessages([])}>清除记录</button></div>
           {messages.slice(-4).map((message, index) => (
             <article className={`magic-message magic-message--${message.role}`} key={`${message.role}-${index}-${message.text.slice(0, 18)}`}>
               <p>{message.role === "user" ? "你的问题" : "查询结果"}</p>
