@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import {
+  campusContacts,
   GuideCard,
   GuideSectionId,
   essentialApps,
@@ -26,7 +27,7 @@ const guideViews = [
   { id: "arrival", index: "01", title: "落地通勤", description: "从机场到学校，先把这段路走稳。", sections: ["arrival"] },
   { id: "report", index: "02", title: "新生报到", description: "报到、进校、宿舍、校园卡和网络，只做眼前需要的。", sections: ["campus"] },
   { id: "daily", index: "03", title: "生活必需", description: "找路、买药、快递和日常出门，先让生活顺起来。", sections: ["nearby", "daily"] },
-  { id: "emergency", index: "04", title: "紧急求助", description: "真的着急时，先点电话，再看说明。", sections: ["emergency"] },
+  { id: "emergency", index: "04", title: "紧急求助", description: "四平路校区常用号码。", sections: ["emergency"] },
 ] as const satisfies ReadonlyArray<{
   id: "arrival" | "report" | "daily" | "emergency";
   index: string;
@@ -160,6 +161,15 @@ export default function GuidePage() {
       .catch(() => setCopyFeedback({ id: card.id, message: "没复制上，长按这条也可以" }));
   }
 
+  function copyContact(contactId: string, phone: string) {
+    void copyText(phone)
+      .then(() => {
+        setCopyFeedback({ id: contactId, message: "已复制" });
+        window.setTimeout(() => setCopyFeedback((current) => current?.id === contactId ? null : current), 2200);
+      })
+      .catch(() => setCopyFeedback({ id: contactId, message: "再试一次" }));
+  }
+
   useEffect(() => {
     function updateActiveSection() {
       const marker = window.innerHeight * 0.4;
@@ -229,7 +239,6 @@ export default function GuidePage() {
           return (
             <section className={`guide-section guide-section--${view.id}`} id={`guide-${view.id}`} key={view.id}>
               <header className="guide-section__header"><p>先解决眼前这件 · {view.index}</p><h2>{view.title}</h2><span>{view.description}</span></header>
-              {isEmergency && <div className="emergency-intro"><strong>真的着急时，先点电话。</strong><span>别看细节，先让身边有人知道你在哪里、发生了什么。</span></div>}
               {view.id === "daily" && (
                 <section className="app-kit" aria-labelledby="app-kit-title">
                   <details className="app-kit__details">
@@ -249,34 +258,55 @@ export default function GuidePage() {
                   </details>
                 </section>
               )}
-              <div className={`guide-cards guide-cards--compact ${isEmergency ? "guide-cards--emergency" : ""}`}>
-                {cards.map((card) => (
-                  <article className={`guide-card guide-card--compact ${isEmergency ? "guide-card--emergency" : ""}`} key={card.id}>
-                    <div className="guide-card__top"><span className={`freshness freshness--${card.freshness}`}>{freshnessCopy[card.freshness]}</span></div>
-                    <h3>{card.title}</h3>
-                    <p className="guide-card__summary">{card.summary}</p>
-                    {isEmergency && card.quickActions?.length ? (
-                      <div className="emergency-card__actions">{card.quickActions.map((action) => <a href={action.url} key={action.url}>{action.label}</a>)}</div>
-                    ) : (
-                      <a className="guide-card__go" href={card.actionUrl} target="_blank" rel="noreferrer" onClick={() => recordRecent(card.id)}>{isEmergency ? "现在就处理 ↗" : `${card.actionLabel} ↗`}</a>
-                    )}
-                    <button className="guide-card__details-toggle" type="button" onClick={() => toggleCard(card.id)}>{expandedCards.includes(card.id) ? "收起细节" : "需要再看细一点"}</button>
-                    {expandedCards.includes(card.id) && (
-                      <div className="guide-card__details">
-                        <ol>{card.steps.map((step) => <li key={step}>{step}</li>)}</ol>
-                        <dl><div><dt>大概多久</dt><dd>{card.time}</dd></div><div><dt>我想提醒你</dt><dd>{card.tip}</dd></div></dl>
-                        <p className="guide-card__backup"><b>要是临时有变：</b>{card.backup}</p>
-                        <footer className="guide-card__footer">
-                          <button type="button" onClick={() => copyGuide(card)}>{copyFeedback?.id === card.id ? copyFeedback.message : "复制这条"}</button>
-                          <a href={card.source.url} target="_blank" rel="noreferrer">我帮你留的官方链接 · {card.source.label} ↗</a>
-                          {card.crossChecks?.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.kind === "经验旁证" ? "顺手看过的经验" : "我再核了一遍"} · {source.label} ↗</a>)}
-                        </footer>
-                        <small className="guide-card__verified">我上次核对 · {card.verifiedAt}</small>
-                      </div>
-                    )}
-                  </article>
-                ))}
-              </div>
+              {isEmergency ? (
+                <div className="campus-contact-list" aria-label="四平路校区常用号码">
+                  {campusContacts.map((contact) => (
+                    <article className="campus-contact" key={contact.id}>
+                      <span>{contact.name}</span>
+                      <a href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`}>{contact.phone}</a>
+                      <button type="button" onClick={() => copyContact(contact.id, contact.phone)} aria-label={`复制${contact.name}号码`}>
+                        {copyFeedback?.id === contact.id ? copyFeedback.message : "复制"}
+                      </button>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="guide-cards guide-cards--compact">
+                  {cards.map((card) => (
+                    <article className="guide-card guide-card--compact" key={card.id}>
+                      <div className="guide-card__top"><span className={`freshness freshness--${card.freshness}`}>{freshnessCopy[card.freshness]}</span></div>
+                      <h3>{card.title}</h3>
+                      <p className="guide-card__summary">{card.summary}</p>
+                      <a className="guide-card__go" href={card.actionUrl} target="_blank" rel="noreferrer" onClick={() => recordRecent(card.id)}>{card.actionLabel} ↗</a>
+                      <button className="guide-card__details-toggle" type="button" onClick={() => toggleCard(card.id)}>{expandedCards.includes(card.id) ? "收起细节" : "需要再看细一点"}</button>
+                      {expandedCards.includes(card.id) && (
+                        <div className="guide-card__details">
+                          <section className="guide-card__route" aria-label="照着走">
+                            <p className="guide-card__detail-label">照着走</p>
+                            <ol>{card.steps.map((step) => <li key={step}>{step}</li>)}</ol>
+                          </section>
+                          <div className="guide-card__note-grid">
+                            <section><p className="guide-card__detail-label">时间判断</p><p>{card.time}</p></section>
+                            <section><p className="guide-card__detail-label">注意</p><p>{card.tip}</p></section>
+                          </div>
+                          <aside className="guide-card__backup"><p>临时有变</p><span>{card.backup}</span></aside>
+                          <div className="guide-card__detail-actions">
+                            <button type="button" onClick={() => copyGuide(card)}>{copyFeedback?.id === card.id ? copyFeedback.message : "复制路线"}</button>
+                          </div>
+                          <details className="guide-card__sources">
+                            <summary>查看来源与核验日期</summary>
+                            <div>
+                              <a href={card.source.url} target="_blank" rel="noreferrer"><span>官方来源</span>{card.source.label} ↗</a>
+                              {card.crossChecks?.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}><span>{source.kind === "经验旁证" ? "实测核验" : "交叉核验"}</span>{source.label} ↗</a>)}
+                              <small>核验日期 · {card.verifiedAt}</small>
+                            </div>
+                          </details>
+                        </div>
+                      )}
+                    </article>
+                  ))}
+                </div>
+              )}
             </section>
           );
         })}
