@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 const anniversaries = [
   {
     slug: "qixi",
@@ -14,8 +12,8 @@ export default function AnniversariesPage() {
   return (
     <main className="molwan-site anniversary-site">
       <header className="molwan-nav">
-        <Link href="/" className="molwan-brand"><span className="molwan-brand__mark">丸</span><span>魔丸小助手</span></Link>
-        <Link className="molwan-nav__back" href="/guide">日常攻略 →</Link>
+        <a href="/" className="molwan-brand"><span className="molwan-brand__mark">丸</span><span>魔丸小助手</span></a>
+        <a className="molwan-nav__back" href="/guide">日常攻略 →</a>
       </header>
 
       <section className="anniversary-hero">
@@ -27,7 +25,7 @@ export default function AnniversariesPage() {
       <section className="anniversary-list" aria-label="纪念日记录">
         <p className="anniversary-list__label">已收下的日子</p>
         {anniversaries.map((anniversary, index) => (
-          <Link className="anniversary-card" href={`/anniversaries/${anniversary.slug}`} key={anniversary.slug}>
+          <a className="anniversary-card" href={`/anniversaries/${anniversary.slug}`} key={anniversary.slug}>
             <span className="anniversary-card__index">0{index + 1}</span>
             <div>
               <p>{anniversary.date}</p>
@@ -36,12 +34,12 @@ export default function AnniversariesPage() {
               <span>{anniversary.note}</span>
             </div>
             <i aria-hidden="true">↗</i>
-          </Link>
+          </a>
         ))}
         <p className="anniversary-list__future">以后还有很多天，会慢慢长到这里。</p>
       </section>
 
-      <footer className="molwan-footer"><span>每一次认真记得，都会变成以后能回来的路。</span><Link href="/">回到魔丸小助手 →</Link></footer>
+      <footer className="molwan-footer"><span>每一次认真记得，都会变成以后能回来的路。</span><a href="/">回到魔丸小助手 →</a></footer>
     </main>
   );
 }

@@ -11,9 +11,12 @@ const helperInstructions = `你是“魔丸小助手”，只服务思怡在同�
 只在需要当日信息、附近门店、天气、末班车、航班或营业状态时使用网页搜索。
 涉及人身安全、医疗、火情或违法风险时，优先建议联系现场工作人员或紧急电话。
 不要编造精确班次、价格、营业时间、校内规则或来源链接。若网页搜索没有提供可靠链接，在“来源状态”中明确说明“动态检索未返回可核验出处”。
-不要索取、复述或存储身份证号、银行卡号、宿舍号、实时位置等敏感信息。`;
+不要索取、复述或存储身份证号、银行卡号、宿舍号、实时位置等敏感信息。
+不要描述你的搜索过程、工具调用或内部推理。若给出任何动态的具体事实，末尾必须逐行附上 1–3 条完整的 https:// 来源链接；没有链接就不要给出该事实。`;
 
 function clientAddress(request: Request) {
+  const realAddress = request.headers.get("x-real-ip");
+  if (realAddress) return realAddress.trim();
   const forwarded = request.headers.get("x-forwarded-for");
   return forwarded?.split(",")[0]?.trim() || "unknown";
 }
@@ -113,46 +116,68 @@ export async function POST(request: Request) {
   }
 
   try {
-    const upstream = await fetch("https://api.deepseek.com/responses", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "deepseek-v4-flash",
-        instructions: helperInstructions,
-        input: [
-          ...history.map((item) => ({ role: item.role, content: item.text })),
-          { role: "user", content: message },
-        ],
-        tools: [{ type: "web_search" }],
-        tool_choice: "auto",
-        // Flash spends part of this budget on server-side search reasoning. Leave
-        // enough room for a short, complete answer after the search finishes.
-        max_output_tokens: 2200,
-        stream: false,
-      }),
-    });
+    const controller = new AbortController();
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const liveRequest = fetch("https://api.deepseek.com/responses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "deepseek-v4-flash",
+          instructions: helperInstructions,
+          input: [
+            ...history.map((item) => ({ role: item.role, content: item.text })),
+            { role: "user", content: message },
+          ],
+          tools: [{ type: "web_search" }],
+          tool_choice: "auto",
+          // Flash spends part of this budget on server-side search reasoning. Leave
+          // enough room for a short, complete answer after the search finishes.
+          max_output_tokens: 2200,
+          stream: false,
+        }),
+        signal: controller.signal,
+      });
+      const deadline = new Promise<never>((_, reject) => {
+        timeout = setTimeout(() => {
+          controller.abort();
+          reject(new Error("live_search_timeout"));
+        }, 8_000);
+      });
+      const upstream = await Promise.race([liveRequest, deadline]);
 
-    if (!upstream.ok) throw new Error("upstream_unavailable");
-    const answer = extractText(await upstream.json());
-    if (!answer) throw new Error("empty_response");
+      if (!upstream.ok) throw new Error("upstream_unavailable");
+      const answer = extractText(await upstream.json());
+      if (!answer) throw new Error("empty_response");
 
-    const citations = dynamicSources(answer);
-    const matchedSources = findGuideCards(message).slice(0, 2).map((card) => card.source);
-    return Response.json({
-      answer,
-      sources: citations.length ? citations : matchedSources,
-      sourceStatus: citations.length
-        ? "已展示本次回答中可校验的外部链接"
-        : "动态检索未返回可核验出处；请以攻略卡中的官方来源为准",
-      mode: "live",
-    });
-  } catch {
+      const citations = dynamicSources(answer);
+      if (!citations.length) {
+        return Response.json({
+          ...localAnswer,
+          sourceStatus: "实时检索未返回可核验来源，未展示未经证实的动态结论",
+          mode: "fallback",
+        });
+      }
+      return Response.json({
+        answer,
+        sources: citations,
+        sourceStatus: "已展示本次回答中可校验的外部链接；动态信息请以原始页面为准",
+        cards: findGuideCards(message).slice(0, 3),
+        mode: "live",
+      });
+    } finally {
+      if (timeout) clearTimeout(timeout);
+    }
+  } catch (error) {
+    const timedOut = error instanceof Error && error.message === "live_search_timeout";
     return Response.json({
       ...localAnswer,
-      sourceStatus: "魔丸暂时没有接上实时信息，已回退到攻略资料库",
+      sourceStatus: timedOut
+        ? "实时查询超过 8 秒，已回退到已核验攻略"
+        : "魔丸暂时没有接上实时信息，已回退到攻略资料库",
       mode: "fallback",
     });
   }

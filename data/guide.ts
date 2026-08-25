@@ -3,6 +3,11 @@ export type GuideSource = {
   url: string;
 };
 
+export type GuideAction = {
+  label: string;
+  url: string;
+};
+
 export type GuideCard = {
   id: string;
   section: GuideSectionId;
@@ -11,12 +16,17 @@ export type GuideCard = {
   steps: string[];
   time: string;
   tip: string;
+  backup: string;
+  verifiedAt: string;
   freshness: "长期有效" | "开学季核验" | "请实时查询";
   actionLabel: string;
   actionUrl: string;
   source: GuideSource;
+  quickActions?: GuideAction[];
   keywords: string[];
 };
+
+const guideVerifiedAt = "2026-08-25";
 
 export type GuideSectionId =
   | "arrival"
@@ -90,6 +100,8 @@ export const guideCards: GuideCard[] = [
     ],
     time: "约 50–70 分钟；末班与拥挤情况请当日确认",
     tip: "如果已经很晚、手机电量低或行李难以换乘，不要勉强赶末班；先在官方机场交通页确认夜间方案。",
+    backup: "地铁已停运或行李很多时，先到到达层服务台确认官方夜间交通；再用网约车直达校方通知的报到点。",
+    verifiedAt: guideVerifiedAt,
     freshness: "请实时查询",
     actionLabel: "查看机场交通",
     actionUrl: "https://www.shanghaiairport.com/dmjt/index.html",
@@ -108,6 +120,8 @@ export const guideCards: GuideCard[] = [
     ],
     time: "公共交通通常约 90 分钟以上；夜间请额外预留时间",
     tip: "不要只看航班落地时间：下机、取行李、走到交通层都会占用时间。",
+    backup: "若末班临近或身体疲惫，优先机场官方夜间交通或网约车；不要为了省钱在陌生换乘点硬赶。",
+    verifiedAt: guideVerifiedAt,
     freshness: "请实时查询",
     actionLabel: "查看浦东机场交通",
     actionUrl: "https://www.shanghaiairport.com/dmjt/index.html",
@@ -126,6 +140,8 @@ export const guideCards: GuideCard[] = [
     ],
     time: "30–60 分钟完成，不追求一次到位",
     tip: "第一晚最重要的是睡好。床垫、收纳、装饰等可以等熟悉周边后再决定。",
+    backup: "如果校内报到尚未完成，先联系学院迎新联系人或值班人员；采购可以第二天白天再做。",
+    verifiedAt: guideVerifiedAt,
     freshness: "长期有效",
     actionLabel: "打开同济迎新网",
     actionUrl: "https://hello.tongji.edu.cn/",
@@ -144,6 +160,8 @@ export const guideCards: GuideCard[] = [
     ],
     time: "第一次出门预留 20 分钟找路时间",
     tip: "新城市的方向感不是背出来的，是把几个稳定锚点反复走熟的。",
+    backup: "一时找不到路就先回到同济大学站或校门这个锚点，再重新规划，不必边走边猜。",
+    verifiedAt: guideVerifiedAt,
     freshness: "长期有效",
     actionLabel: "查看校区地图",
     actionUrl: "https://www.tongji.edu.cn/xglj/fk/xydt.htm",
@@ -162,6 +180,8 @@ export const guideCards: GuideCard[] = [
     ],
     time: "以地图实时状态为准",
     tip: "深夜采购时优先选距离近、路径明亮、人流正常的门店。",
+    backup: "若附近店已打烊，先用外卖平台补齐当晚必需品；不为一件小东西走去偏僻街区。",
+    verifiedAt: guideVerifiedAt,
     freshness: "请实时查询",
     actionLabel: "打开高德地图",
     actionUrl: "https://ditu.amap.com/",
@@ -180,6 +200,8 @@ export const guideCards: GuideCard[] = [
     ],
     time: "首末班、临时运营以官方查询为准",
     tip: "雨天或晚高峰多留 15 分钟，比一路赶路更轻松。",
+    backup: "地铁异常时，先看官方运营公告，再比较公交与网约车；别只按地图默认路线行动。",
+    verifiedAt: guideVerifiedAt,
     freshness: "请实时查询",
     actionLabel: "查看上海地铁",
     actionUrl: "https://www.shmetro.com/",
@@ -198,6 +220,8 @@ export const guideCards: GuideCard[] = [
     ],
     time: "按事项办理时限为准",
     tip: "涉及身份证、银行卡、验证码时，只在官方 App 或官方网页操作。",
+    backup: "如果页面看不懂或需要材料不全，先保存官方事项页，白天再向学校或热线确认，不要在非官方页面提交证件。",
+    verifiedAt: guideVerifiedAt,
     freshness: "开学季核验",
     actionLabel: "打开随申办说明",
     actionUrl: "https://www.shanghai.gov.cn/nw17239/20260630/427c849d95dc4fe782555410b45290cb.html",
@@ -216,10 +240,18 @@ export const guideCards: GuideCard[] = [
     ],
     time: "立刻处理，不等待搜索结果",
     tip: "不要因为怕麻烦而独自处理明显超出自己能力范围的情况。",
+    backup: "无法清楚说明位置时，先进入最近有工作人员的服务台、商店或警务室，请对方协助拨打电话。",
+    verifiedAt: guideVerifiedAt,
     freshness: "长期有效",
     actionLabel: "查看上海市民热线",
     actionUrl: "https://www.shanghai.gov.cn/",
     source: { label: "上海市人民政府", url: "https://www.shanghai.gov.cn/" },
+    quickActions: [
+      { label: "拨打 110", url: "tel:110" },
+      { label: "拨打 120", url: "tel:120" },
+      { label: "拨打 119", url: "tel:119" },
+      { label: "拨打 12345", url: "tel:12345" },
+    ],
     keywords: ["紧急", "110", "120", "119", "12345", "丢失", "生病", "求助"],
   },
   {
@@ -234,6 +266,8 @@ export const guideCards: GuideCard[] = [
     ],
     time: "以学院和迎新通知为准",
     tip: "开学季信息变化快，卡片中的“开学季核验”标识代表需要当天再点开官方页确认。",
+    backup: "官方页面一时打不开时，优先联系学院辅导员或迎新现场；不要把群聊截图当作最终规则。",
+    verifiedAt: guideVerifiedAt,
     freshness: "开学季核验",
     actionLabel: "进入同济迎新网",
     actionUrl: "https://hello.tongji.edu.cn/",
@@ -265,9 +299,17 @@ export function findGuideCards(query: string) {
 
 export function makeStaticAssistantAnswer(query: string) {
   const matched = findGuideCards(query);
-  const card = matched[0] ?? guideCards.find((item) => item.id === "tongji-anchor")!;
+  const card = matched[0];
+  if (!card) {
+    return {
+      answer: "先做什么：这条问题还没有进入魔丸的已核验攻略，不要把猜测当成路线。\n\n推荐方案：先打开地图或对应官方入口，确认地点、营业状态或当日通知。\n\n备选方案：在机场、地铁或校园内直接找服务台、安保或值班人员说明情况。\n\n注意事项：不要输入证件号码、银行卡、宿舍号或实时位置；紧急情况直接拨打 110、120 或 119。\n\n来源状态：暂未匹配到可复用攻略，建议以官方页面和现场信息为准。",
+      sources: [],
+      sourceStatus: "未匹配到已核验攻略",
+      cards: [],
+    };
+  }
   return {
-    answer: `先做什么：${card.summary}\n\n推荐方案：${card.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}\n\n注意事项：${card.tip}\n\n来源状态：${card.freshness}，建议出发前再打开官方链接确认。`,
+    answer: `先做什么：${card.summary}\n\n推荐方案：${card.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}\n\n备选方案：${card.backup}\n\n注意事项：${card.tip}\n\n来源状态：${card.freshness}；最近核验 ${card.verifiedAt}，出发前再打开官方链接确认。`,
     sources: [card.source],
     sourceStatus: "已匹配攻略资料库",
     cards: matched.slice(0, 3),
