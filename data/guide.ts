@@ -32,7 +32,10 @@ export type CampusContact = {
 export type EssentialApp = {
   id: string;
   name: string;
+  kind: "App" | "微信小程序";
   summary: string;
+  when: string;
+  officialUrl: string;
 };
 
 const guideVerifiedAt = "2026-08-25";
@@ -62,8 +65,7 @@ export type GuideSectionId =
   | "campus"
   | "nearby"
   | "daily"
-  | "emergency"
-  | "saved";
+  | "emergency";
 
 export const guideSections: Array<{
   id: GuideSectionId;
@@ -99,13 +101,6 @@ export const guideSections: Array<{
     title: "紧急求助",
     eyebrow: "JUST IN CASE",
     description: "四平路校区常用号码。",
-  },
-  {
-    id: "saved",
-    index: "05",
-    title: "我的常用",
-    eyebrow: "MY SHORTCUTS",
-    description: "常用地点、路线、提醒与个人备注。",
   },
   {
     id: "campus",
@@ -284,7 +279,7 @@ export const guideCards: GuideCard[] = [
     steps: [
       "在高德或常用地图中搜索具体需求，例如“同济大学站 药店”。",
       "先查看步行距离、营业状态与最新评价，再决定是否出发。",
-      "第一次验证过的店，把店名、营业时间或路线写进“我的地点 / 小提醒”，下次就不用重新猜。",
+      "第一次验证过的店，记下店名、营业时间和路线；下次直接照着走，不必重新猜。",
     ],
     time: "以地图实时状态为准",
     tip: "深夜采购时优先选距离近、路径明亮、人流正常的门店。",
@@ -308,8 +303,8 @@ export const guideCards: GuideCard[] = [
       "寄件时先在地图搜索当日营业的快递服务点，再在官方 App 下单或由快递员上门；不要只按网上流传的固定门牌找。",
     ],
     time: "开学前后、节假日和宿舍调整期都要重新核验",
-    tip: "快递取件码、身份证照片和宿舍号不要发到公开群聊；贵重件当面验外包装再签收。",
-    backup: "通知不清、站点关门或包裹异常时，先在承运 App 内找订单客服并保留截图；需要到校内处理时，再从迎新网或学院确认当期入校规则。",
+    tip: "快递取件码、身份证照片和宿舍号只留在自己手里；贵重件当面验外包装再签收。",
+    backup: "通知不清、站点关门或包裹异常时，先在承运 App 内找订单客服并记下订单号；需要到校内处理时，再从迎新网或学院确认当期入校规则。",
     verifiedAt: guideVerifiedAt,
     freshness: "开学季核验",
     actionLabel: "打开同济迎新网",
@@ -388,12 +383,12 @@ export const guideCards: GuideCard[] = [
     summary: "先跟着迎新通知走，剩下校园卡、校园网这些，按能上课、能联网、能生活的顺序慢慢补就好。",
     steps: [
       "先登录迎新网，核对报到、住宿、缴费和学院通知。",
-      "依次确认校园身份、校园卡、校园网与邮箱；把卡号、入口和需要补办的事项写进“我的地点 / 小提醒”。",
-      "校医院、图书馆、教务与学院通知都保存官方入口，不依赖群聊截图。",
+      "依次确认校园身份、校园卡、校园网与邮箱；按需要补办的事项逐项处理。",
+      "校医院、图书馆、教务与学院通知都从官方入口查看。",
     ],
     time: "以学院和迎新通知为准",
     tip: "开学季信息变化快，卡片中的“开学季核验”标识代表需要当天再点开官方页确认。",
-    backup: "官方页面一时打不开时，优先联系学院辅导员或迎新现场；不要把群聊截图当作最终规则。",
+    backup: "官方页面一时打不开时，优先联系学院辅导员或迎新现场确认。",
     verifiedAt: guideVerifiedAt,
     freshness: "开学季核验",
     actionLabel: "进入同济迎新网",
@@ -408,13 +403,13 @@ export const guideCards: GuideCard[] = [
     title: "报到前，确认四件事",
     summary: "日期、校区、地点、联系人。别被一堆通知弄乱，最后就以你学院和自己系统里的信息为准。",
     steps: [
-      "打开迎新网与学院通知，截图保存：报到日期、报到校区、具体接待点、学院联系人/值班方式。",
+      "打开迎新网与学院通知，记下报到日期、报到校区、具体接待点和学院联系人/值班方式。",
       "确认“能进校的时间”与“能进宿舍的时间”是否分别写明；没有明确写就不要把行李和快递押在某一个日期上。",
       "把校区地址复制给地图，把接待点名称复制进备注；到达前再核验一次系统是否有新通知。",
     ],
-    time: "出发前一天、落地后各核验一次；开学季任何旧截图都可能失效",
+    time: "出发前一天、落地后各核验一次；开学季旧通知可能失效",
     tip: "不要从别的年级、别的学院或小红书评论里推导自己的时间表；它们只能帮助你预判问题，不能替代录取通知书。",
-    backup: "官网加载慢或信息冲突时，优先联系学院；把两份通知的截图与时间发给对方，请对方确认哪一份适用于你。",
+    backup: "官网加载慢或信息冲突时，优先联系学院，说明两份通知的发布时间与内容，请对方确认哪一份适用于你。",
     verifiedAt: guideVerifiedAt,
     freshness: "开学季核验",
     actionLabel: "进入同济迎新网",
@@ -431,11 +426,11 @@ export const guideCards: GuideCard[] = [
     steps: [
       "迎新系统中先确认同济身份激活、人脸信息、个人邮箱和“一网通办”等待办是否出现。",
       "校园卡先解决查询/消费密码与充值入口；网络问题走信息化办公室的网络服务入口，记录报障时间和编号。",
-      "完成后把常用入口、卡片状态和需要补办的事项写进“我的地点 / 小提醒”；不在公共设备保存密码。",
+      "完成后确认每项状态已生效；不在公共设备保存密码。",
     ],
     time: "以迎新系统任务和信息化办公室当期说明为准",
-    tip: "校园卡丢失、密码异常或网络不可用时，优先官方服务页；不要把学号、验证码或身份材料发到非官方群聊。",
-    backup: "官方页面无法打开时，保存报错截图、时间和学号后联系学院或信息化服务渠道；先用手机热点完成当天最必要的任务。",
+    tip: "校园卡丢失、密码异常或网络不可用时，优先官方服务页；学号、验证码和身份材料只在官方页面填写。",
+    backup: "官方页面无法打开时，记下报错时间和学号后联系学院或信息化服务渠道；先用手机热点完成当天最必要的任务。",
     verifiedAt: guideVerifiedAt,
     freshness: "开学季核验",
     actionLabel: "打开校园卡服务",
@@ -457,22 +452,42 @@ export const essentialApps: EssentialApp[] = [
   {
     id: "metro-daduhui",
     name: "Metro 大都会",
+    kind: "App",
     summary: "上海地铁官方乘车码，也能查运营信息。",
+    when: "只坐地铁时装这一个就够了。",
+    officialUrl: "https://www.shmetro.com/",
   },
   {
     id: "suishenxing",
     name: "随申行",
+    kind: "App",
     summary: "把地铁、公交、轮渡和磁浮放在一个出行入口；可查实时到站与换乘。",
+    when: "公交和地铁混着坐、去机场或换乘拿不准时用。",
+    officialUrl: "https://www.shmaas.cn/about.html",
   },
   {
     id: "suishenban",
     name: "随申办",
+    kind: "App",
     summary: "上海官方政务和城市服务入口。",
+    when: "办证、查公共服务或需要官方通知时再打开。",
+    officialUrl: "https://www.shanghai.gov.cn/nw17239/20260630/427c849d95dc4fe782555410b45290cb.html",
+  },
+  {
+    id: "tongji-campus-app",
+    name: "掌上校园－同济大学",
+    kind: "App",
+    summary: "查校园卡、充值校园卡、给宿舍购电。",
+    when: "报到后把校园相关的高频操作收在这里。",
+    officialUrl: "https://help.tongji.edu.cn/",
   },
   {
     id: "dingdong",
     name: "叮咚买菜",
+    kind: "App",
     summary: "适合刚安顿时补水果、牛奶和日常消耗品。",
+    when: "下单前先填宿舍可收货的位置，并看地址覆盖和可送时段。",
+    officialUrl: "https://www.ddfresh.net/",
   },
 ];
 

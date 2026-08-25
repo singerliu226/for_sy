@@ -242,9 +242,14 @@ footer { background: linear-gradient(90deg, #9a526c, #ad6378 50%, #8d4a65); colo
 
 /* Keep the app list and campus contacts legible at a glance. */
 .app-list { border-top: 1px solid rgba(40, 51, 76, .18); }
-.app-list__item { align-items: baseline; border-bottom: 1px solid rgba(40, 51, 76, .18); display: grid; gap: 28px; grid-template-columns: minmax(180px, .55fr) minmax(0, 1fr); padding: 22px 0; }
+.app-list__item { align-items: start; border-bottom: 1px solid rgba(40, 51, 76, .18); display: grid; gap: 28px; grid-template-columns: minmax(180px, .55fr) minmax(0, 1fr); padding: 22px 0; }
+.app-list__name { display: grid; gap: 8px; }
+.app-list__name span { color: #a15d73; font-family: var(--ui); font-size: 9px; font-weight: 700; letter-spacing: .12em; }
 .app-list__item h3 { color: var(--m-blue-deep); font-family: var(--ui); font-size: 16px; font-weight: 700; letter-spacing: .02em; margin: 0; }
+.app-list__content { display: grid; gap: 8px; }
 .app-list__item p { color: rgba(40, 51, 76, .72); font-family: var(--ui); font-size: 14px; line-height: 1.7; margin: 0; }
+.app-list__item small { color: rgba(40, 51, 76, .58); font-family: var(--ui); font-size: 12px; line-height: 1.65; }
+.app-list__item a { color: var(--m-blue-deep); font-family: var(--ui); font-size: 11px; font-weight: 700; text-decoration: underline; text-decoration-color: rgba(60, 105, 139, .38); text-underline-offset: 4px; width: fit-content; }
 .campus-contact a { font-family: var(--ui); font-size: 18px; font-weight: 650; letter-spacing: .02em; }
 
 @media (max-width: 620px) {

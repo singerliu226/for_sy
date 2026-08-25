@@ -18,7 +18,7 @@ const freshnessCopy = {
 const guideViews = [
   { id: "arrival", index: "01", title: "落地通勤", description: "从机场到学校，先把这段路走稳。", sections: ["arrival"] },
   { id: "report", index: "02", title: "新生报到", description: "报到、进校、宿舍、校园卡和网络，只做眼前需要的。", sections: ["campus"] },
-  { id: "daily", index: "03", title: "必需APP", description: "只留上海和同济真正用得上的入口。", sections: ["nearby", "daily"] },
+  { id: "daily", index: "03", title: "必需APP", description: "通用工具默认已有；这里只留上海和同济真正用得上的入口。", sections: ["nearby", "daily"] },
   { id: "emergency", index: "04", title: "紧急求助", description: "四平路校区常用号码。", sections: ["emergency"] },
 ] as const satisfies ReadonlyArray<{
   id: "arrival" | "report" | "daily" | "emergency";
@@ -161,8 +161,15 @@ export default function GuidePage() {
                 <section className="app-list" aria-label="必需APP">
                   {essentialApps.map((app) => (
                     <article className="app-list__item" key={app.id}>
-                      <h3>{app.name}</h3>
-                      <p>{app.summary}</p>
+                      <div className="app-list__name">
+                        <span>{app.kind}</span>
+                        <h3>{app.name}</h3>
+                      </div>
+                      <div className="app-list__content">
+                        <p>{app.summary}</p>
+                        <small>{app.when}</small>
+                        <a href={app.officialUrl} target="_blank" rel="noreferrer">查看官方入口 ↗</a>
+                      </div>
                     </article>
                   ))}
                 </section>
