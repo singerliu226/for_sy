@@ -262,7 +262,7 @@ export default function GuidePage() {
               {view.id === "daily" && (
                 <section className="app-kit" aria-labelledby="app-kit-title">
                   <details className="app-kit__details">
-                    <summary><p>真用到再展开</p><h3 id="app-kit-title">上海刚来，先留这几个入口</h3><span>交通、地图、外卖、办事和支付。先看一眼，需要时再装。</span><b>展开 →</b></summary>
+                    <summary><p>别为了“必备”瞎下载</p><h3 id="app-kit-title">上海刚来，只留这 3 个入口</h3><span>支付宝、微信、高德和外卖 App 已经有就继续用；真正能补上信息差的，是上海交通、城市办事和同济官方入口。</span><b>展开 →</b></summary>
                     <div className="app-kit__grid">
                       {essentialApps.map((app) => (
                         <article className="app-kit__card" key={app.id}>
