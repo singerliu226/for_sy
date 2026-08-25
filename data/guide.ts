@@ -586,7 +586,7 @@ export function makeStaticAssistantAnswer(query: string) {
     };
   }
   return {
-    answer: `先做什么：${card.summary}\n\n推荐方案：${card.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}\n\n备选方案：${card.backup}\n\n注意事项：${card.tip}\n\n来源状态：${card.freshness}；最近核验 ${card.verifiedAt}，出发前再打开官方链接确认。`,
+    answer: `先做什么：${card.summary}\n\n推荐方案：${card.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}\n\n备选方案：${card.backup}\n\n注意事项：${card.tip}\n\n来源状态：这条${card.freshness === "请实时查询" ? "出发前你再看一眼，我不想让旧信息带你绕路" : card.freshness === "开学季核验" ? "开学前你再点一下官方页，学校的安排可能会变" : "我先替你核过了"}；我上次核对是 ${card.verifiedAt}。`,
     sources: [card.source, ...(card.crossChecks ?? [])],
     sourceStatus: card.crossChecks?.length ? "我提前给你放好的攻略（也留了交叉核验）" : "我提前给你放好的攻略",
     cards: matched.slice(0, 3),
