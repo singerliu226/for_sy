@@ -48,17 +48,20 @@ function needsLiveSearch(message: string) {
 function extractText(response: unknown) {
   if (!response || typeof response !== "object") return "";
   const record = response as { output_text?: unknown; output?: unknown };
-  if (typeof record.output_text === "string" && record.output_text.trim()) return record.output_text.trim();
   if (!Array.isArray(record.output)) return "";
   return record.output
     .flatMap((item) => {
       if (!item || typeof item !== "object") return [];
-      const content = (item as { content?: unknown }).content;
+      const typedItem = item as { type?: unknown; content?: unknown };
+      // Responses API returns both private reasoning items and user-facing messages.
+      // Only message/output_text content may ever reach the browser.
+      if (typedItem.type !== "message") return [];
+      const content = typedItem.content;
       if (!Array.isArray(content)) return [];
       return content.flatMap((part) => {
         if (!part || typeof part !== "object") return [];
-        const text = (part as { text?: unknown }).text;
-        return typeof text === "string" ? [text] : [];
+        const typedPart = part as { type?: unknown; text?: unknown };
+        return typedPart.type === "output_text" && typeof typedPart.text === "string" ? [typedPart.text] : [];
       });
     })
     .join("\n")
@@ -125,7 +128,9 @@ export async function POST(request: Request) {
         ],
         tools: [{ type: "web_search" }],
         tool_choice: "auto",
-        max_output_tokens: 900,
+        // Flash spends part of this budget on server-side search reasoning. Leave
+        // enough room for a short, complete answer after the search finishes.
+        max_output_tokens: 2200,
         stream: false,
       }),
     });
