@@ -17,7 +17,7 @@ const freshnessCopy = {
 } as const;
 
 const guideViews = [
-  { id: "arrival", index: "01", title: "落地通勤", description: "从机场到学校，先把这段路走稳。", sections: ["arrival"] },
+  { id: "arrival", index: "01", title: "落地通勤", description: "看清楚自己在哪里，用最安全方便的方法到学校", sections: ["arrival"] },
   { id: "report", index: "02", title: "新生报到", description: "报到、住宿、校园卡和网络，按顺序办，不用拆成三件事。", sections: ["campus"] },
   { id: "daily", index: "03", title: "生活必需", description: "要下载的 App，和微信里直接能用的小程序。", sections: ["nearby", "daily"] },
   { id: "emergency", index: "04", title: "紧急求助", description: "四平路校区常用号码。", sections: ["emergency"] },
