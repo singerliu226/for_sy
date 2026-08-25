@@ -49,8 +49,9 @@ const contentSources = {
   shanghaiMetro: { label: "上海地铁 · 官方运营信息", url: "https://www.shmetro.com/", kind: "官方规则" as const },
   shanghaiEmergency: { label: "上海市政府 · 公共服务热线", url: "https://english.shanghai.gov.cn/Public%20services/20260813/98b41f0e71bb4adf93e3992313a1417c.html", kind: "官方规则" as const },
   emergency120: { label: "上海市政府 · 正确拨打 120", url: "https://www.shanghai.gov.cn/sjzccs/20221222/ce54d8bb53a94a39bfbdd93d9b5d2367.html", kind: "官方规则" as const },
-  xhsReport: { label: "小红书 · 同济新生四平路报到（2026-08-13，仅作经验旁证）", url: "https://www.xiaohongshu.com/explore/6a7d8f6700000000270236a9?xsec_token=AByoPAkORB-kwty4kQkr9mqJI1ZRUw1-B7rvpP3NISE9Y=&xsec_source=pc_search&source=web_explore_feed", kind: "经验旁证" as const },
-  xhsAround: { label: "小红书 · 四平路校区出行经验（2026-08-02，仅作经验旁证）", url: "https://www.xiaohongshu.com/explore/6a6e93f60000000024025af1?xsec_token=AB8QJGKnoAKvxc7PDl-kesC-lQTiOIftlWWjl8fMZPTTs=&xsec_source=pc_search&source=web_explore_feed", kind: "经验旁证" as const },
+  xhsReport: { label: "小红书 · 同济新生四平路报到（2026-08-13，仅作经验旁证）", url: "https://www.xiaohongshu.com/search_result?keyword=%E5%90%8C%E6%B5%8E%E5%A4%A7%E5%AD%A6%E5%9B%9B%E5%B9%B3%E8%B7%AF%E6%A0%A1%E5%8C%BA%20%E6%96%B0%E7%94%9F%E6%94%BB%E7%95%A5&source=web_explore_feed", kind: "经验旁证" as const },
+  xhsAround: { label: "小红书 · 四平路校区出行经验（2026-08-02，仅作经验旁证）", url: "https://www.xiaohongshu.com/search_result?keyword=%E5%90%8C%E6%B5%8E%E5%A4%A7%E5%AD%A6%E5%9B%9B%E5%B9%B3%E8%B7%AF%E6%A0%A1%E5%8C%BA%20%E5%87%BA%E8%A1%8C%20%E6%8C%87%E5%8D%97&source=web_explore_feed", kind: "经验旁证" as const },
+  xhsItService: { label: "小红书 · 同济官方账号 IT 服务说明（2025-09，流程旁证）", url: "https://www.xiaohongshu.com/search_result?keyword=%E5%90%8C%E6%B5%8E%E5%A4%A7%E5%AD%A6%20%E6%96%B0%E7%94%9F%20%E6%A0%A1%E5%9B%AD%E5%8D%A1%20%E6%A0%A1%E5%9B%AD%E7%BD%91&source=web_explore_feed", kind: "官方规则" as const },
 };
 
 export type GuideSectionId =
@@ -474,7 +475,7 @@ export const guideCards: GuideCard[] = [
     actionLabel: "打开校园卡服务",
     actionUrl: "https://nic.tongji.edu.cn/fwzn/jcfw/xykfw.htm",
     source: contentSources.tongjiCard,
-    crossChecks: [contentSources.tongjiWelcome],
+    crossChecks: [contentSources.tongjiWelcome, contentSources.xhsItService],
     keywords: ["身份激活", "人脸", "校园卡", "一卡通", "校园网", "邮箱", "一网通办", "密码"],
   },
 ];
