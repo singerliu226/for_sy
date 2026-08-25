@@ -22,7 +22,7 @@ type AssistantResponse = {
 
 type AnswerSection = { title: string; lines: string[] };
 
-const historyKey = "molwan-assistant-history-v2";
+const historyKey = "molwan-assistant-history-v3";
 const answerHeadings = ["先做什么", "推荐方案", "备选方案", "注意事项", "来源状态"];
 const answerHeadingLabels: Record<string, string> = {
   "先做什么": "先做这一步",
