@@ -406,7 +406,11 @@ export default function GuidePage() {
                     {essentialApps.map((app) => (
                       <article className="app-kit__card" key={app.id}>
                         <span>{app.badge}</span><h4>{app.name}</h4><p>{app.summary}</p><dl><div><dt>什么时候用</dt><dd>{app.when}</dd></div><div><dt>小提醒</dt><dd>{app.tip}</dd></div></dl>
-                        <footer><a href={app.actionUrl} target="_blank" rel="noreferrer">{app.actionLabel} ↗</a><a href={app.source.url} target="_blank" rel="noreferrer">来源 ↗</a></footer><small>最近核验 · {app.verifiedAt}</small>
+                        <footer>
+                          <a href={app.actionUrl} target="_blank" rel="noreferrer">{app.actionLabel} ↗</a>
+                          <a href={app.source.url} target="_blank" rel="noreferrer">官方来源 ↗</a>
+                          {app.crossChecks?.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.kind === "经验旁证" ? "经验旁证" : "交叉核验"} · {source.label} ↗</a>)}
+                        </footer><small>最近核验 · {app.verifiedAt}</small>
                       </article>
                     ))}
                   </div>

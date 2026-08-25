@@ -38,6 +38,7 @@ export type EssentialApp = {
   actionLabel: string;
   actionUrl: string;
   source: GuideSource;
+  crossChecks?: GuideSource[];
   verifiedAt: string;
 };
 
@@ -52,6 +53,7 @@ const contentSources = {
   xhsReport: { label: "小红书 · 同济新生四平路报到（2026-08-13，仅作经验旁证）", url: "https://www.xiaohongshu.com/search_result?keyword=%E5%90%8C%E6%B5%8E%E5%A4%A7%E5%AD%A6%E5%9B%9B%E5%B9%B3%E8%B7%AF%E6%A0%A1%E5%8C%BA%20%E6%96%B0%E7%94%9F%E6%94%BB%E7%95%A5&source=web_explore_feed", kind: "经验旁证" as const },
   xhsAround: { label: "小红书 · 四平路校区出行经验（2026-08-02，仅作经验旁证）", url: "https://www.xiaohongshu.com/search_result?keyword=%E5%90%8C%E6%B5%8E%E5%A4%A7%E5%AD%A6%E5%9B%9B%E5%B9%B3%E8%B7%AF%E6%A0%A1%E5%8C%BA%20%E5%87%BA%E8%A1%8C%20%E6%8C%87%E5%8D%97&source=web_explore_feed", kind: "经验旁证" as const },
   xhsItService: { label: "小红书 · 同济官方账号 IT 服务说明（2025-09，流程旁证）", url: "https://www.xiaohongshu.com/search_result?keyword=%E5%90%8C%E6%B5%8E%E5%A4%A7%E5%AD%A6%20%E6%96%B0%E7%94%9F%20%E6%A0%A1%E5%9B%AD%E5%8D%A1%20%E6%A0%A1%E5%9B%AD%E7%BD%91&source=web_explore_feed", kind: "官方规则" as const },
+  xhsShanghaiLife: { label: "小红书 · 上海生活经验（2025-02，仅作经验旁证）", url: "https://www.xiaohongshu.com/search_result?keyword=%E4%B8%8A%E6%B5%B7%20%E5%BF%85%E5%A4%87%20%E8%BD%AF%E4%BB%B6&source=web_explore_feed", kind: "经验旁证" as const },
 };
 
 export type GuideSectionId =
@@ -498,6 +500,7 @@ export const essentialApps: EssentialApp[] = [
     actionLabel: "查看官方 App",
     actionUrl: "https://apps.apple.com/cn/app/metro%E5%A4%A7%E9%83%BD%E4%BC%9A/id1202750238",
     source: { label: "上海申通地铁集团 · Metro 大都会", url: "https://apps.apple.com/cn/app/metro%E5%A4%A7%E9%83%BD%E4%BC%9A/id1202750238" },
+    crossChecks: [contentSources.xhsShanghaiLife],
     verifiedAt: guideVerifiedAt,
   },
   {
