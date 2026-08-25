@@ -26,6 +26,19 @@ export type GuideCard = {
   keywords: string[];
 };
 
+export type EssentialApp = {
+  id: string;
+  name: string;
+  badge: string;
+  summary: string;
+  when: string;
+  tip: string;
+  actionLabel: string;
+  actionUrl: string;
+  source: GuideSource;
+  verifiedAt: string;
+};
+
 const guideVerifiedAt = "2026-08-25";
 
 export type GuideSectionId =
@@ -281,6 +294,69 @@ export const quickPrompts = [
   "今晚宿舍缺日用品，先买什么？",
   "从同济去五角场怎么方便？",
   "附近哪里可以寄快递或买药？",
+];
+
+export const essentialApps: EssentialApp[] = [
+  {
+    id: "metro-daduhui",
+    name: "Metro 大都会",
+    badge: "出门前装好",
+    summary: "上海地铁的官方乘车应用。先开通乘车码，进站时不必临时买票。",
+    when: "机场落地、第一次坐地铁、需要查站点或运营状态时。",
+    tip: "若已经习惯用支付宝或微信乘车码，也可以保留一个备用；进站前先确认网络和电量。",
+    actionLabel: "查看官方 App",
+    actionUrl: "https://apps.apple.com/cn/app/metro%E5%A4%A7%E9%83%BD%E4%BC%9A/id1202750238",
+    source: { label: "上海申通地铁集团 · Metro 大都会", url: "https://apps.apple.com/cn/app/metro%E5%A4%A7%E9%83%BD%E4%BC%9A/id1202750238" },
+    verifiedAt: guideVerifiedAt,
+  },
+  {
+    id: "amap",
+    name: "高德地图",
+    badge: "出门前装好",
+    summary: "步行、公交、地铁、打车和附近营业状态，都先交给它判断。",
+    when: "去校门、五角场、药店、快递点，或不确定哪条路更安全时。",
+    tip: "出发前看一眼步行距离与营业状态；晚上优先选路亮、人多、换乘少的路线。",
+    actionLabel: "下载高德地图",
+    actionUrl: "https://www.amap.com/dl/download_map.jsp",
+    source: { label: "高德地图 · 官方下载", url: "https://www.amap.com/dl/download_map.jsp" },
+    verifiedAt: guideVerifiedAt,
+  },
+  {
+    id: "meituan",
+    name: "美团",
+    badge: "第一晚会用到",
+    summary: "晚到时订饭、补水、买纸巾和应急买药，比在陌生街区找店更省心。",
+    when: "宿舍刚安顿、附近店打烊，或身体不舒服不适合独自出门时。",
+    tip: "下单前确认地址写到校门、宿舍区或可被骑手找到的公开地点；不要把宿舍号写进公开备注。",
+    actionLabel: "下载美团",
+    actionUrl: "https://i.meituan.com/client/download",
+    source: { label: "美团 · 官方下载", url: "https://i.meituan.com/client/download" },
+    verifiedAt: guideVerifiedAt,
+  },
+  {
+    id: "suishenban",
+    name: "随申办市民云",
+    badge: "办事时装",
+    summary: "上海的政务与公共服务入口；需要查、办城市事项时优先从这里或官方小程序进入。",
+    when: "办理城市公共服务、查官方政策或需要身份核验的事项时。",
+    tip: "按需要再做实名认证；不要把验证码、证件照片或密码发给任何人。",
+    actionLabel: "查看官方说明",
+    actionUrl: "https://www.shanghai.gov.cn/nw17239/20260630/427c849d95dc4fe782555410b45290cb.html",
+    source: { label: "上海市政府 · 随申办入口说明", url: "https://www.shanghai.gov.cn/nw17239/20260630/427c849d95dc4fe782555410b45290cb.html" },
+    verifiedAt: guideVerifiedAt,
+  },
+  {
+    id: "payment-check",
+    name: "支付宝或微信",
+    badge: "确认已能用",
+    summary: "不一定需要新装，但落地前要确认至少一个支付工具能正常登录、付款和打开乘车码。",
+    when: "坐地铁、买饭、打车、收快递前。",
+    tip: "把支付密码、验证码和身份证信息留在自己手里；支付异常时先暂停操作，找平台官方客服。",
+    actionLabel: "查看官方办事入口",
+    actionUrl: "https://www.shanghai.gov.cn/nw17239/20260630/427c849d95dc4fe782555410b45290cb.html",
+    source: { label: "上海市政府 · 随申办可使用微信/支付宝入口", url: "https://www.shanghai.gov.cn/nw17239/20260630/427c849d95dc4fe782555410b45290cb.html" },
+    verifiedAt: guideVerifiedAt,
+  },
 ];
 
 export function findGuideCards(query: string) {
