@@ -553,14 +553,21 @@ export function findGuideCards(query: string) {
   const normalized = query.trim().toLowerCase();
   if (!normalized) return [];
 
-  return guideCards.filter((card) => {
+  return guideCards
+    .map((card, index) => {
     const haystack = [card.title, card.summary, card.tip, ...card.steps, ...card.keywords]
       .join(" ")
       .toLowerCase();
-    return haystack.includes(normalized)
-      || normalized.includes(card.title.toLowerCase())
-      || card.keywords.some((keyword) => normalized.includes(keyword.toLowerCase()));
-  });
+    const keywordHits = card.keywords.filter((keyword) => normalized.includes(keyword.toLowerCase()));
+    const score =
+      (haystack.includes(normalized) ? 12 : 0)
+      + (normalized.includes(card.title.toLowerCase()) ? 8 : 0)
+      + keywordHits.reduce((total, keyword) => total + Math.min(keyword.length, 4), 0);
+    return { card, index, score };
+  })
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .map((item) => item.card);
 }
 
 export function makeStaticAssistantAnswer(query: string) {
