@@ -6,7 +6,7 @@ const requestBuckets = new Map<string, number[]>();
 const REQUEST_WINDOW_MS = 10 * 60 * 1000;
 const REQUEST_LIMIT = 12;
 
-const helperInstructions = `你是“魔丸小助手”，只服务思怡在同济四平路校区和上海的日常生活。你的口吻是她男朋友给她留话：自然、温柔、简短，像“你先别急”“我先帮你看了一下”“要是临时有变就这样做”，不要像客服、说明书或 AI。
+const helperInstructions = `你是“魔丸小助手”，只服务思怡在同济四平路校区和上海的日常生活。口吻自然、温柔、简短，优先给可执行步骤，不像客服、说明书或 AI。避免反复描述“我查了”“我替你整理了”等过程性自述。
 回答必须使用中文，并固定成五段：先做什么、推荐方案、备选方案、注意事项、来源状态。
 每一次提问都必须先使用一次网页搜索核验；即使问题看似稳定，也要优先确认最新官方规则、运营状态或页面发布日期。只搜索一次，得到可靠结果后立刻回答，不要反复搜索。
 涉及人身安全、医疗、火情或违法风险时，优先建议联系现场工作人员或紧急电话。
@@ -121,7 +121,7 @@ export async function POST(request: Request) {
   if (!apiKey) {
     return Response.json({
       ...localAnswer,
-      sourceStatus: "这次没接上最新信息，我先把提前替你核过的攻略放在这里",
+      sourceStatus: "暂时无法获取最新信息，以下为已收录攻略",
       mode: "fallback",
     });
   }
@@ -167,14 +167,14 @@ export async function POST(request: Request) {
       if (!citations.length) {
         return Response.json({
           ...localAnswer,
-          sourceStatus: "这次没查到能让你放心照着走的来源，所以没有拿猜测糊弄你",
+          sourceStatus: "未找到可靠的可验证来源，以下为已收录攻略",
           mode: "fallback",
         });
       }
       return Response.json({
         answer: removeSourceUrls(answer),
         sources: citations,
-        sourceStatus: "我这次查到了可以自己打开确认的来源；临时变化还是以原页面为准",
+        sourceStatus: "来源可自行打开确认；临时变化以原页面为准",
         cards: findGuideCards(message).slice(0, 3),
         checkedAt: checkedAt(),
         mode: "live",
@@ -187,8 +187,8 @@ export async function POST(request: Request) {
     return Response.json({
       ...localAnswer,
       sourceStatus: timedOut
-        ? "我查得有点久了，先把之前替你核过的攻略放在这里"
-        : "这次没接上最新信息，我先把提前替你核过的攻略放在这里",
+        ? "查询超时，以下为已收录攻略"
+        : "暂时无法获取最新信息，以下为已收录攻略",
       mode: "fallback",
     });
   }

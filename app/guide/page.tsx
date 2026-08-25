@@ -34,16 +34,16 @@ function guideCopyText(card: GuideCard) {
   return [
     card.title,
     "",
-    `我先跟你说：${card.summary}`,
-    "我帮你顺好的路：",
+    `一句话结论：${card.summary}`,
+    "操作步骤：",
     ...card.steps.map((step, index) => `${index + 1}. ${step}`),
     "",
-    `要是临时有变：${card.backup}`,
-    `我想提醒你：${card.tip}`,
-    `大概多久：${card.time}`,
-    `现在就看：${card.actionLabel} ${card.actionUrl}`,
-    `我留的来源：${card.source.label} ${card.source.url}`,
-    `我上次核对：${card.verifiedAt}`,
+    `临时有变：${card.backup}`,
+    `注意：${card.tip}`,
+    `时间判断：${card.time}`,
+    `官方入口：${card.actionLabel} ${card.actionUrl}`,
+    `来源：${card.source.label} ${card.source.url}`,
+    `核验日期：${card.verifiedAt}`,
   ].join("\n");
 }
 
@@ -128,11 +128,11 @@ export default function GuidePage() {
       <section className="guide-hero">
         <div className="guide-hero__train" aria-hidden="true"><i /><i /><i /><span /></div>
         <p className="molwan-kicker">SIYI&apos;S SHANGHAI GUIDE</p>
-        <h1>我给你留的<br /><em>魔都攻略</em></h1>
-        <p>不用把所有事都看完。你现在要解决哪件，就点哪一块。</p>
+        <h1>思怡的<br /><em>魔都攻略</em></h1>
+        <p>按现在要解决的事进入对应板块。</p>
         <div className="guide-hero__choices" aria-label="快速进入攻略">
           {guideViews.map((view) => <button type="button" key={view.id} onClick={() => chooseSection(view.id)}>{view.title} →</button>)}
-          <a href="/assistant">还不知道怎么办，就跟我说 →</a>
+          <a href="/assistant">临时问题，使用小助手 →</a>
         </div>
       </section>
 
@@ -220,7 +220,7 @@ export default function GuidePage() {
         })}
       </section>
 
-      <footer className="molwan-footer guide-footer"><span>路会越走越熟，你也会越来越像在这里生活。</span><a href="/anniversaries">去看看我们记下的日子 →</a></footer>
+      <footer className="molwan-footer guide-footer"><span>临时信息用小助手，固定问题查看攻略。</span><a href="/anniversaries">查看纪念日 →</a></footer>
     </main>
   );
 }

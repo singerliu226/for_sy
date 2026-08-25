@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { MagicAssistant } from "@/components/MagicAssistant";
 
 export const metadata: Metadata = {
-  title: "魔丸小助手｜有事就跟我说",
-  description: "给思怡留的一处上海小入口：有事就说，我先帮你查。",
+  title: "魔丸小助手｜上海即时查询",
+  description: "面向同济与上海日常的即时查询和可验证攻略。",
 };
 
 export default function AssistantPage() {
@@ -15,20 +15,20 @@ export default function AssistantPage() {
       </header>
 
       <section className="assistant-hero">
-        <p className="molwan-kicker">A LITTLE HELP, FROM ME</p>
-        <h1>今天遇到的事，<br /><em>跟我说。</em></h1>
-        <p>不一定立刻都有答案，但我会先帮你查清楚。能确认的我写明白，没查到的也不让你瞎跑。</p>
+        <p className="molwan-kicker">SHANGHAI QUICK CHECK</p>
+        <h1>今天遇到的事，<br /><em>直接查。</em></h1>
+        <p>优先给出可确认的信息和可打开的来源；没有可靠结果时，转向官方入口或已有攻略。</p>
       </section>
 
       <MagicAssistant />
 
       <section className="assistant-boundary" aria-label="小助手怎么帮你">
-        <div><span>这些时候就来找我</span><p>临时路线、当日营业、末班、天气、机场抵达，或者你现在有点不知道怎么办的事。</p></div>
-        <div><span>查不到的时候我也直说</span><p>没有能确认的新消息，我不会拿猜测糊弄你；这时就一起看官方入口，或者先翻魔都攻略。</p></div>
-        <a href="/guide">我提前给你整理的攻略 →</a>
+        <div><span>适合查询</span><p>临时路线、当日营业、末班、天气、机场抵达。</p></div>
+        <div><span>没有可靠结果时</span><p>改查官方入口，或查看已经核验过的魔都攻略。</p></div>
+        <a href="/guide">查看魔都攻略 →</a>
       </section>
 
-      <footer className="molwan-footer guide-footer"><span>到了新的地方，也不用什么都一个人摸索。</span><a href="/guide">去翻翻我给你留的攻略 →</a></footer>
+      <footer className="molwan-footer guide-footer"><span>通勤、报到、生活与紧急情况。</span><a href="/guide">查看魔都攻略 →</a></footer>
     </main>
   );
 }

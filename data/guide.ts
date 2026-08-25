@@ -77,21 +77,21 @@ export const guideSections: Array<{
     index: "01",
     title: "落地通勤",
     eyebrow: "ARRIVE & MOVE",
-    description: "你落地以后，怎么不慌不忙地到学校，我先替你顺在这里。",
+    description: "机场到学校的路线、末班判断和夜间备选。",
   },
   {
     id: "nearby",
     index: "02",
     title: "学校周边",
     eyebrow: "AROUND TONGJI",
-    description: "先陪你把校门、同济大学站和五角场走熟，其他地方慢慢来。",
+    description: "校门、同济大学站、五角场与高频生活点。",
   },
   {
     id: "daily",
     index: "03",
     title: "上海日常",
     eyebrow: "CITY LIFE",
-    description: "这些琐碎的上海日常，我想让你少临时手忙脚乱一点。",
+    description: "日常出行、买药、快递与城市办事。",
   },
   {
     id: "emergency",
@@ -105,14 +105,14 @@ export const guideSections: Array<{
     index: "05",
     title: "我的常用",
     eyebrow: "MY SHORTCUTS",
-    description: "你后来摸熟的路和小习惯，也值得留给以后的你。",
+    description: "常用地点、路线、提醒与个人备注。",
   },
   {
     id: "campus",
     index: "06",
     title: "校园办事",
     eyebrow: "ON CAMPUS",
-    description: "学校里要办的事不用一口气做完，我们一件一件来。",
+    description: "校园卡、网络、宿舍、图书馆与迎新事项。",
   },
 ];
 
@@ -238,7 +238,7 @@ export const guideCards: GuideCard[] = [
     id: "flight-delay-replan",
     section: "arrival",
     title: "飞机晚点了，就重新给自己选条路",
-    summary: "飞机晚到最怕的不是不会走，是硬拿白天的路线去赶末班。你落地后，我们按那一刻的时间再看。",
+    summary: "飞机晚到后，按实际落地时刻重新判断路线，不拿白天方案硬赶末班。",
     steps: [
       "落地、取行李后再看一次当前时间；不要用原定航班到达时间判断还能不能赶上地铁。",
       "依次打开上海机场地面交通页、上海地铁运营信息和地图，确认公共交通是否仍可完整走通。",
@@ -366,7 +366,7 @@ export const guideCards: GuideCard[] = [
     title: "今天怎么走，别只看最快那几分钟",
     summary: "下雨、没电、带行李或者路不熟，就选让你更轻松的那条；慢一点没关系。",
     steps: [
-      "先问：我有行李、下雨、身体不舒服或快到末班吗？任一为“是”，优先地铁/网约车，不勉强骑行或长距离步行。",
+      "先判断：是否带行李、下雨、身体不舒服或接近末班？任一为“是”，优先地铁/网约车，不勉强骑行或长距离步行。",
       "再看：地铁是否一线直达或换乘很少？是就优先地铁；短距离且白天、路线熟，再考虑共享单车。",
       "最后看：地图上的实时拥堵、步行入口和到达点。下车点选校门、地铁口或公共建筑，不把陌生小路当捷径。",
     ],
@@ -405,7 +405,7 @@ export const guideCards: GuideCard[] = [
   {
     id: "reporting-day-check",
     section: "campus",
-    title: "报到前，我们只确认四件事",
+    title: "报到前，确认四件事",
     summary: "日期、校区、地点、联系人。别被一堆通知弄乱，最后就以你学院和自己系统里的信息为准。",
     steps: [
       "打开迎新网与学院通知，截图保存：报到日期、报到校区、具体接待点、学院联系人/值班方式。",
@@ -427,7 +427,7 @@ export const guideCards: GuideCard[] = [
     id: "identity-card-network",
     section: "campus",
     title: "身份、校园卡、网络，慢慢把它们弄顺",
-    summary: "先让你能进学校，再让卡、邮箱和网络都能用。遇到问题不用翻群聊，我把官方入口留在这里。",
+    summary: "先完成进校、校园卡、邮箱和网络；遇到问题优先查看官方入口。",
     steps: [
       "迎新系统中先确认同济身份激活、人脸信息、个人邮箱和“一网通办”等待办是否出现。",
       "校园卡先解决查询/消费密码与充值入口；网络问题走信息化办公室的网络服务入口，记录报障时间和编号。",
@@ -497,16 +497,16 @@ export function makeStaticAssistantAnswer(query: string) {
   const card = matched[0];
   if (!card) {
     return {
-      answer: "先做什么：这件事我还没提前查到能让你放心照着走的答案，先别拿猜测去跑。\n\n推荐方案：先打开地图或对应的官方入口，确认地点、营业状态或当天通知。\n\n备选方案：在机场、地铁或学校里，直接找服务台、安保或值班老师问一声就好。\n\n注意事项：证件号码、银行卡、宿舍号和实时位置别写在这里；真有紧急情况直接打 110、120 或 119。\n\n来源状态：这条我还没收进攻略，先以官方页面和现场消息为准。",
+      answer: "先做什么：这件事暂未收录为可执行攻略，先不要按猜测行动。\n\n推荐方案：打开地图或对应官方入口，确认地点、营业状态或当天通知。\n\n备选方案：在机场、地铁或学校，直接询问服务台、安保或值班老师。\n\n注意事项：证件号码、银行卡、宿舍号和实时位置不要写在这里；紧急情况直接拨打 110、120 或 119。\n\n来源状态：暂未收录，先以官方页面和现场消息为准。",
       sources: [],
-      sourceStatus: "这条我还没提前查明白",
+      sourceStatus: "暂未收录可验证攻略",
       cards: [],
     };
   }
   return {
-    answer: `先做什么：${card.summary}\n\n推荐方案：${card.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}\n\n备选方案：${card.backup}\n\n注意事项：${card.tip}\n\n来源状态：这条${card.freshness === "请实时查询" ? "出发前你再看一眼，我不想让旧信息带你绕路" : card.freshness === "开学季核验" ? "开学前你再点一下官方页，学校的安排可能会变" : "我先替你核过了"}；我上次核对是 ${card.verifiedAt}。`,
+    answer: `先做什么：${card.summary}\n\n推荐方案：${card.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}\n\n备选方案：${card.backup}\n\n注意事项：${card.tip}\n\n来源状态：${card.freshness === "请实时查询" ? "出发前查询当天页面" : card.freshness === "开学季核验" ? "开学前核验官方通知" : "已完成核验"}；核验日期 ${card.verifiedAt}。`,
     sources: [card.source, ...(card.crossChecks ?? [])],
-    sourceStatus: card.crossChecks?.length ? "我提前给你放好的攻略（也留了交叉核验）" : "我提前给你放好的攻略",
+    sourceStatus: card.crossChecks?.length ? "已收录攻略 · 含交叉核验" : "已收录攻略",
     cards: matched.slice(0, 3),
   };
 }

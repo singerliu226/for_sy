@@ -25,11 +25,11 @@ type AnswerSection = { title: string; lines: string[] };
 const historyKey = "molwan-assistant-history-v2";
 const answerHeadings = ["先做什么", "推荐方案", "备选方案", "注意事项", "来源状态"];
 const answerHeadingLabels: Record<string, string> = {
-  "先做什么": "你先做这一步",
-  "推荐方案": "我帮你顺好的路",
-  "备选方案": "要是临时有变",
-  "注意事项": "这点你记得",
-  "来源状态": "我刚帮你查到的",
+  "先做什么": "先做这一步",
+  "推荐方案": "推荐方案",
+  "备选方案": "临时有变",
+  "注意事项": "注意",
+  "来源状态": "来源状态",
 };
 
 function readMessages() {
@@ -126,8 +126,8 @@ export function MagicAssistant() {
         ...current,
         {
           role: "assistant",
-          text: "先做什么：这次我没查到能确认的最新结果，你先别照着猜的跑。\n\n推荐方案：先翻下面的魔都攻略，或者直接点官方来源看一眼。\n\n备选方案：如果是当晚到达、营业、末班或安全问题，就直接问服务台、值班老师或现场工作人员。\n\n注意事项：真有紧急情况，先打 110、120 或 119，别在这里等答案。\n\n来源状态：这次没拿到能核验的最新信息，所以我没有给你编一个说法。",
-          status: "这次没查到可靠的新消息",
+          text: "先做什么：暂时没有可确认的最新结果，先不要按猜测行动。\n\n推荐方案：打开魔都攻略，或直接查看对应官方页面。\n\n备选方案：当晚到达、营业、末班或安全问题，直接询问服务台、值班老师或现场工作人员。\n\n注意事项：紧急情况先拨打 110、120 或 119。\n\n来源状态：暂未获取可核验的最新信息。",
+          status: "暂未获取可靠的新信息",
         },
       ].slice(-8));
     } finally {
@@ -144,31 +144,31 @@ export function MagicAssistant() {
     <section className="magic-console magic-console--page" aria-labelledby="magic-title">
       <div className="magic-console__heading">
         <span className="magic-console__orb" aria-hidden="true">丸</span>
-        <div><p>A LITTLE NOTE FROM ME</p><h2 id="magic-title">有事就跟我说</h2></div>
-        <span className="magic-console__status"><i />我先帮你查一查</span>
+        <div><p>SHANGHAI QUICK CHECK</p><h2 id="magic-title">输入你现在要解决的事</h2></div>
+        <span className="magic-console__status"><i />可查询最新信息</span>
       </div>
-      <p className="magic-console__intro">你现在卡在哪儿，就直接跟我说。我先去查，能确认的我给你放来源；查不到的，也不让你白跑一趟。</p>
+      <p className="magic-console__intro">临时路线、当日营业、末班、天气和机场抵达，优先返回可打开确认的来源。</p>
       <form onSubmit={submitQuestion} className="magic-console__form">
-        <label className="sr-only" htmlFor="magic-question">把现在遇到的事告诉我</label>
+        <label className="sr-only" htmlFor="magic-question">输入问题</label>
         <input id="magic-question" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="比如：今晚同济附近还有药店开着吗？" autoComplete="off" />
-        <button type="submit" disabled={sending}>{sending ? "我去查一下…" : "跟我说 ↗"}</button>
+        <button type="submit" disabled={sending}>{sending ? "查询中…" : "开始查询 ↗"}</button>
       </form>
       <div className="magic-console__prompts">
         {quickPrompts.map((prompt) => <button type="button" onClick={() => void askAssistant(prompt)} key={prompt}>{prompt}</button>)}
       </div>
-      <p className="magic-console__privacy">我每次都会先查一遍再回你，也会把这次查到的来源放好。住址、证件、银行卡和实时位置就别写在这里了。</p>
+      <p className="magic-console__privacy">住址、证件、银行卡和实时位置不要写在这里；动态信息以打开后的原页面为准。</p>
       {query.trim() && searchResults.length > 0 && (
         <div className="magic-console__matches" aria-live="polite">
-          <span>这几条我已经提前给你整理好了</span>
+          <span>相关攻略</span>
           {searchResults.slice(0, 3).map((card) => <a href={`/guide#guide-${card.section}`} key={card.id}>{card.title} →</a>)}
         </div>
       )}
       {messages.length > 0 && (
         <div className="magic-console__conversation" aria-live="polite">
-          <div className="magic-console__conversation-head"><span>最近几句话留在这台设备里，方便你接着问</span><button type="button" onClick={() => setMessages([])}>把这段清掉</button></div>
+          <div className="magic-console__conversation-head"><span>最近查询仅保存在这台设备</span><button type="button" onClick={() => setMessages([])}>清除记录</button></div>
           {messages.slice(-4).map((message, index) => (
             <article className={`magic-message magic-message--${message.role}`} key={`${message.role}-${index}-${message.text.slice(0, 18)}`}>
-              <p>{message.role === "user" ? "你刚刚问" : "我给你查到的"}</p>
+              <p>{message.role === "user" ? "你的问题" : "查询结果"}</p>
               {message.role === "assistant" ? (
                 <div className="magic-answer">
                   {formatAssistantAnswer(message.text).map((section, sectionIndex) => (
@@ -177,9 +177,9 @@ export function MagicAssistant() {
                 </div>
               ) : <div className="magic-answer magic-answer--user">{message.text}</div>}
               {message.status && <small>{message.status}</small>}
-              {message.checkedAt && <small>我刚查的 · {message.checkedAt}</small>}
-              {message.cards && message.cards.length > 0 && <div className="magic-message__cards">{message.cards.map((card) => <a href={`/guide#guide-${card.section}`} onClick={() => rememberGuide(card)} key={card.id}>我提前给你留的 · {card.title} →</a>)}</div>}
-              {message.sources && message.sources.length > 0 && <footer>{message.sources.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>我查到的来源 · {source.label} ↗</a>)}</footer>}
+              {message.checkedAt && <small>查询时间 · {message.checkedAt}</small>}
+              {message.cards && message.cards.length > 0 && <div className="magic-message__cards">{message.cards.map((card) => <a href={`/guide#guide-${card.section}`} onClick={() => rememberGuide(card)} key={card.id}>{card.title} →</a>)}</div>}
+              {message.sources && message.sources.length > 0 && <footer>{message.sources.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>来源 · {source.label} ↗</a>)}</footer>}
             </article>
           ))}
         </div>
