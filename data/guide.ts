@@ -32,10 +32,7 @@ export type CampusContact = {
 export type EssentialApp = {
   id: string;
   name: string;
-  kind: "App" | "微信小程序";
   summary: string;
-  when: string;
-  officialUrl: string;
 };
 
 const guideVerifiedAt = "2026-08-25";
@@ -452,42 +449,22 @@ export const essentialApps: EssentialApp[] = [
   {
     id: "metro-daduhui",
     name: "Metro 大都会",
-    kind: "App",
     summary: "上海地铁官方乘车码，也能查运营信息。",
-    when: "只坐地铁时装这一个就够了。",
-    officialUrl: "https://www.shmetro.com/",
   },
   {
     id: "suishenxing",
     name: "随申行",
-    kind: "App",
     summary: "把地铁、公交、轮渡和磁浮放在一个出行入口；可查实时到站与换乘。",
-    when: "公交和地铁混着坐、去机场或换乘拿不准时用。",
-    officialUrl: "https://www.shmaas.cn/about.html",
   },
   {
     id: "suishenban",
     name: "随申办",
-    kind: "App",
     summary: "上海官方政务和城市服务入口。",
-    when: "办证、查公共服务或需要官方通知时再打开。",
-    officialUrl: "https://www.shanghai.gov.cn/nw17239/20260630/427c849d95dc4fe782555410b45290cb.html",
-  },
-  {
-    id: "tongji-campus-app",
-    name: "掌上校园－同济大学",
-    kind: "App",
-    summary: "查校园卡、充值校园卡、给宿舍购电。",
-    when: "报到后把校园相关的高频操作收在这里。",
-    officialUrl: "https://help.tongji.edu.cn/",
   },
   {
     id: "dingdong",
     name: "叮咚买菜",
-    kind: "App",
     summary: "适合刚安顿时补水果、牛奶和日常消耗品。",
-    when: "下单前先填宿舍可收货的位置，并看地址覆盖和可送时段。",
-    officialUrl: "https://www.ddfresh.net/",
   },
 ];
 

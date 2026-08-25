@@ -161,15 +161,8 @@ export default function GuidePage() {
                 <section className="app-list" aria-label="必需APP">
                   {essentialApps.map((app) => (
                     <article className="app-list__item" key={app.id}>
-                      <div className="app-list__name">
-                        <span>{app.kind}</span>
-                        <h3>{app.name}</h3>
-                      </div>
-                      <div className="app-list__content">
-                        <p>{app.summary}</p>
-                        <small>{app.when}</small>
-                        <a href={app.officialUrl} target="_blank" rel="noreferrer">查看官方入口 ↗</a>
-                      </div>
+                      <h3>{app.name}</h3>
+                      <p>{app.summary}</p>
                     </article>
                   ))}
                 </section>
