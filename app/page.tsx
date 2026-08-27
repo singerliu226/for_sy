@@ -6,7 +6,7 @@ export default function Home() {
           <span className="molwan-brand__mark">丸</span>
           <span>魔丸小助手</span>
         </a>
-        <p>思怡的上海生活地图</p>
+        <a href="/messages" className="molwan-nav__back">给魔王留句话 →</a>
       </header>
 
       <section className="molwan-home__doors" aria-label="选择一个入口">
@@ -41,7 +41,7 @@ export default function Home() {
 
       <footer className="molwan-footer">
         <span>即时查询、实用攻略与纪念日。</span>
-        <a href="/assistant">使用小助手 →</a>
+        <a href="/messages">给魔王留言 →</a>
       </footer>
     </main>
   );

@@ -251,9 +251,40 @@ footer { background: linear-gradient(90deg, #9a526c, #ad6378 50%, #8d4a65); colo
 .app-list__item p { color: rgba(40, 51, 76, .72); font-family: var(--ui); font-size: 14px; line-height: 1.7; margin: 0; }
 .campus-contact a { font-family: var(--ui); font-size: 18px; font-weight: 650; letter-spacing: .02em; }
 
+.message-site { background: radial-gradient(circle at 8% 17%, rgba(234, 187, 169, .24), transparent 28%), radial-gradient(circle at 94% 74%, rgba(123, 178, 192, .18), transparent 31%), #f8f3ea; min-height: 100svh; }
+.message-hero { margin: 0 auto; max-width: 1104px; padding: clamp(74px, 9vw, 122px) clamp(22px, 5vw, 48px) clamp(36px, 5vw, 60px); }
+.message-hero h1 { font-family: var(--display); font-size: clamp(56px, 8vw, 108px); font-weight: 430; letter-spacing: -.075em; line-height: .94; margin: 18px 0 22px; }
+.message-hero h1 em { color: var(--m-pink); font-style: normal; font-weight: 360; }
+.message-hero > p:last-child { color: rgba(40, 51, 76, .68); font-family: var(--serif); font-size: 16px; line-height: 1.85; margin: 0; }
+.message-board { display: grid; gap: clamp(32px, 5vw, 68px); grid-template-columns: minmax(0, .94fr) minmax(0, 1.06fr); margin: 0 auto; max-width: 1104px; padding: 0 clamp(22px, 5vw, 48px) 48px; }
+.message-board__write, .message-board__history { border-top: 1px solid rgba(40, 51, 76, .2); padding-top: 19px; }
+.message-board__heading { align-items: baseline; display: flex; gap: 14px; margin-bottom: 22px; }
+.message-board__heading p { color: #a15d73; font-family: var(--ui); font-size: 10px; font-weight: 700; letter-spacing: .13em; margin: 0; }
+.message-board__heading h2 { color: var(--m-blue-deep); font-family: var(--display); font-size: 31px; font-weight: 460; letter-spacing: -.04em; margin: 0; }
+.message-board textarea { background: rgba(255, 253, 248, .64); border: 1px solid rgba(40, 51, 76, .24); border-radius: 2px; box-sizing: border-box; color: var(--m-ink); display: block; font-family: var(--serif); font-size: 17px; line-height: 1.8; outline: none; padding: 16px 18px; resize: vertical; transition: border-color .2s ease, background .2s ease; width: 100%; }
+.message-board textarea:focus { background: #fffdfa; border-color: var(--m-blue); }
+.message-board textarea::placeholder { color: rgba(40, 51, 76, .42); }
+.message-board__form-footer { align-items: center; display: flex; gap: 16px; justify-content: space-between; margin-top: 12px; }
+.message-board__form-footer span { color: rgba(40, 51, 76, .54); font-family: var(--ui); font-size: 10px; line-height: 1.5; }
+.message-board__form-footer button { background: var(--m-blue-deep); border: 0; color: #fffaf2; cursor: pointer; font-family: var(--ui); font-size: 11px; font-weight: 700; padding: 12px 15px; white-space: nowrap; }
+.message-board__form-footer button:disabled { cursor: not-allowed; opacity: .45; }
+.message-board__feedback { color: var(--m-pink); font-family: var(--ui); font-size: 12px; margin: 13px 0 0; min-height: 18px; }
+.message-board__empty { color: rgba(40, 51, 76, .58); font-family: var(--serif); font-size: 16px; margin: 4px 0 0; }
+.message-board__list { display: grid; gap: 13px; }
+.message-note { background: rgba(255, 253, 248, .55); border-left: 2px solid rgba(161, 93, 115, .52); padding: 15px 17px; }
+.message-note p { color: var(--m-ink); font-family: var(--serif); font-size: 16px; line-height: 1.8; margin: 0; white-space: pre-wrap; word-break: break-word; }
+.message-note span { color: rgba(40, 51, 76, .52); display: block; font-family: var(--ui); font-size: 10px; letter-spacing: .04em; margin-top: 11px; }
+
 @media (max-width: 620px) {
   .app-list__item { align-items: start; gap: 8px; grid-template-columns: 1fr; padding: 18px 0; }
   .campus-contact a { font-size: 17px; }
+  .message-hero { padding: 76px 22px 37px; }
+  .message-hero h1 { font-size: clamp(54px, 15vw, 78px); }
+  .message-hero > p:last-child { font-size: 14px; max-width: 275px; }
+  .message-board { grid-template-columns: 1fr; padding: 0 22px 32px; }
+  .message-board__heading h2 { font-size: 28px; }
+  .message-board__form-footer { align-items: flex-start; flex-direction: column; }
+  .message-board__form-footer button { align-self: stretch; min-height: 47px; }
 }
 
 /* Dark-blue action buttons must retain clear text in every link state. */
