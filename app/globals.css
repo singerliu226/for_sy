@@ -252,39 +252,69 @@ footer { background: linear-gradient(90deg, #9a526c, #ad6378 50%, #8d4a65); colo
 .campus-contact a { font-family: var(--ui); font-size: 18px; font-weight: 650; letter-spacing: .02em; }
 
 .message-site { background: radial-gradient(circle at 8% 17%, rgba(234, 187, 169, .24), transparent 28%), radial-gradient(circle at 94% 74%, rgba(123, 178, 192, .18), transparent 31%), #f8f3ea; min-height: 100svh; }
-.message-hero { margin: 0 auto; max-width: 1104px; padding: clamp(74px, 9vw, 122px) clamp(22px, 5vw, 48px) clamp(36px, 5vw, 60px); }
+.message-hero { margin: 0 auto; max-width: 810px; padding: clamp(74px, 9vw, 122px) clamp(22px, 5vw, 48px) clamp(30px, 4vw, 46px); }
 .message-hero h1 { font-family: var(--display); font-size: clamp(56px, 8vw, 108px); font-weight: 430; letter-spacing: -.075em; line-height: .94; margin: 18px 0 22px; }
 .message-hero h1 em { color: var(--m-pink); font-style: normal; font-weight: 360; }
-.message-hero > p:last-child { color: rgba(40, 51, 76, .68); font-family: var(--serif); font-size: 16px; line-height: 1.85; margin: 0; }
-.message-board { display: grid; gap: clamp(32px, 5vw, 68px); grid-template-columns: minmax(0, .94fr) minmax(0, 1.06fr); margin: 0 auto; max-width: 1104px; padding: 0 clamp(22px, 5vw, 48px) 48px; }
-.message-board__write, .message-board__history { border-top: 1px solid rgba(40, 51, 76, .2); padding-top: 19px; }
+.message-board { border-top: 1px solid rgba(40, 51, 76, .2); margin: 0 auto; max-width: 810px; padding: 19px clamp(22px, 5vw, 48px) 72px; }
+.message-board__write { padding-top: 0; }
 .message-board__heading { align-items: baseline; display: flex; gap: 14px; margin-bottom: 22px; }
 .message-board__heading p { color: #a15d73; font-family: var(--ui); font-size: 10px; font-weight: 700; letter-spacing: .13em; margin: 0; }
 .message-board__heading h2 { color: var(--m-blue-deep); font-family: var(--display); font-size: 31px; font-weight: 460; letter-spacing: -.04em; margin: 0; }
 .message-board textarea { background: rgba(255, 253, 248, .64); border: 1px solid rgba(40, 51, 76, .24); border-radius: 2px; box-sizing: border-box; color: var(--m-ink); display: block; font-family: var(--serif); font-size: 17px; line-height: 1.8; outline: none; padding: 16px 18px; resize: vertical; transition: border-color .2s ease, background .2s ease; width: 100%; }
 .message-board textarea:focus { background: #fffdfa; border-color: var(--m-blue); }
 .message-board textarea::placeholder { color: rgba(40, 51, 76, .42); }
+.message-board__attachments { display: grid; gap: 11px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 13px; }
+.message-board__attachment { background: rgba(255, 253, 248, .44); border: 1px dashed rgba(40, 51, 76, .3); min-height: 86px; padding: 13px 14px; }
+.message-board__attachment > input { height: 1px; opacity: 0; overflow: hidden; position: absolute; width: 1px; }
+.message-board__attachment label, .message-board__audio-actions > button { background: transparent; border: 0; color: var(--m-blue); cursor: pointer; font-family: var(--ui); font-size: 12px; font-weight: 700; padding: 0; text-decoration: underline; text-underline-offset: 4px; }
+.message-board__audio-actions { align-items: center; display: flex; flex-wrap: wrap; gap: 15px; }
+.message-board__attachment small, .message-board__attachment > span { color: rgba(40, 51, 76, .55); display: block; font-family: var(--ui); font-size: 10px; line-height: 1.55; margin-top: 8px; overflow-wrap: anywhere; }
+.message-board__attachment > span button { background: transparent; border: 0; color: #a15d73; cursor: pointer; font-family: var(--ui); font-size: 10px; font-weight: 700; margin-left: 4px; padding: 0; text-decoration: underline; text-underline-offset: 3px; }
 .message-board__form-footer { align-items: center; display: flex; gap: 16px; justify-content: space-between; margin-top: 12px; }
 .message-board__form-footer span { color: rgba(40, 51, 76, .54); font-family: var(--ui); font-size: 10px; line-height: 1.5; }
 .message-board__form-footer button { background: var(--m-blue-deep); border: 0; color: #fffaf2; cursor: pointer; font-family: var(--ui); font-size: 11px; font-weight: 700; padding: 12px 15px; white-space: nowrap; }
 .message-board__form-footer button:disabled { cursor: not-allowed; opacity: .45; }
 .message-board__feedback { color: var(--m-pink); font-family: var(--ui); font-size: 12px; margin: 13px 0 0; min-height: 18px; }
-.message-board__empty { color: rgba(40, 51, 76, .58); font-family: var(--serif); font-size: 16px; margin: 4px 0 0; }
-.message-board__list { display: grid; gap: 13px; }
-.message-note { background: rgba(255, 253, 248, .55); border-left: 2px solid rgba(161, 93, 115, .52); padding: 15px 17px; }
-.message-note p { color: var(--m-ink); font-family: var(--serif); font-size: 16px; line-height: 1.8; margin: 0; white-space: pre-wrap; word-break: break-word; }
-.message-note span { color: rgba(40, 51, 76, .52); display: block; font-family: var(--ui); font-size: 10px; letter-spacing: .04em; margin-top: 11px; }
+
+.message-inbox-site { background: radial-gradient(circle at 88% 17%, rgba(234, 187, 169, .28), transparent 30%), radial-gradient(circle at 11% 72%, rgba(123, 178, 192, .19), transparent 34%), #f8f3ea; }
+.message-inbox-hero { margin: 0 auto; max-width: 960px; padding: clamp(74px, 9vw, 122px) clamp(22px, 5vw, 48px) clamp(30px, 4vw, 46px); }
+.message-inbox-hero h1 { color: var(--m-blue-deep); font-family: var(--display); font-size: clamp(53px, 7vw, 96px); font-weight: 430; letter-spacing: -.075em; line-height: .94; margin: 18px 0 0; }
+.message-inbox-hero h1 em { color: var(--m-pink); font-style: normal; font-weight: 360; }
+.message-inbox { border-top: 1px solid rgba(40, 51, 76, .2); margin: 0 auto; max-width: 960px; padding: 21px clamp(22px, 5vw, 48px) 84px; }
+.message-inbox__heading { align-items: baseline; display: flex; gap: 20px; justify-content: space-between; margin-bottom: 24px; }
+.message-inbox__heading > div { align-items: baseline; display: flex; gap: 14px; }
+.message-inbox__heading p { color: #a15d73; font-family: var(--ui); font-size: 10px; font-weight: 700; letter-spacing: .13em; margin: 0; }
+.message-inbox__heading h2 { color: var(--m-blue-deep); font-family: var(--display); font-size: 31px; font-weight: 460; letter-spacing: -.04em; margin: 0; }
+.message-inbox__heading button { background: transparent; border: 1px solid rgba(40, 51, 76, .35); color: var(--m-blue-deep); cursor: pointer; font-family: var(--ui); font-size: 11px; font-weight: 700; padding: 10px 12px; }
+.message-inbox__heading button:disabled { cursor: wait; opacity: .5; }
+.message-inbox__feedback { color: #a15d73; font-family: var(--ui); font-size: 12px; margin: 0 0 16px; }
+.message-inbox__empty { color: rgba(40, 51, 76, .58); font-family: var(--serif); font-size: 16px; margin: 4px 0 0; }
+.message-inbox__list { display: grid; gap: 16px; }
+.message-inbox__note { background: rgba(255, 253, 248, .64); border-left: 2px solid rgba(161, 93, 115, .52); padding: 19px 20px 20px; }
+.message-inbox__meta { align-items: baseline; color: rgba(40, 51, 76, .52); display: flex; font-family: var(--ui); font-size: 10px; justify-content: space-between; letter-spacing: .04em; margin-bottom: 12px; }
+.message-inbox__meta span { color: #a15d73; font-weight: 700; }
+.message-inbox__note > p { color: var(--m-ink); font-family: var(--serif); font-size: 16px; line-height: 1.8; margin: 0; white-space: pre-wrap; word-break: break-word; }
+.message-inbox__note img { display: block; height: auto; margin-top: 16px; max-height: 540px; max-width: 100%; object-fit: contain; width: auto; }
+.message-inbox__note audio { display: block; margin-top: 16px; max-width: 100%; width: 360px; }
 
 @media (max-width: 620px) {
   .app-list__item { align-items: start; gap: 8px; grid-template-columns: 1fr; padding: 18px 0; }
   .campus-contact a { font-size: 17px; }
   .message-hero { padding: 76px 22px 37px; }
   .message-hero h1 { font-size: clamp(54px, 15vw, 78px); }
-  .message-hero > p:last-child { font-size: 14px; max-width: 275px; }
-  .message-board { grid-template-columns: 1fr; padding: 0 22px 32px; }
+  .message-board { margin: 0 22px; padding: 19px 0 50px; }
   .message-board__heading h2 { font-size: 28px; }
+  .message-board__attachments { grid-template-columns: 1fr; }
   .message-board__form-footer { align-items: flex-start; flex-direction: column; }
   .message-board__form-footer button { align-self: stretch; min-height: 47px; }
+  .message-inbox-hero { padding: 76px 22px 37px; }
+  .message-inbox-hero h1 { font-size: clamp(53px, 14vw, 78px); }
+  .message-inbox { margin: 0 22px; padding: 19px 0 54px; }
+  .message-inbox__heading, .message-inbox__heading > div { align-items: flex-start; }
+  .message-inbox__heading { flex-direction: column; gap: 15px; }
+  .message-inbox__heading h2 { font-size: 28px; }
+  .message-inbox__note { padding: 16px; }
+  .message-inbox__meta { align-items: flex-start; flex-direction: column; gap: 4px; }
 }
 
 /* Dark-blue action buttons must retain clear text in every link state. */

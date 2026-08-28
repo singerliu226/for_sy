@@ -17,12 +17,9 @@ export default function MessagesPage() {
       <section className="message-hero">
         <p className="molwan-kicker">A NOTE FOR THE KING</p>
         <h1>想说的话，<br /><em>留在这里。</em></h1>
-        <p>我看到以后，会好好读。</p>
       </section>
 
       <MessageBoard />
-
-      <footer className="molwan-footer"><span>写下的这一句，会留在这里。</span><a href="/">回到首页 →</a></footer>
     </main>
   );
 }

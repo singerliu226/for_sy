@@ -4,19 +4,56 @@ import { dirname, join } from "node:path";
 
 export const dynamic = "force-dynamic";
 
+type Attachment = {
+  fileName: string;
+  mimeType: string;
+};
+
 type BoardMessage = {
   id: string;
   author: "思怡";
   body: string;
   createdAt: string;
+  image?: Attachment;
+  audio?: Attachment;
+};
+
+type UploadedFile = {
+  name: string;
+  size: number;
+  type: string;
+  arrayBuffer: () => Promise<ArrayBuffer>;
+};
+
+type ValidatedUpload = {
+  file: UploadedFile;
+  extension: string;
+  mimeType: string;
 };
 
 const MESSAGE_LIMIT = 180;
 const MESSAGE_LENGTH_LIMIT = 280;
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_LIMIT = 5;
+const IMAGE_SIZE_LIMIT = 6 * 1024 * 1024;
+const AUDIO_SIZE_LIMIT = 12 * 1024 * 1024;
 const storePath = process.env.MESSAGE_BOARD_FILE ?? join(process.cwd(), ".message-board", "messages.json");
+const uploadsDirectory = join(dirname(storePath), "uploads");
 const requestBuckets = new Map<string, number[]>();
+const imageTypes = new Map([
+  ["image/jpeg", "jpg"],
+  ["image/png", "png"],
+  ["image/webp", "webp"],
+  ["image/gif", "gif"],
+]);
+const audioTypes = new Map([
+  ["audio/webm", "webm"],
+  ["audio/mp4", "m4a"],
+  ["audio/mpeg", "mp3"],
+  ["audio/wav", "wav"],
+  ["audio/x-wav", "wav"],
+  ["audio/ogg", "ogg"],
+]);
 let writes = Promise.resolve();
 
 function json(body: unknown, status = 200) {
@@ -43,13 +80,21 @@ function rateLimited(address: string) {
   return false;
 }
 
+function isAttachment(value: unknown): value is Attachment {
+  if (!value || typeof value !== "object") return false;
+  const attachment = value as Partial<Attachment>;
+  return typeof attachment.fileName === "string" && typeof attachment.mimeType === "string";
+}
+
 function isBoardMessage(value: unknown): value is BoardMessage {
   if (!value || typeof value !== "object") return false;
   const message = value as Partial<BoardMessage>;
   return typeof message.id === "string"
     && message.author === "思怡"
     && typeof message.body === "string"
-    && typeof message.createdAt === "string";
+    && typeof message.createdAt === "string"
+    && (message.image === undefined || isAttachment(message.image))
+    && (message.audio === undefined || isAttachment(message.audio));
 }
 
 async function readMessages() {
@@ -81,6 +126,38 @@ function cleanMessage(value: unknown) {
   return value.replace(/\r\n?/g, "\n").trim();
 }
 
+function asUpload(value: FormDataEntryValue | null): UploadedFile | null {
+  if (!value || typeof value === "string") return null;
+  return value as unknown as UploadedFile;
+}
+
+function normaliseMimeType(type: string) {
+  return type.toLowerCase().split(";", 1)[0].trim();
+}
+
+function validateUpload(file: UploadedFile | null, kind: "image" | "audio"): ValidatedUpload | null {
+  if (!file || !file.size) return null;
+  const allowedTypes = kind === "image" ? imageTypes : audioTypes;
+  const sizeLimit = kind === "image" ? IMAGE_SIZE_LIMIT : AUDIO_SIZE_LIMIT;
+  const mimeType = normaliseMimeType(file.type);
+  const extension = allowedTypes.get(mimeType);
+
+  if (!extension) throw new Error(kind === "image" ? "图片请用 JPG、PNG、WebP 或 GIF。" : "语音请用 WebM、M4A、MP3、WAV 或 OGG。");
+  if (file.size > sizeLimit) throw new Error(kind === "image" ? "图片请控制在 6MB 以内。" : "语音请控制在 12MB 以内。");
+
+  return { file, extension, mimeType };
+}
+
+async function saveUpload(upload: ValidatedUpload) {
+  await mkdir(uploadsDirectory, { recursive: true });
+  const attachment: Attachment = {
+    fileName: `${randomUUID()}.${upload.extension}`,
+    mimeType: upload.mimeType,
+  };
+  await writeFile(join(uploadsDirectory, attachment.fileName), Buffer.from(await upload.file.arrayBuffer()));
+  return attachment;
+}
+
 export async function GET() {
   try {
     const messages = await readMessages();
@@ -94,32 +171,57 @@ export async function POST(request: Request) {
   const address = clientAddress(request);
   if (rateLimited(address)) return json({ error: "这一会儿已经写得很多啦，过十分钟再留一条。" }, 429);
 
-  let body: { message?: unknown; website?: unknown };
+  let message = "";
+  let website = "";
+  let imageFile: UploadedFile | null = null;
+  let audioFile: UploadedFile | null = null;
+
   try {
-    body = await request.json();
+    if (request.headers.get("content-type")?.includes("multipart/form-data")) {
+      const form = await request.formData();
+      message = cleanMessage(form.get("message"));
+      website = typeof form.get("website") === "string" ? String(form.get("website")) : "";
+      imageFile = asUpload(form.get("image"));
+      audioFile = asUpload(form.get("audio"));
+    } else {
+      const body = await request.json() as { message?: unknown; website?: unknown };
+      message = cleanMessage(body.message);
+      website = typeof body.website === "string" ? body.website : "";
+    }
   } catch {
-    return json({ error: "这句话没有被好好收到，再发一次试试。" }, 400);
+    return json({ error: "这次没能好好收到，再发一次试试。" }, 400);
   }
 
   // A hidden field gives basic bot resistance without adding friction for 思怡.
-  if (typeof body.website === "string" && body.website.trim()) return json({ ok: true });
-
-  const message = cleanMessage(body.message);
-  if (!message) return json({ error: "先写一句想说的话吧。" }, 400);
+  if (website.trim()) return json({ ok: true });
   if (message.length > MESSAGE_LENGTH_LIMIT) return json({ error: `这一条最多 ${MESSAGE_LENGTH_LIMIT} 个字。` }, 400);
 
-  const entry: BoardMessage = {
-    id: randomUUID(),
-    author: "思怡",
-    body: message,
-    createdAt: new Date().toISOString(),
-  };
+  let image: ValidatedUpload | null;
+  let audio: ValidatedUpload | null;
+  try {
+    image = validateUpload(imageFile, "image");
+    audio = validateUpload(audioFile, "audio");
+  } catch (error) {
+    return json({ error: error instanceof Error ? error.message : "附件没能上传。" }, 400);
+  }
+
+  if (!message && !image && !audio) return json({ error: "写句话，或选一张图片、一段语音再发吧。" }, 400);
 
   try {
-    await withWriteLock(async () => {
+    const entry = await withWriteLock(async () => {
+      const next: BoardMessage = {
+        id: randomUUID(),
+        author: "思怡",
+        body: message,
+        createdAt: new Date().toISOString(),
+      };
+      if (image) next.image = await saveUpload(image);
+      if (audio) next.audio = await saveUpload(audio);
+
       const messages = await readMessages();
-      messages.push(entry);
+      messages.push(next);
       await saveMessages(messages.slice(-MESSAGE_LIMIT));
+      return next;
     });
     return json({ message: entry }, 201);
   } catch {
