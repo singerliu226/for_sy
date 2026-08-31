@@ -37,6 +37,7 @@ yarn-error.log*
 
 /dist/
 /.message-board/
+/.activity-log/
 /.wrangler/
 /outputs/
 /work/

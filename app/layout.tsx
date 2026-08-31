@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "@fontsource-variable/noto-serif-sc/wght.css";
 import "@fontsource-variable/cormorant-garamond/wght.css";
 import "@fontsource-variable/cormorant-garamond/wght-italic.css";
+import { ActivityTracker } from "@/components/ActivityTracker";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -24,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
-      <body>{children}</body>
+      <body><ActivityTracker />{children}</body>
     </html>
   );
 }

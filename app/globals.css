@@ -305,6 +305,28 @@ footer { background: linear-gradient(90deg, #9a526c, #ad6378 50%, #8d4a65); colo
 .message-board__identity { display: flex; gap: 7px; }.message-board__identity button { background: transparent; border: 1px solid rgba(40, 51, 76, .27); color: rgba(40, 51, 76, .58); font-family: var(--ui); font-size: 10px; font-weight: 700; padding: 7px 9px; }.message-board__identity button.is-active { background: var(--m-blue-deep); border-color: var(--m-blue-deep); color: #fffaf2; }
 .message-board__replying { margin: 3px 0 0; white-space: nowrap; }.message-board__replying button { background: transparent; border: 0; color: #a15d73; font-family: var(--ui); font-size: 10px; font-weight: 700; margin-left: 5px; padding: 0; text-decoration: underline; text-underline-offset: 3px; }
 
+/* Site activity dashboard: readable history without collecting form content or IP addresses. */
+.activity-site { background: linear-gradient(155deg, #f7f4eb 0, #e5eff0 52%, #f5e9de 100%); min-height: 100svh; }
+.activity-hero { margin: 0 auto; max-width: 1104px; padding: clamp(74px, 9vw, 122px) clamp(22px, 5vw, 48px) clamp(37px, 5vw, 55px); }
+.activity-hero h1 { font-family: var(--display); font-size: clamp(56px, 8vw, 105px); font-weight: 430; letter-spacing: -.075em; line-height: .94; margin: 18px 0 0; }
+.activity-hero h1 em { color: var(--m-blue); font-style: normal; font-weight: 360; }
+.activity-dashboard { background: rgba(255, 252, 247, .72); border: 1px solid rgba(40, 51, 76, .15); margin: 0 auto 55px; max-width: 1008px; padding: clamp(22px, 4vw, 38px); width: calc(100% - 44px); }
+.activity-dashboard__header { align-items: end; border-bottom: 1px solid rgba(40, 51, 76, .16); display: flex; justify-content: space-between; gap: 20px; padding-bottom: 21px; }
+.activity-dashboard__header p { color: #a15d73; font-family: var(--ui); font-size: 9px; font-weight: 700; letter-spacing: .14em; margin: 0 0 8px; }
+.activity-dashboard__header h2 { color: var(--m-blue-deep); font-family: var(--display); font-size: clamp(31px, 4vw, 48px); font-weight: 460; letter-spacing: -.045em; line-height: 1; margin: 0; }
+.activity-dashboard__header button { background: transparent; border: 1px solid rgba(40, 51, 76, .27); color: var(--m-blue-deep); font-family: var(--ui); font-size: 10px; font-weight: 700; padding: 10px 12px; }
+.activity-dashboard__summary { display: grid; gap: 1px; grid-template-columns: repeat(3, 1fr); margin: 25px 0; }
+.activity-dashboard__summary article { background: rgba(220, 233, 233, .43); display: grid; gap: 8px; min-height: 112px; padding: 19px; }
+.activity-dashboard__summary span { color: rgba(40, 51, 76, .58); font-family: var(--ui); font-size: 10px; font-weight: 700; letter-spacing: .08em; }
+.activity-dashboard__summary strong { color: var(--m-blue-deep); font-family: var(--display); font-size: 43px; font-weight: 460; line-height: 1; }
+.activity-dashboard__list { border-top: 1px solid rgba(40, 51, 76, .16); }
+.activity-dashboard__list article { align-items: baseline; border-bottom: 1px solid rgba(40, 51, 76, .13); display: grid; gap: 16px; grid-template-columns: 140px 110px minmax(0, 1fr); padding: 14px 0; }
+.activity-dashboard__list time, .activity-dashboard__list span { color: rgba(40, 51, 76, .52); font-family: var(--ui); font-size: 10px; }
+.activity-dashboard__list span { color: #a15d73; font-weight: 700; }
+.activity-dashboard__list p { color: rgba(40, 51, 76, .84); font-family: var(--serif); font-size: 14px; line-height: 1.55; margin: 0; overflow-wrap: anywhere; }
+.activity-dashboard__empty, .activity-dashboard__feedback { color: rgba(40, 51, 76, .63); font-family: var(--serif); font-size: 15px; line-height: 1.75; margin: 25px 0 0; }
+.activity-dashboard__feedback { color: #9d5d63; }
+
 @media (max-width: 620px) {
   .app-list__item { align-items: start; gap: 8px; grid-template-columns: 1fr; padding: 18px 0; }
   .campus-contact a { font-size: 17px; }
@@ -322,6 +344,11 @@ footer { background: linear-gradient(90deg, #9a526c, #ad6378 50%, #8d4a65); colo
   .message-for-siyi { margin: 0 16px; padding: 23px 0; width: auto; }
   .message-for-siyi__heading h2 { font-size: 28px; }
   .message-for-siyi__list { grid-template-columns: 1fr; }
+  .activity-hero { padding: 76px 22px 37px; }
+  .activity-dashboard { margin-bottom: 38px; width: calc(100% - 32px); }
+  .activity-dashboard__summary { grid-template-columns: 1fr; }
+  .activity-dashboard__summary article { min-height: 88px; }
+  .activity-dashboard__list article { align-items: start; gap: 5px; grid-template-columns: 1fr; padding: 15px 0; }
 }
 
 /* Dark-blue action buttons must retain clear text in every link state. */
