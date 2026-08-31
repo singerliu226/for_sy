@@ -54,7 +54,7 @@ export function MessageForSiyi() {
         <h2 id="message-for-siyi-title">魔王留给你的</h2>
       </div>
       {messages === null ? <p className="message-for-siyi__empty">正在打开这封信…</p> : messages.length === 0 ? (
-        <p className="message-for-siyi__empty">这里会放我想让你一打开就看到的话。</p>
+        <p className="message-for-siyi__empty">这里会放我想让你一打开就看到的话。<a href="/messages">去留句话 →</a></p>
       ) : (
         <div className="message-for-siyi__list">
           {messages.map((message) => (
@@ -67,6 +67,7 @@ export function MessageForSiyi() {
           ))}
         </div>
       )}
+      {messages && messages.length > 0 && <a className="message-for-siyi__link" href="/messages">去我们的小留言回复 →</a>}
     </section>
   );
 }

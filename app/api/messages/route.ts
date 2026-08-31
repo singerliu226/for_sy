@@ -15,6 +15,7 @@ type BoardMessage = {
   id: string;
   author: Person;
   recipient: Person;
+  replyToId?: string;
   body: string;
   createdAt: string;
   image?: Attachment;
@@ -36,6 +37,7 @@ type ValidatedUpload = {
 
 const MESSAGE_LIMIT = 180;
 const MESSAGE_LENGTH_LIMIT = 280;
+const messageIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_LIMIT = 5;
 const IMAGE_SIZE_LIMIT = 6 * 1024 * 1024;
@@ -105,6 +107,7 @@ function normaliseMessage(value: unknown): BoardMessage | null {
     id: message.id,
     author: message.author,
     recipient: isPerson(message.recipient) ? message.recipient : "魔王",
+    ...(typeof message.replyToId === "string" && messageIdPattern.test(message.replyToId) ? { replyToId: message.replyToId } : {}),
     body: message.body,
     createdAt: message.createdAt,
     ...(message.image ? { image: message.image } : {}),
@@ -193,6 +196,7 @@ export async function POST(request: Request) {
   let message = "";
   let website = "";
   let requestedAuthor: unknown = "思怡";
+  let replyToId = "";
   let imageFile: UploadedFile | null = null;
   let audioFile: UploadedFile | null = null;
 
@@ -202,13 +206,15 @@ export async function POST(request: Request) {
       message = cleanMessage(form.get("message"));
       website = typeof form.get("website") === "string" ? String(form.get("website")) : "";
       requestedAuthor = form.get("author") ?? "思怡";
+      replyToId = typeof form.get("replyToId") === "string" ? String(form.get("replyToId")) : "";
       imageFile = asUpload(form.get("image"));
       audioFile = asUpload(form.get("audio"));
     } else {
-      const body = await request.json() as { message?: unknown; website?: unknown; author?: unknown };
+      const body = await request.json() as { message?: unknown; website?: unknown; author?: unknown; replyToId?: unknown };
       message = cleanMessage(body.message);
       website = typeof body.website === "string" ? body.website : "";
       requestedAuthor = body.author ?? "思怡";
+      replyToId = typeof body.replyToId === "string" ? body.replyToId : "";
     }
   } catch {
     return json({ error: "这次没能好好收到，再发一次试试。" }, 400);
@@ -216,6 +222,7 @@ export async function POST(request: Request) {
 
   if (website.trim()) return json({ ok: true });
   if (!isPerson(requestedAuthor)) return json({ error: "写信的人不对。" }, 400);
+  if (replyToId && !messageIdPattern.test(replyToId)) return json({ error: "要回复的留言不见了，刷新后再试试。" }, 400);
   if (message.length > MESSAGE_LENGTH_LIMIT) return json({ error: `这一条最多 ${MESSAGE_LENGTH_LIMIT} 个字。` }, 400);
 
   let image: ValidatedUpload | null;
@@ -238,6 +245,16 @@ export async function POST(request: Request) {
         body: message,
         createdAt: new Date().toISOString(),
       };
+      if (replyToId) {
+        const messages = await readMessages();
+        if (!messages.some((messageItem) => messageItem.id === replyToId)) throw new Error("要回复的留言不见了，刷新后再试试。");
+        next.replyToId = replyToId;
+        messages.push(next);
+        if (image) next.image = await saveUpload(image);
+        if (audio) next.audio = await saveUpload(audio);
+        await saveMessages(messages.slice(-MESSAGE_LIMIT));
+        return next;
+      }
       if (image) next.image = await saveUpload(image);
       if (audio) next.audio = await saveUpload(audio);
 
