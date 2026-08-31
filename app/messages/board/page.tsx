@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { MessageBoard } from "@/components/MessageBoard";
 import { MessageInbox } from "@/components/MessageInbox";
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export default function MessageBoardPage() {
         <h1>魔王的<br /><em>收信看板。</em></h1>
       </section>
 
+      <MessageBoard author="魔王" />
       <MessageInbox />
     </main>
   );

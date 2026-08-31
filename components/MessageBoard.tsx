@@ -11,7 +11,13 @@ function fileLabel(file: File | null) {
   return `${file.name} · ${(file.size / 1024 / 1024).toFixed(file.size > 1024 * 1024 ? 1 : 2)} MB`;
 }
 
-export function MessageBoard() {
+type MessageBoardProps = {
+  author?: "思怡" | "魔王";
+};
+
+export function MessageBoard({ author = "思怡" }: MessageBoardProps) {
+  const isForSiyi = author === "魔王";
+  const recipient = isForSiyi ? "思怡" : "魔王";
   const [draft, setDraft] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [audio, setAudio] = useState<File | null>(null);
@@ -103,6 +109,7 @@ export function MessageBoard() {
     const form = new FormData();
     form.append("message", draft.trim());
     form.append("website", "");
+    form.append("author", author);
     if (image) form.append("image", image);
     if (audio) form.append("audio", audio);
 
@@ -115,7 +122,7 @@ export function MessageBoard() {
       setAudio(null);
       if (imageInput.current) imageInput.current.value = "";
       if (audioInput.current) audioInput.current.value = "";
-      setFeedback("送到啦，魔王会在收信看板里看到。")
+      setFeedback(isForSiyi ? "送到啦，她打开首页就会看到。" : "送到啦，魔王会在收信看板里看到。")
     } catch (error) {
       setFeedback(error instanceof Error && error.message ? error.message : "这次没能留住，稍后再试一次。")
     } finally {
@@ -127,8 +134,8 @@ export function MessageBoard() {
     <section className="message-board" aria-labelledby="message-board-title">
       <div className="message-board__write">
         <div className="message-board__heading">
-          <p>WRITE TO ME</p>
-          <h2 id="message-board-title">给魔王留一句话</h2>
+          <p>{isForSiyi ? "FOR SIYI" : "WRITE TO ME"}</p>
+          <h2 id="message-board-title">{isForSiyi ? "写给思怡" : "给魔王留一句话"}</h2>
         </div>
         <form onSubmit={submit}>
           <label className="sr-only" htmlFor="board-message">留言内容</label>
@@ -137,7 +144,7 @@ export function MessageBoard() {
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             maxLength={MESSAGE_LENGTH_LIMIT}
-            placeholder="今天想跟我说什么？"
+            placeholder={isForSiyi ? "想让她打开首页时看到什么？" : "今天想跟我说什么？"}
             rows={6}
           />
 
@@ -159,7 +166,7 @@ export function MessageBoard() {
 
           <div className="message-board__form-footer">
             <span>{draft.length}/{MESSAGE_LENGTH_LIMIT} · 别留密码、验证码或地址</span>
-            <button type="submit" disabled={sending || (!draft.trim() && !image && !audio)}>{sending ? "送过去了…" : "送给魔王 →"}</button>
+            <button type="submit" disabled={sending || (!draft.trim() && !image && !audio)}>{sending ? "送过去了…" : `送给${recipient} →`}</button>
           </div>
           <p className="message-board__feedback" aria-live="polite">{feedback}</p>
         </form>

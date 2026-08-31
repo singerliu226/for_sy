@@ -4,6 +4,8 @@ import { dirname, join } from "node:path";
 
 export const dynamic = "force-dynamic";
 
+type Person = "思怡" | "魔王";
+
 type Attachment = {
   fileName: string;
   mimeType: string;
@@ -11,7 +13,8 @@ type Attachment = {
 
 type BoardMessage = {
   id: string;
-  author: "思怡";
+  author: Person;
+  recipient: Person;
   body: string;
   createdAt: string;
   image?: Attachment;
@@ -80,28 +83,40 @@ function rateLimited(address: string) {
   return false;
 }
 
+function isPerson(value: unknown): value is Person {
+  return value === "思怡" || value === "魔王";
+}
+
 function isAttachment(value: unknown): value is Attachment {
   if (!value || typeof value !== "object") return false;
   const attachment = value as Partial<Attachment>;
   return typeof attachment.fileName === "string" && typeof attachment.mimeType === "string";
 }
 
-function isBoardMessage(value: unknown): value is BoardMessage {
-  if (!value || typeof value !== "object") return false;
+function normaliseMessage(value: unknown): BoardMessage | null {
+  if (!value || typeof value !== "object") return null;
   const message = value as Partial<BoardMessage>;
-  return typeof message.id === "string"
-    && message.author === "思怡"
-    && typeof message.body === "string"
-    && typeof message.createdAt === "string"
-    && (message.image === undefined || isAttachment(message.image))
-    && (message.audio === undefined || isAttachment(message.audio));
+  if (typeof message.id !== "string" || !isPerson(message.author) || typeof message.body !== "string" || typeof message.createdAt !== "string") return null;
+  if (message.image !== undefined && !isAttachment(message.image)) return null;
+  if (message.audio !== undefined && !isAttachment(message.audio)) return null;
+
+  // Messages written before the two-way board existed were all for 魔王.
+  return {
+    id: message.id,
+    author: message.author,
+    recipient: isPerson(message.recipient) ? message.recipient : "魔王",
+    body: message.body,
+    createdAt: message.createdAt,
+    ...(message.image ? { image: message.image } : {}),
+    ...(message.audio ? { audio: message.audio } : {}),
+  };
 }
 
 async function readMessages() {
   try {
     const content = await readFile(storePath, "utf8");
     const value = JSON.parse(content);
-    return Array.isArray(value) ? value.filter(isBoardMessage).slice(-MESSAGE_LIMIT) : [];
+    return Array.isArray(value) ? value.map(normaliseMessage).filter((message): message is BoardMessage => message !== null).slice(-MESSAGE_LIMIT) : [];
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
     throw error;
@@ -158,10 +173,14 @@ async function saveUpload(upload: ValidatedUpload) {
   return attachment;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const requestedRecipient = new URL(request.url).searchParams.get("recipient");
+  if (requestedRecipient && !isPerson(requestedRecipient)) return json({ error: "收件人不对。" }, 400);
+
   try {
     const messages = await readMessages();
-    return json({ messages: messages.reverse() });
+    const visibleMessages = requestedRecipient ? messages.filter((message) => message.recipient === requestedRecipient) : messages;
+    return json({ messages: visibleMessages.reverse() });
   } catch {
     return json({ error: "留言板暂时打不开，过一会儿再试试。" }, 500);
   }
@@ -173,6 +192,7 @@ export async function POST(request: Request) {
 
   let message = "";
   let website = "";
+  let requestedAuthor: unknown = "思怡";
   let imageFile: UploadedFile | null = null;
   let audioFile: UploadedFile | null = null;
 
@@ -181,19 +201,21 @@ export async function POST(request: Request) {
       const form = await request.formData();
       message = cleanMessage(form.get("message"));
       website = typeof form.get("website") === "string" ? String(form.get("website")) : "";
+      requestedAuthor = form.get("author") ?? "思怡";
       imageFile = asUpload(form.get("image"));
       audioFile = asUpload(form.get("audio"));
     } else {
-      const body = await request.json() as { message?: unknown; website?: unknown };
+      const body = await request.json() as { message?: unknown; website?: unknown; author?: unknown };
       message = cleanMessage(body.message);
       website = typeof body.website === "string" ? body.website : "";
+      requestedAuthor = body.author ?? "思怡";
     }
   } catch {
     return json({ error: "这次没能好好收到，再发一次试试。" }, 400);
   }
 
-  // A hidden field gives basic bot resistance without adding friction for 思怡.
   if (website.trim()) return json({ ok: true });
+  if (!isPerson(requestedAuthor)) return json({ error: "写信的人不对。" }, 400);
   if (message.length > MESSAGE_LENGTH_LIMIT) return json({ error: `这一条最多 ${MESSAGE_LENGTH_LIMIT} 个字。` }, 400);
 
   let image: ValidatedUpload | null;
@@ -211,7 +233,8 @@ export async function POST(request: Request) {
     const entry = await withWriteLock(async () => {
       const next: BoardMessage = {
         id: randomUUID(),
-        author: "思怡",
+        author: requestedAuthor,
+        recipient: requestedAuthor === "魔王" ? "思怡" : "魔王",
         body: message,
         createdAt: new Date().toISOString(),
       };

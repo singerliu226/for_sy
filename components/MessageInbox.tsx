@@ -9,7 +9,8 @@ type Attachment = {
 
 type BoardMessage = {
   id: string;
-  author: "思怡";
+  author: "思怡" | "魔王";
+  recipient: "思怡" | "魔王";
   body: string;
   createdAt: string;
   image?: Attachment;
@@ -72,7 +73,7 @@ export function MessageInbox() {
             <article className="message-inbox__note" key={message.id}>
               <div className="message-inbox__meta"><span>{message.author}</span><time dateTime={message.createdAt}>{displayTime(message.createdAt)}</time></div>
               {message.body && <p>{message.body}</p>}
-              {message.image && <img src={mediaUrl(message.image)} alt="思怡附上的图片" />}
+              {message.image && <img src={mediaUrl(message.image)} alt={`${message.author}附上的图片`} />}
               {message.audio && <audio controls preload="metadata" src={mediaUrl(message.audio)}>你的浏览器暂时不能播放这段语音。</audio>}
             </article>
           ))}

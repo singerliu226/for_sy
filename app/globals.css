@@ -148,6 +148,17 @@ footer { background: linear-gradient(90deg, #9a526c, #ad6378 50%, #8d4a65); colo
 .molwan-door strong { bottom: 28px; color: var(--m-ink); font-family: var(--ui); font-size: 11px; font-weight: 600; left: 76px; letter-spacing: .08em; position: absolute; }.molwan-door strong i { color: var(--m-blue-deep); font-size: 17px; font-style: normal; margin-left: 7px; }
 .molwan-door__map { bottom: -35px; height: 185px; position: absolute; right: -20px; transform: rotate(-11deg); width: 185px; }.molwan-door__map::before { border: 1px solid rgba(58, 98, 128, .36); border-radius: 40% 60% 58% 42%; content: ""; inset: 11px; position: absolute; }.molwan-door__map i { background: var(--m-blue-deep); border-radius: 50%; height: 9px; position: absolute; width: 9px; }.molwan-door__map i:nth-child(1) { left: 36px; top: 48px; }.molwan-door__map i:nth-child(2) { background: var(--m-gold); left: 105px; top: 94px; }.molwan-door__map i:nth-child(3) { background: var(--m-pink); left: 58px; top: 133px; }
 .molwan-door__moon { border: 1px solid rgba(135, 76, 97, .48); border-radius: 50%; bottom: -69px; height: 198px; position: absolute; right: -26px; width: 198px; }.molwan-door__moon::after { background: #f1d5d2; border-radius: 50%; content: ""; height: 153px; left: -29px; position: absolute; top: -7px; width: 153px; }
+.message-for-siyi { border-top: 1px solid rgba(40, 51, 76, .16); margin: 0 auto; max-width: 1240px; padding: 27px clamp(22px, 5vw, 68px) 26px; width: 100%; }
+.message-for-siyi__heading { align-items: baseline; display: flex; gap: 14px; margin-bottom: 16px; }
+.message-for-siyi__heading p { color: #a15d73; font-family: var(--ui); font-size: 10px; font-weight: 700; letter-spacing: .13em; margin: 0; }
+.message-for-siyi__heading h2 { color: var(--m-blue-deep); font-family: var(--display); font-size: 30px; font-weight: 460; letter-spacing: -.045em; margin: 0; }
+.message-for-siyi__empty { color: rgba(40, 51, 76, .62); font-family: var(--serif); font-size: 15px; line-height: 1.75; margin: 0; }
+.message-for-siyi__list { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.message-for-siyi__note { background: rgba(255, 253, 248, .62); border-left: 2px solid rgba(161, 93, 115, .52); min-width: 0; padding: 16px 17px; }
+.message-for-siyi__note > p { color: var(--m-ink); font-family: var(--serif); font-size: 15px; line-height: 1.75; margin: 0; white-space: pre-wrap; word-break: break-word; }
+.message-for-siyi__note img { display: block; height: auto; margin-top: 13px; max-height: 310px; max-width: 100%; object-fit: contain; width: auto; }
+.message-for-siyi__note audio { display: block; margin-top: 13px; max-width: 100%; width: 100%; }
+.message-for-siyi__note time { color: rgba(40, 51, 76, .49); display: block; font-family: var(--ui); font-size: 9px; letter-spacing: .05em; margin-top: 13px; }
 
 /* Anniversary archive */
 .anniversary-site { background: radial-gradient(circle at 86% 11%, rgba(230, 164, 161, .26), transparent 23%), radial-gradient(circle at 13% 84%, rgba(109, 139, 159, .15), transparent 28%), #f5eee6; }
@@ -315,6 +326,9 @@ footer { background: linear-gradient(90deg, #9a526c, #ad6378 50%, #8d4a65); colo
   .message-inbox__heading h2 { font-size: 28px; }
   .message-inbox__note { padding: 16px; }
   .message-inbox__meta { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .message-for-siyi { margin: 0 16px; padding: 23px 0; width: auto; }
+  .message-for-siyi__heading h2 { font-size: 28px; }
+  .message-for-siyi__list { grid-template-columns: 1fr; }
 }
 
 /* Dark-blue action buttons must retain clear text in every link state. */

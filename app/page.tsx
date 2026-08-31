@@ -1,3 +1,5 @@
+import { MessageForSiyi } from "@/components/MessageForSiyi";
+
 export default function Home() {
   return (
     <main className="molwan-site molwan-home">
@@ -38,6 +40,8 @@ export default function Home() {
           <span className="molwan-door__moon" aria-hidden="true" />
         </a>
       </section>
+
+      <MessageForSiyi />
 
       <footer className="molwan-footer">
         <span>即时查询、实用攻略与纪念日。</span>
