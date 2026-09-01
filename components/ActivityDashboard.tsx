@@ -17,6 +17,7 @@ type ActivityEvent = {
 type ActivityData = {
   summary: { visitsToday: number; visitorsThisWeek: number; clicksToday: number };
   events: ActivityEvent[];
+  privateView?: boolean;
 };
 
 function displayTime(value: string) {
@@ -32,8 +33,9 @@ function displayTime(value: string) {
   }).format(date);
 }
 
-function visitorLabel(event: ActivityEvent) {
+function visitorLabel(event: ActivityEvent, privateView: boolean) {
   if (event.attribution) return `${event.attribution.label} · ${event.attribution.confidence}置信`;
+  if (privateView) return "待识别";
   return `访客 ${event.visitor.replace(/-/g, "").slice(0, 6).toUpperCase()}`;
 }
 
@@ -83,7 +85,7 @@ export function ActivityDashboard() {
               {data.events.map((event) => (
                 <article key={event.id}>
                   <time dateTime={event.createdAt}>{displayTime(event.createdAt)}</time>
-                  <span>{visitorLabel(event)}</span>
+                  <span>{visitorLabel(event, Boolean(data.privateView))}</span>
                   <p>{eventCopy(event)}{event.source === "history" && <b className="activity-dashboard__history">历史日志</b>}{event.attribution && <small className="activity-dashboard__basis">{event.attribution.basis}</small>}</p>
                 </article>
               ))}

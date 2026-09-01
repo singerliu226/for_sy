@@ -140,6 +140,7 @@ export async function GET(request: Request) {
     const attributions = privateView ? await readAttributions() : new Map<string, VisitorAttribution>();
     const visibleEvents = privateView ? events.map((event) => ({ ...event, ...(attributions.has(event.visitor) ? { attribution: attributions.get(event.visitor) } : {}) })) : events;
     return json({
+      privateView,
       summary: {
         visitsToday: today.filter((event) => event.type === "pageview").length,
         visitorsThisWeek: new Set(week.map((event) => event.visitor)).size,
