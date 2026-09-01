@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 type ActivityKind = "pageview" | "click";
 type ActivitySource = "live" | "history";
 type VisitorAttribution = { label: string; confidence: "高" | "中" | "低"; basis: string };
+type VisitorAttributionRule = VisitorAttribution & { before?: string };
 
 type ActivityEvent = {
   id: string;
@@ -64,30 +65,39 @@ function normaliseEvent(value: unknown): ActivityEvent | null {
   return { id: event.id, visitor: event.visitor, type: event.type, path: event.path, createdAt: event.createdAt, ...(label ? { label } : {}), ...(destination ? { destination } : {}), ...(isActivitySource(event.source) ? { source: event.source } : {}) };
 }
 
-function normaliseAttribution(value: unknown): VisitorAttribution | null {
+function normaliseAttribution(value: unknown): VisitorAttributionRule | null {
   if (!value || typeof value !== "object") return null;
   const attribution = value as Partial<VisitorAttribution>;
   const label = cleanText(attribution.label, 32);
   const basis = cleanText(attribution.basis, 160);
   if (!label || !basis || (attribution.confidence !== "高" && attribution.confidence !== "中" && attribution.confidence !== "低")) return null;
-  return { label, confidence: attribution.confidence, basis };
+  const before = typeof (value as { before?: unknown }).before === "string" && !Number.isNaN(new Date((value as { before: string }).before).getTime()) ? (value as { before: string }).before : "";
+  return { label, confidence: attribution.confidence, basis, ...(before ? { before } : {}) };
 }
 
 async function readAttributions() {
-  if (!attributionPath) return new Map<string, VisitorAttribution>();
+  if (!attributionPath) return new Map<string, VisitorAttributionRule[]>();
   try {
     const content = await readFile(attributionPath, "utf8");
     const parsed = JSON.parse(content);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return new Map<string, VisitorAttribution>();
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return new Map<string, VisitorAttributionRule[]>();
     return new Map(Object.entries(parsed)
       .flatMap(([visitor, value]) => {
-        const attribution = normaliseAttribution(value);
-        return validVisitor(visitor) && attribution ? [[visitor, attribution] as const] : [];
+        const rules = (Array.isArray(value) ? value : [value]).map(normaliseAttribution).filter((item): item is VisitorAttributionRule => item !== null);
+        return validVisitor(visitor) && rules.length ? [[visitor, rules] as const] : [];
       }));
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return new Map<string, VisitorAttribution>();
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return new Map<string, VisitorAttributionRule[]>();
     throw error;
   }
+}
+
+function attributionFor(event: ActivityEvent, attributions: Map<string, VisitorAttributionRule[]>) {
+  const rules = attributions.get(event.visitor) ?? [];
+  const rule = rules.find((item) => !item.before || event.createdAt < item.before);
+  if (!rule) return undefined;
+  const { before: _before, ...attribution } = rule;
+  return attribution;
 }
 
 function isPrivateOwnerRequest(request: Request) {
@@ -137,8 +147,11 @@ export async function GET(request: Request) {
     const today = events.filter((event) => now - new Date(event.createdAt).getTime() < 24 * 60 * 60 * 1000);
     const week = events.filter((event) => now - new Date(event.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000);
     const privateView = isPrivateOwnerRequest(request);
-    const attributions = privateView ? await readAttributions() : new Map<string, VisitorAttribution>();
-    const visibleEvents = privateView ? events.map((event) => ({ ...event, ...(attributions.has(event.visitor) ? { attribution: attributions.get(event.visitor) } : {}) })) : events;
+    const attributions = privateView ? await readAttributions() : new Map<string, VisitorAttributionRule[]>();
+    const visibleEvents = privateView ? events.map((event) => {
+      const attribution = attributionFor(event, attributions);
+      return { ...event, ...(attribution ? { attribution } : {}) };
+    }) : events;
     return json({
       privateView,
       summary: {

@@ -72,7 +72,9 @@ async function lookupLocation(address) {
       if (!data || typeof data !== "object") continue;
       const location = data;
       const values = [location.city, location.region, location.country_name ?? location.country].filter((value) => typeof value === "string" && value.trim());
-      if (values.length) return values.join(" · ");
+      const connection = location.connection && typeof location.connection === "object" ? location.connection : {};
+      const networkValues = [connection.asn, connection.isp, connection.org, location.org].filter((value) => typeof value === "string" && value.trim());
+      if (values.length || networkValues.length) return { location: values.length ? values.join(" · ") : null, network: networkValues.length ? [...new Set(networkValues)].join(" · ") : null };
     } catch {
       // Try the second provider before declaring a location unavailable.
     } finally {
@@ -109,13 +111,14 @@ for (const fileName of logFiles) {
     if (!parsed) continue;
     imported.push(parsed.event);
     if (reportMode) {
-      const profile = visitorProfiles.get(parsed.event.visitor) ?? { visitor: parsed.event.visitor, address: parsed.address, visits: 0, first: parsed.event.createdAt, last: parsed.event.createdAt, days: new Set(), paths: new Set(), devices: new Set() };
+      const profile = visitorProfiles.get(parsed.event.visitor) ?? { visitor: parsed.event.visitor, address: parsed.address, visits: 0, first: parsed.event.createdAt, last: parsed.event.createdAt, days: new Set(), paths: new Set(), devices: new Set(), deviceSignatures: new Set() };
       profile.visits += 1;
       if (parsed.event.createdAt < profile.first) profile.first = parsed.event.createdAt;
       if (parsed.event.createdAt > profile.last) profile.last = parsed.event.createdAt;
       profile.days.add(parsed.event.createdAt.slice(0, 10));
       profile.paths.add(parsed.event.path);
       profile.devices.add(agentFamily(parsed.userAgent));
+      profile.deviceSignatures.add(digest(parsed.userAgent).slice(0, 16));
       visitorProfiles.set(parsed.event.visitor, profile);
     }
   }
@@ -123,7 +126,10 @@ for (const fileName of logFiles) {
 
 if (reportMode) {
   const profiled = await Promise.all([...visitorProfiles.values()]
-    .map(async (profile) => ({ ...profile, ...(geoReportMode ? { location: await lookupLocation(profile.address) } : {}), days: [...profile.days].sort(), paths: [...profile.paths].sort(), devices: [...profile.devices].sort() })));
+    .map(async (profile) => {
+      const geo = geoReportMode ? await lookupLocation(profile.address) : null;
+      return { ...profile, ...(geoReportMode ? { location: geo?.location ?? null, network: geo?.network ?? null } : {}), days: [...profile.days].sort(), paths: [...profile.paths].sort(), devices: [...profile.devices].sort(), deviceSignatures: [...profile.deviceSignatures].sort() };
+    }));
   const profiles = profiled
     .map(({ address, ...profile }) => profile)
     .sort((first, second) => first.first.localeCompare(second.first));
