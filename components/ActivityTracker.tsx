@@ -54,7 +54,7 @@ function sendActivity(visitor: string, type: ActivityKind, label = "", destinati
 
 export function ActivityTracker() {
   useEffect(() => {
-    if (window.location.pathname === "/dashboard") return;
+    if (window.location.pathname === "/dashboard" || window.location.pathname.startsWith("/owner")) return;
 
     const visitor = visitorId();
     sendActivity(visitor, "pageview");

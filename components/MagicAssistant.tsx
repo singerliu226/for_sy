@@ -23,6 +23,11 @@ type AssistantResponse = {
 type AnswerSection = { title: string; lines: string[] };
 
 const historyKey = "molwan-assistant-history-v3";
+const historicalKeys = ["molwan-assistant-history-v3", "molwan-assistant-history-v2"];
+const recoveryIdKey = "molwan-assistant-recovery-id-v1";
+const recoveryDoneKey = "molwan-assistant-recovery-done-v1";
+const initiators = ["思怡", "魔王"] as const;
+type Initiator = (typeof initiators)[number];
 const answerHeadings = ["先做什么", "推荐方案", "备选方案", "注意事项", "来源状态"];
 const answerHeadingLabels: Record<string, string> = {
   "先做什么": "先做这一步",
@@ -32,9 +37,9 @@ const answerHeadingLabels: Record<string, string> = {
   "来源状态": "来源状态",
 };
 
-function readMessages() {
+function readMessages(key = historyKey) {
   try {
-    const value = JSON.parse(window.localStorage.getItem(historyKey) ?? "[]");
+    const value = JSON.parse(window.localStorage.getItem(key) ?? "[]");
     if (!Array.isArray(value)) return [];
     return value.filter((item): item is AssistantMessage => (
       item && (item.role === "user" || item.role === "assistant") && typeof item.text === "string"
@@ -42,6 +47,27 @@ function readMessages() {
   } catch {
     return [];
   }
+}
+
+function newBrowserId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+  return `m-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+}
+
+function recoveryId() {
+  try {
+    const stored = window.localStorage.getItem(recoveryIdKey);
+    if (stored && /^[a-z0-9-]{16,80}$/i.test(stored)) return stored;
+    const next = newBrowserId();
+    window.localStorage.setItem(recoveryIdKey, next);
+    return next;
+  } catch {
+    return newBrowserId();
+  }
+}
+
+function browserHistoryForRecovery() {
+  return historicalKeys.flatMap((key) => readMessages(key));
 }
 
 function formatAssistantAnswer(answer: string): AnswerSection[] {
@@ -83,6 +109,9 @@ function rememberGuide(card: GuideCard) {
 export function MagicAssistant() {
   const [query, setQuery] = useState("");
   const [messages, setMessages] = useState<AssistantMessage[]>([]);
+  const [initiator, setInitiator] = useState<Initiator>("思怡");
+  const [sessionId] = useState(newBrowserId);
+  const [recoveryNote, setRecoveryNote] = useState("");
   const [sending, setSending] = useState(false);
   const [ready, setReady] = useState(false);
   const searchResults = useMemo(() => findGuideCards(query), [query]);
@@ -90,6 +119,29 @@ export function MagicAssistant() {
   useEffect(() => {
     setMessages(readMessages());
     setReady(true);
+
+    let cancelled = false;
+    const previous = browserHistoryForRecovery();
+    let alreadyRecovered = false;
+    try {
+      alreadyRecovered = window.localStorage.getItem(recoveryDoneKey) === "done";
+    } catch {
+      // If storage is unavailable, the current session can still be used normally.
+    }
+    if (alreadyRecovered || !previous.length) return () => { cancelled = true; };
+
+    void fetch("/api/assistant-history/migrate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ recoveryId: recoveryId(), initiator: "思怡", messages: previous.map(({ role, text, status }) => ({ role, text, status })) }),
+    }).then(async (response) => {
+      const data = await response.json() as { imported?: number };
+      if (!response.ok) return;
+      try { window.localStorage.setItem(recoveryDoneKey, "done"); } catch { /* no-op */ }
+      if (!cancelled && data.imported) setRecoveryNote(`已收回这台设备保留的 ${data.imported} 条旧对话。`);
+    }).catch(() => undefined);
+
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -111,6 +163,8 @@ export function MagicAssistant() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message,
+          initiator,
+          conversationId: sessionId,
           history: nextHistory.slice(0, -1).map(({ role, text }) => ({ role, text })),
         }),
       });
@@ -148,6 +202,10 @@ export function MagicAssistant() {
         <span className="magic-console__status"><i />可查询最新信息</span>
       </div>
       <p className="magic-console__intro">帮你判断落地后怎么走、哪儿还开着、会不会下雨或错过末班车。</p>
+      <div className="magic-console__initiator" aria-label="选择问题发起人">
+        <span>这句话是谁问的</span>
+        <div>{initiators.map((name) => <button type="button" className={initiator === name ? "is-active" : ""} onClick={() => setInitiator(name)} key={name}>{name}</button>)}</div>
+      </div>
       <form onSubmit={submitQuestion} className="magic-console__form">
         <label className="sr-only" htmlFor="magic-question">输入问题</label>
         <input id="magic-question" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="比如：今晚同济附近还有药店开着吗？" autoComplete="off" />
@@ -156,6 +214,7 @@ export function MagicAssistant() {
       <div className="magic-console__prompts">
         {quickPrompts.map((prompt) => <button type="button" onClick={() => void askAssistant(prompt)} key={prompt}>{prompt}</button>)}
       </div>
+      {recoveryNote && <p className="magic-console__privacy" role="status">{recoveryNote}</p>}
       {query.trim() && searchResults.length > 0 && (
         <div className="magic-console__matches" aria-live="polite">
           <span>相关攻略</span>

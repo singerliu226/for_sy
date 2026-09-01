@@ -1,6 +1,10 @@
+import { randomUUID } from "node:crypto";
 import { GuideSource, findGuideCards, makeStaticAssistantAnswer, recognizeGuideIntent } from "@/data/guide";
+import { isAuditInitiator, recordLiveConversation, type AuditInitiator } from "@/lib/assistant-audit";
 
 type HistoryItem = { role: "user" | "assistant"; text: string };
+type ChatBody = { message?: unknown; history?: unknown; initiator?: unknown; conversationId?: unknown };
+type ChatReply = { answer: string; sourceStatus?: string; [key: string]: unknown };
 
 const requestBuckets = new Map<string, number[]>();
 const REQUEST_WINDOW_MS = 10 * 60 * 1000;
@@ -98,13 +102,17 @@ function dynamicSources(answer: string): GuideSource[] {
   });
 }
 
+function conversationId(value: unknown) {
+  return typeof value === "string" && /^[a-z0-9-]{16,96}$/i.test(value) ? value : randomUUID();
+}
+
 export async function POST(request: Request) {
   const address = clientAddress(request);
   if (isRateLimited(address)) {
     return Response.json({ error: "魔丸要缓一缓啦，请十分钟后再问一次。" }, { status: 429 });
   }
 
-  let body: { message?: unknown; history?: unknown };
+  let body: ChatBody;
   try {
     body = await request.json();
   } catch {
@@ -113,21 +121,39 @@ export async function POST(request: Request) {
 
   const message = typeof body.message === "string" ? body.message.trim().slice(0, 500) : "";
   if (!message) return Response.json({ error: "先写下一句想问魔丸的话吧。" }, { status: 400 });
+  if (!isAuditInitiator(body.initiator)) return Response.json({ error: "先选一下这句话是谁问的。" }, { status: 400 });
 
   const history = parseHistory(body.history);
+  const initiator: AuditInitiator = body.initiator;
+  const sessionId = conversationId(body.conversationId);
   const intent = recognizeGuideIntent(message);
   const localAnswer = makeStaticAssistantAnswer(message);
+
+  const respondWithAudit = async (reply: ChatReply) => {
+    try {
+      await recordLiveConversation({
+        conversationId: sessionId,
+        initiator,
+        question: message,
+        answer: reply.answer,
+        status: reply.sourceStatus,
+      });
+    } catch {
+      // The answer must still reach the user even if the private archive is temporarily unavailable.
+    }
+    return Response.json(reply);
+  };
 
   // These two topics are deliberately answered from a safe, real-time entry
   // point instead of asking a model to invent a restaurant list or delay an
   // urgent action. They also make the intent boundary visible to the user.
   if (intent.id === "nearby-food" || intent.id === "emergency") {
-    return Response.json({ ...localAnswer, mode: "intent" });
+    return respondWithAudit({ ...localAnswer, mode: "intent" });
   }
 
   const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {
-    return Response.json({
+    return respondWithAudit({
       ...localAnswer,
       sourceStatus: `暂时无法获取最新信息；${localAnswer.sourceStatus}`,
       mode: "fallback",
@@ -173,13 +199,13 @@ export async function POST(request: Request) {
 
       const citations = dynamicSources(answer);
       if (!citations.length) {
-        return Response.json({
+        return respondWithAudit({
           ...localAnswer,
           sourceStatus: "未找到可靠的可验证来源，以下为已收录攻略",
           mode: "fallback",
         });
       }
-      return Response.json({
+      return respondWithAudit({
         answer: removeSourceUrls(answer),
         sources: citations,
         sourceStatus: "来源可自行打开确认；临时变化以原页面为准",
@@ -192,7 +218,7 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     const timedOut = error instanceof Error && error.message === "live_search_timeout";
-    return Response.json({
+    return respondWithAudit({
       ...localAnswer,
       sourceStatus: timedOut
         ? `查询超时；${localAnswer.sourceStatus}`
