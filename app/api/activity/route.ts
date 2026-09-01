@@ -6,6 +6,7 @@ export const dynamic = "force-dynamic";
 
 type ActivityKind = "pageview" | "click";
 type ActivitySource = "live" | "history";
+type VisitorAttribution = { label: string; confidence: "高" | "中" | "低"; basis: string };
 
 type ActivityEvent = {
   id: string;
@@ -16,6 +17,7 @@ type ActivityEvent = {
   destination?: string;
   createdAt: string;
   source?: ActivitySource;
+  attribution?: VisitorAttribution;
 };
 
 // The retained Nginx history is small enough to keep the available range intact.
@@ -24,6 +26,7 @@ const returnLimit = 2000;
 const rateWindowMs = 10 * 60 * 1000;
 const rateLimit = 120;
 const storePath = process.env.ACTIVITY_LOG_FILE ?? join(process.cwd(), ".activity-log", "events.json");
+const attributionPath = process.env.VISITOR_ATTRIBUTION_FILE ?? "";
 const recentRequests = new Map<string, number[]>();
 let writes = Promise.resolve();
 
@@ -61,6 +64,37 @@ function normaliseEvent(value: unknown): ActivityEvent | null {
   return { id: event.id, visitor: event.visitor, type: event.type, path: event.path, createdAt: event.createdAt, ...(label ? { label } : {}), ...(destination ? { destination } : {}), ...(isActivitySource(event.source) ? { source: event.source } : {}) };
 }
 
+function normaliseAttribution(value: unknown): VisitorAttribution | null {
+  if (!value || typeof value !== "object") return null;
+  const attribution = value as Partial<VisitorAttribution>;
+  const label = cleanText(attribution.label, 32);
+  const basis = cleanText(attribution.basis, 160);
+  if (!label || !basis || (attribution.confidence !== "高" && attribution.confidence !== "中" && attribution.confidence !== "低")) return null;
+  return { label, confidence: attribution.confidence, basis };
+}
+
+async function readAttributions() {
+  if (!attributionPath) return new Map<string, VisitorAttribution>();
+  try {
+    const content = await readFile(attributionPath, "utf8");
+    const parsed = JSON.parse(content);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return new Map<string, VisitorAttribution>();
+    return new Map(Object.entries(parsed)
+      .flatMap(([visitor, value]) => {
+        const attribution = normaliseAttribution(value);
+        return validVisitor(visitor) && attribution ? [[visitor, attribution] as const] : [];
+      }));
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return new Map<string, VisitorAttribution>();
+    throw error;
+  }
+}
+
+function isPrivateOwnerRequest(request: Request) {
+  const host = request.headers.get("host") ?? "";
+  return !request.headers.get("x-forwarded-for") && /^(localhost|127\.0\.0\.1)(?::\d+)?$/i.test(host);
+}
+
 async function readEvents() {
   try {
     const content = await readFile(storePath, "utf8");
@@ -96,19 +130,22 @@ function isRateLimited(visitor: string) {
   return false;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const events = await readEvents();
     const now = Date.now();
     const today = events.filter((event) => now - new Date(event.createdAt).getTime() < 24 * 60 * 60 * 1000);
     const week = events.filter((event) => now - new Date(event.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000);
+    const privateView = isPrivateOwnerRequest(request);
+    const attributions = privateView ? await readAttributions() : new Map<string, VisitorAttribution>();
+    const visibleEvents = privateView ? events.map((event) => ({ ...event, ...(attributions.has(event.visitor) ? { attribution: attributions.get(event.visitor) } : {}) })) : events;
     return json({
       summary: {
         visitsToday: today.filter((event) => event.type === "pageview").length,
         visitorsThisWeek: new Set(week.map((event) => event.visitor)).size,
         clicksToday: today.filter((event) => event.type === "click").length,
       },
-      events: events.slice(-returnLimit).reverse(),
+      events: visibleEvents.slice(-returnLimit).reverse(),
     });
   } catch {
     return json({ error: "访问记录暂时打不开。" }, 500);

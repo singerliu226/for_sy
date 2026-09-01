@@ -11,6 +11,7 @@ type ActivityEvent = {
   destination?: string;
   createdAt: string;
   source?: "live" | "history";
+  attribution?: { label: string; confidence: "高" | "中" | "低"; basis: string };
 };
 
 type ActivityData = {
@@ -31,8 +32,9 @@ function displayTime(value: string) {
   }).format(date);
 }
 
-function visitorLabel(visitor: string) {
-  return `访客 ${visitor.replace(/-/g, "").slice(0, 6).toUpperCase()}`;
+function visitorLabel(event: ActivityEvent) {
+  if (event.attribution) return `${event.attribution.label} · ${event.attribution.confidence}置信`;
+  return `访客 ${event.visitor.replace(/-/g, "").slice(0, 6).toUpperCase()}`;
 }
 
 function eventCopy(event: ActivityEvent) {
@@ -81,8 +83,8 @@ export function ActivityDashboard() {
               {data.events.map((event) => (
                 <article key={event.id}>
                   <time dateTime={event.createdAt}>{displayTime(event.createdAt)}</time>
-                  <span>{visitorLabel(event.visitor)}</span>
-                  <p>{eventCopy(event)}{event.source === "history" && <b className="activity-dashboard__history">历史日志</b>}</p>
+                  <span>{visitorLabel(event)}</span>
+                  <p>{eventCopy(event)}{event.source === "history" && <b className="activity-dashboard__history">历史日志</b>}{event.attribution && <small className="activity-dashboard__basis">{event.attribution.basis}</small>}</p>
                 </article>
               ))}
             </div>
