@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 export const dynamic = "force-dynamic";
 
 type ActivityKind = "pageview" | "click";
+type ActivitySource = "live" | "history";
 
 type ActivityEvent = {
   id: string;
@@ -14,10 +15,12 @@ type ActivityEvent = {
   label?: string;
   destination?: string;
   createdAt: string;
+  source?: ActivitySource;
 };
 
-const activityLimit = 1500;
-const returnLimit = 160;
+// The retained Nginx history is small enough to keep the available range intact.
+const activityLimit = 2000;
+const returnLimit = 2000;
 const rateWindowMs = 10 * 60 * 1000;
 const rateLimit = 120;
 const storePath = process.env.ACTIVITY_LOG_FILE ?? join(process.cwd(), ".activity-log", "events.json");
@@ -30,6 +33,10 @@ function json(body: unknown, status = 200) {
 
 function isActivityKind(value: unknown): value is ActivityKind {
   return value === "pageview" || value === "click";
+}
+
+function isActivitySource(value: unknown): value is ActivitySource {
+  return value === "live" || value === "history";
 }
 
 function cleanText(value: unknown, limit: number) {
@@ -51,7 +58,7 @@ function normaliseEvent(value: unknown): ActivityEvent | null {
   if (typeof event.id !== "string" || !validVisitor(event.visitor) || !isActivityKind(event.type) || !validPath(event.path) || typeof event.createdAt !== "string") return null;
   const label = cleanText(event.label, 90);
   const destination = cleanText(event.destination, 160);
-  return { id: event.id, visitor: event.visitor, type: event.type, path: event.path, createdAt: event.createdAt, ...(label ? { label } : {}), ...(destination ? { destination } : {}) };
+  return { id: event.id, visitor: event.visitor, type: event.type, path: event.path, createdAt: event.createdAt, ...(label ? { label } : {}), ...(destination ? { destination } : {}), ...(isActivitySource(event.source) ? { source: event.source } : {}) };
 }
 
 async function readEvents() {
@@ -129,6 +136,7 @@ export async function POST(request: Request) {
     createdAt: new Date().toISOString(),
     ...(body.type === "click" && label ? { label } : {}),
     ...(body.type === "click" && destination ? { destination } : {}),
+    source: "live",
   };
 
   try {

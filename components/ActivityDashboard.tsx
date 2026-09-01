@@ -10,6 +10,7 @@ type ActivityEvent = {
   label?: string;
   destination?: string;
   createdAt: string;
+  source?: "live" | "history";
 };
 
 type ActivityData = {
@@ -64,7 +65,7 @@ export function ActivityDashboard() {
   return (
     <section className="activity-dashboard" aria-labelledby="activity-dashboard-title" data-activity-ignore>
       <header className="activity-dashboard__header">
-        <div><p>ACTIVITY</p><h2 id="activity-dashboard-title">访问与点击</h2></div>
+        <div><p>ACTIVITY</p><h2 id="activity-dashboard-title">访问与点击</h2><small>历史部分来自服务器保留的独立页面日志；访客以不可逆编号显示。</small></div>
         <button type="button" onClick={() => void load(true)} disabled={refreshing}>{refreshing ? "正在刷新…" : "刷新记录"}</button>
       </header>
       {error && <p className="activity-dashboard__feedback" role="status">{error}</p>}
@@ -81,7 +82,7 @@ export function ActivityDashboard() {
                 <article key={event.id}>
                   <time dateTime={event.createdAt}>{displayTime(event.createdAt)}</time>
                   <span>{visitorLabel(event.visitor)}</span>
-                  <p>{eventCopy(event)}</p>
+                  <p>{eventCopy(event)}{event.source === "history" && <b className="activity-dashboard__history">历史日志</b>}</p>
                 </article>
               ))}
             </div>

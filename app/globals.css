@@ -314,6 +314,7 @@ footer { background: linear-gradient(90deg, #9a526c, #ad6378 50%, #8d4a65); colo
 .activity-dashboard__header { align-items: end; border-bottom: 1px solid rgba(40, 51, 76, .16); display: flex; justify-content: space-between; gap: 20px; padding-bottom: 21px; }
 .activity-dashboard__header p { color: #a15d73; font-family: var(--ui); font-size: 9px; font-weight: 700; letter-spacing: .14em; margin: 0 0 8px; }
 .activity-dashboard__header h2 { color: var(--m-blue-deep); font-family: var(--display); font-size: clamp(31px, 4vw, 48px); font-weight: 460; letter-spacing: -.045em; line-height: 1; margin: 0; }
+.activity-dashboard__header small { color: rgba(40, 51, 76, .57); display: block; font-family: var(--serif); font-size: 13px; line-height: 1.6; margin-top: 9px; max-width: 520px; }
 .activity-dashboard__header button { background: transparent; border: 1px solid rgba(40, 51, 76, .27); color: var(--m-blue-deep); font-family: var(--ui); font-size: 10px; font-weight: 700; padding: 10px 12px; }
 .activity-dashboard__summary { display: grid; gap: 1px; grid-template-columns: repeat(3, 1fr); margin: 25px 0; }
 .activity-dashboard__summary article { background: rgba(220, 233, 233, .43); display: grid; gap: 8px; min-height: 112px; padding: 19px; }
@@ -324,6 +325,7 @@ footer { background: linear-gradient(90deg, #9a526c, #ad6378 50%, #8d4a65); colo
 .activity-dashboard__list time, .activity-dashboard__list span { color: rgba(40, 51, 76, .52); font-family: var(--ui); font-size: 10px; }
 .activity-dashboard__list span { color: #a15d73; font-weight: 700; }
 .activity-dashboard__list p { color: rgba(40, 51, 76, .84); font-family: var(--serif); font-size: 14px; line-height: 1.55; margin: 0; overflow-wrap: anywhere; }
+.activity-dashboard__history { color: rgba(40, 51, 76, .47); font-family: var(--ui); font-size: 9px; font-weight: 700; letter-spacing: .08em; margin-left: 9px; white-space: nowrap; }
 .activity-dashboard__empty, .activity-dashboard__feedback { color: rgba(40, 51, 76, .63); font-family: var(--serif); font-size: 15px; line-height: 1.75; margin: 25px 0 0; }
 .activity-dashboard__feedback { color: #9d5d63; }
 
