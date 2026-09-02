@@ -280,7 +280,7 @@ export function MessageBoard() {
         </div>
 
         <div className="message-board__form-footer">
-          <span>{draft.length}/{MESSAGE_LENGTH_LIMIT} · 别留密码、验证码或地址</span>
+          <span>{draft.length}/{MESSAGE_LENGTH_LIMIT}</span>
           <button type="submit" disabled={sending || (!draft.trim() && !image && !audio)}>{sending ? "放进去了…" : "留在这里 →"}</button>
         </div>
         <p className="message-board__feedback" aria-live="polite">{feedback}</p>
