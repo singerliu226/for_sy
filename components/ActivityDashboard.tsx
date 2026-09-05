@@ -35,7 +35,7 @@ function displayTime(value: string) {
 
 function visitorLabel(event: ActivityEvent, privateView: boolean) {
   if (event.attribution) return `${event.attribution.label} · ${event.attribution.confidence}置信`;
-  if (privateView) return "待识别";
+  if (privateView) return "其他访客 · 自动归类";
   return `访客 ${event.visitor.replace(/-/g, "").slice(0, 6).toUpperCase()}`;
 }
 
