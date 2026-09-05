@@ -52,12 +52,12 @@ function mediaUrl(attachment: Attachment) {
 }
 
 function makeThread(messages: BoardMessage[]) {
-  const oldestFirst = [...messages].reverse();
-  const knownIds = new Set(oldestFirst.map((message) => message.id));
+  const newestFirst = [...messages];
+  const knownIds = new Set(newestFirst.map((message) => message.id));
   const children = new Map<string, BoardMessage[]>();
   const roots: BoardMessage[] = [];
 
-  for (const message of oldestFirst) {
+  for (const message of newestFirst) {
     if (message.replyToId && knownIds.has(message.replyToId)) {
       children.set(message.replyToId, [...(children.get(message.replyToId) ?? []), message]);
     } else {
@@ -210,7 +210,8 @@ export function MessageBoard() {
       setAudio(null);
       if (imageInput.current) imageInput.current.value = "";
       if (audioInput.current) audioInput.current.value = "";
-      setFeedback("放进留言里啦。");
+      setFeedback("已经显示在下面啦。");
+      window.setTimeout(() => document.getElementById(`message-${data.message!.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 0);
     } catch (error) {
       setFeedback(error instanceof Error && error.message ? error.message : "这次没能留住，稍后再试一次。");
     } finally {
@@ -231,7 +232,7 @@ export function MessageBoard() {
         ) : (
           <div className="message-board__thread">
             {threadedMessages.map(({ message, depth }) => (
-              <article className={`message-board__note message-board__note--${message.author}`} key={message.id} style={{ "--reply-depth": Math.min(depth, 3) } as CSSProperties}>
+              <article className={`message-board__note message-board__note--${message.author}`} id={`message-${message.id}`} key={message.id} style={{ "--reply-depth": Math.min(depth, 3) } as CSSProperties}>
                 <div className="message-board__note-meta"><span>{message.author}</span><time dateTime={message.createdAt}>{displayTime(message.createdAt)}</time></div>
                 {message.body && <p>{message.body}</p>}
                 {message.image && <img src={mediaUrl(message.image)} alt={`${message.author}附上的图片`} />}

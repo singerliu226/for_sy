@@ -269,9 +269,9 @@ footer { background: linear-gradient(90deg, #9a526c, #ad6378 50%, #8d4a65); colo
 .message-hero { margin: 0 auto; max-width: 810px; padding: clamp(74px, 9vw, 122px) clamp(22px, 5vw, 48px) clamp(30px, 4vw, 46px); }
 .message-hero h1 { font-family: var(--display); font-size: clamp(56px, 8vw, 108px); font-weight: 430; letter-spacing: -.075em; line-height: .94; margin: 18px 0 22px; }
 .message-hero h1 em { color: var(--m-pink); font-style: normal; font-weight: 360; }
-.message-board { border-top: 1px solid rgba(40, 51, 76, .2); margin: 0 auto; max-width: 810px; padding: 19px clamp(22px, 5vw, 48px) 72px; }
+.message-board { border-top: 1px solid rgba(40, 51, 76, .2); display: flex; flex-direction: column; margin: 0 auto; max-width: 810px; padding: 19px clamp(22px, 5vw, 48px) 72px; }
 .message-board__write { padding-top: 0; }
-.message-board__heading { align-items: baseline; display: flex; gap: 14px; margin-bottom: 22px; }
+.message-board__heading { align-items: baseline; display: flex; gap: 14px; margin-bottom: 22px; order: 1; }
 .message-board__heading p { color: #a15d73; font-family: var(--ui); font-size: 10px; font-weight: 700; letter-spacing: .13em; margin: 0; }
 .message-board__heading h2 { color: var(--m-blue-deep); font-family: var(--display); font-size: 31px; font-weight: 460; letter-spacing: -.04em; margin: 0; }
 .message-board textarea { background: rgba(255, 253, 248, .64); border: 1px solid rgba(40, 51, 76, .24); border-radius: 2px; box-sizing: border-box; color: var(--m-ink); display: block; font-family: var(--serif); font-size: 17px; line-height: 1.8; outline: none; padding: 16px 18px; resize: vertical; transition: border-color .2s ease, background .2s ease; width: 100%; }
@@ -289,7 +289,7 @@ footer { background: linear-gradient(90deg, #9a526c, #ad6378 50%, #8d4a65); colo
 .message-board__form-footer button { background: var(--m-blue-deep); border: 0; color: #fffaf2; cursor: pointer; font-family: var(--ui); font-size: 11px; font-weight: 700; padding: 12px 15px; white-space: nowrap; }
 .message-board__form-footer button:disabled { cursor: not-allowed; opacity: .45; }
 .message-board__feedback { color: var(--m-pink); font-family: var(--ui); font-size: 12px; margin: 13px 0 0; min-height: 18px; }
-.message-board__conversation { border-bottom: 1px solid rgba(40, 51, 76, .16); margin-bottom: 25px; padding-bottom: 24px; }
+.message-board__conversation { border-top: 1px solid rgba(40, 51, 76, .16); margin-top: 25px; order: 3; padding-top: 24px; }
 .message-board__empty { color: rgba(40, 51, 76, .58); font-family: var(--serif); font-size: 16px; line-height: 1.7; margin: 0; }
 .message-board__thread { display: grid; gap: 12px; }
 .message-board__note { background: rgba(255, 253, 248, .64); border-left: 2px solid rgba(161, 93, 115, .48); margin-left: min(calc(var(--reply-depth) * 34px), 102px); padding: 16px 17px; }
@@ -300,7 +300,7 @@ footer { background: linear-gradient(90deg, #9a526c, #ad6378 50%, #8d4a65); colo
 .message-board__note img { display: block; height: auto; margin-top: 15px; max-height: 500px; max-width: 100%; object-fit: contain; width: auto; }
 .message-board__note audio { display: block; margin-top: 15px; max-width: 100%; width: 360px; }
 .message-board__note > button { background: transparent; border: 0; color: rgba(40, 51, 76, .58); display: block; font-family: var(--ui); font-size: 10px; font-weight: 700; margin: 13px 0 0; padding: 0; text-decoration: underline; text-underline-offset: 4px; }
-.message-board__form { background: rgba(255, 253, 248, .35); padding: 18px; }
+.message-board__form { background: rgba(255, 253, 248, .35); order: 2; padding: 18px; }
 .message-board__form-head { align-items: flex-start; display: flex; gap: 16px; justify-content: space-between; margin-bottom: 13px; }
 .message-board__form-head > div > p, .message-board__replying { color: rgba(40, 51, 76, .55); font-family: var(--ui); font-size: 10px; font-weight: 700; letter-spacing: .08em; margin: 0 0 8px; }
 .message-board__identity { display: flex; gap: 7px; }.message-board__identity button { background: transparent; border: 1px solid rgba(40, 51, 76, .27); color: rgba(40, 51, 76, .58); font-family: var(--ui); font-size: 10px; font-weight: 700; padding: 7px 9px; }.message-board__identity button.is-active { background: var(--m-blue-deep); border-color: var(--m-blue-deep); color: #fffaf2; }
