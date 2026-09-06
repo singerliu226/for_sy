@@ -76,6 +76,7 @@ function makeThread(messages: BoardMessage[]) {
 
 export function MessageBoard() {
   const [messages, setMessages] = useState<BoardMessage[] | null>(null);
+  const [loadError, setLoadError] = useState("");
   const [author, setAuthor] = useState<Person>("思怡");
   const [replyTo, setReplyTo] = useState<BoardMessage | null>(null);
   const [draft, setDraft] = useState("");
@@ -95,14 +96,19 @@ export function MessageBoard() {
     return () => mediaRecorder.current?.stream.getTracks().forEach((track) => track.stop());
   }, []);
 
+  async function reloadMessages() {
+    const response = await fetch("/api/messages", { cache: "no-store" });
+    const data = await response.json() as { messages?: BoardMessage[]; error?: string };
+    if (!response.ok || !Array.isArray(data.messages)) throw new Error(data.error ?? "load failed");
+    setMessages(data.messages);
+    setLoadError("");
+  }
+
   useEffect(() => {
-    void fetch("/api/messages", { cache: "no-store" })
-      .then(async (response) => {
-        const data = await response.json() as { messages?: BoardMessage[] };
-        if (!response.ok || !Array.isArray(data.messages)) throw new Error("load failed");
-        setMessages(data.messages);
-      })
-      .catch(() => setMessages([]));
+    void reloadMessages().catch(() => {
+      setMessages([]);
+      setLoadError("留言暂时没打开，刷新一下再试试。");
+    });
   }, []);
 
   const threadedMessages = useMemo(() => messages ? makeThread(messages) : [], [messages]);
@@ -203,14 +209,16 @@ export function MessageBoard() {
       const response = await fetch("/api/messages", { method: "POST", body: form });
       const data = await response.json() as { message?: BoardMessage; error?: string };
       if (!response.ok || !data.message) throw new Error(data.error ?? "submit failed");
-      setMessages((current) => [data.message!, ...(current ?? [])]);
+      // Only show the confirmation once the newly written entry can be read back
+      // from the server. This avoids a misleading, browser-only "sent" state.
+      await reloadMessages();
       setDraft("");
       setReplyTo(null);
       setImage(null);
       setAudio(null);
       if (imageInput.current) imageInput.current.value = "";
       if (audioInput.current) audioInput.current.value = "";
-      setFeedback("已经显示在下面啦。");
+      setFeedback("已经保存好了，刷新页面也还会在这里。");
       window.setTimeout(() => document.getElementById(`message-${data.message!.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 0);
     } catch (error) {
       setFeedback(error instanceof Error && error.message ? error.message : "这次没能留住，稍后再试一次。");
@@ -242,6 +250,7 @@ export function MessageBoard() {
             ))}
           </div>
         )}
+        {loadError && <p className="message-board__feedback" role="alert">{loadError}</p>}
       </section>
 
       <form className="message-board__form" id="message-compose" onSubmit={submit}>
