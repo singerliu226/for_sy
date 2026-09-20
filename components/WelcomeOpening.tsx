@@ -9,6 +9,7 @@ const seenKey = "molwan-welcome-seen-v1";
 function loadImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image();
+    image.fetchPriority = "high";
     image.onload = () => resolve(image);
     image.onerror = reject;
     image.src = url;
@@ -23,6 +24,7 @@ export function WelcomeOpening() {
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [open, setOpen] = useState(false);
+  const [ready, setReady] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [run, setRun] = useState(0);
   const [painted, setPainted] = useState(false);
@@ -36,6 +38,7 @@ export function WelcomeOpening() {
     media.addEventListener("change", updateMotion);
     const start = requestAnimationFrame(() => {
       updateMotion();
+      setReady(true);
       try { if (!sessionStorage.getItem(seenKey)) setOpen(true); }
       catch { setOpen(true); }
     });
@@ -72,7 +75,8 @@ export function WelcomeOpening() {
     if (!open) return;
     let cancelled = false, raf = 0;
     const abort = new AbortController();
-    const deadline = setTimeout(() => abort.abort(), 8000);
+    // The entry button stays usable while slower mobile connections load frames.
+    const deadline = setTimeout(() => abort.abort(), 20000);
     async function animate() {
       try {
         const response = await fetch("/welcome/frames.json", { signal: abort.signal });
@@ -146,7 +150,7 @@ export function WelcomeOpening() {
 
   return (
     <>
-      <button className="welcome-replay" type="button" ref={replay} onClick={playAgain}>再看一次小怪兽 <span aria-hidden="true">↺</span></button>
+      <button className="welcome-replay" type="button" ref={replay} disabled={!ready} onClick={playAgain}>再看一次小怪兽 <span aria-hidden="true">↺</span></button>
       <dialog ref={dialog} className={`welcome-opening${leaving ? " is-leaving" : ""}${reduced ? " is-reduced" : ""}`} onCancel={(event) => { event.preventDefault(); dismiss(); }} aria-labelledby="welcome-title" aria-describedby="welcome-hint">
         {open && <>
           <div className="welcome-top"><span>魔丸小助手<span className="welcome-top__dot" aria-hidden="true"> · </span><span className="welcome-top__small">有人来接你啦</span></span><button type="button" onClick={dismiss}>直接进入 <span aria-hidden="true">↗</span></button></div>
