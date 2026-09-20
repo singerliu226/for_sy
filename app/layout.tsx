@@ -4,6 +4,7 @@ import "@fontsource-variable/cormorant-garamond/wght.css";
 import "@fontsource-variable/cormorant-garamond/wght-italic.css";
 import { ActivityTracker } from "@/components/ActivityTracker";
 import "./globals.css";
+import "./refinement.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.SITE_URL ?? "http://47.103.122.202:3001"),
