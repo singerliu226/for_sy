@@ -1,4 +1,5 @@
 import { MessageForSiyi } from "@/components/MessageForSiyi";
+import { WelcomeOpening } from "@/components/WelcomeOpening";
 
 export default function Home() {
   return (
@@ -45,6 +46,7 @@ export default function Home() {
 
       <footer className="molwan-footer">
         <span>即时查询、实用攻略与纪念日。</span>
+        <WelcomeOpening />
         <a href="/messages">打开小留言 →</a>
       </footer>
     </main>
