@@ -15,8 +15,9 @@ The timeline advances only while visible and caps long frame delays, so a
 background tab or load stall cannot skip the performance.
 
 `frames.json` records sprite geometry and tracked sign centres/angles.
-Welcome lettering is drawn in the browser, starting upside down and rotating
-upright with the sign. `monster-poster.webp` is the transparent fallback.
+Welcome lettering is drawn in the browser and follows the tracked sign angle
+throughout. The source only tilts the sign, so there is no synthetic text flip
+or disappearing text. `monster-poster.webp` is the transparent fallback.
 
 The home page opens the greeting once per tab session. Enter/Skip/Escape
 dismiss it; a home-page footer control replays it. Reduced-motion users see

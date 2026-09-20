@@ -79,7 +79,7 @@ export function WelcomeOpening() {
     const deadline = setTimeout(() => abort.abort(), 20000);
     async function animate() {
       try {
-        const response = await fetch("/welcome/frames.json", { signal: abort.signal });
+        const response = await fetch("/welcome/frames.json?v=sign2", { signal: abort.signal });
         if (!response.ok) throw new Error("No animation metadata");
         const frames = await response.json() as Frames;
         const images = await Promise.race([
@@ -103,7 +103,7 @@ export function WelcomeOpening() {
           const time = reduced ? 8.4 : activeTime;
           const elapsed = Math.max(0, Math.min(5, time - 1.8));
           const index = Math.min(frames.count - 1, Math.floor(elapsed * frames.fps));
-          const nextLine = time < 1.8 ? "来啦来啦！" : elapsed < 1.15 ? "等一下哦…" : elapsed < 3.4 ? "哎，拿反了。" : elapsed < 4.7 ? "这回对了。" : "欢迎小魔王！";
+          const nextLine = time < 1.8 ? "来啦来啦！" : elapsed < 1.15 ? "等一下哦…" : elapsed < 3.4 ? "哎，歪了歪了。" : elapsed < 4.7 ? "好啦！" : "欢迎小魔王！";
           if (nextLine !== lastLine) { setLine(nextLine); lastLine = nextLine; }
           {
             const position = frames.frames[index];
@@ -129,18 +129,14 @@ export function WelcomeOpening() {
             context.scale(.85 / squash, .85 * squash);
             context.translate(-200, -378);
             context.drawImage(images[Math.floor(index / frames.perSheet)], cell % frames.cols * frames.size, Math.floor(cell / frames.cols) * frames.size, frames.size, frames.size, 0, 0, frames.size, frames.size);
-            // Track the real sign; correct its upside-down lettering during the turn.
-            const progress = Math.max(0, Math.min(1, (elapsed - 2) / 1.35));
-            const eased = progress * progress * (3 - 2 * progress);
+            // Lettering stays attached to the sign; the source tilts, not flips.
             context.save();
             context.translate(position.x, position.y);
-            context.rotate(position.angle + Math.PI * (1 - eased));
+            context.rotate(position.angle);
             context.fillStyle = "#774658";
             context.font = '600 22px "PingFang SC", "Microsoft YaHei", sans-serif';
             context.textAlign = "center";
             context.textBaseline = "middle";
-            // Hide lettering while the generated sign is turning edge-on.
-            context.globalAlpha = elapsed < 1.75 ? 1 : elapsed < 2 ? (2 - elapsed) / .25 : elapsed < 3.35 ? 0 : Math.min(1, (elapsed - 3.35) / .25);
             context.fillText("欢迎小魔王", 0, 0, 174);
             context.restore();
             context.restore();
