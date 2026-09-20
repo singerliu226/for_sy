@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { GuideCard, GuideSource, findGuideCards, quickPrompts } from "@/data/guide";
+import { siteFeatures } from "@/data/site-features";
 
 type AssistantMessage = {
   role: "user" | "assistant";
@@ -215,7 +216,7 @@ export function MagicAssistant() {
         {quickPrompts.map((prompt) => <button type="button" onClick={() => void askAssistant(prompt)} key={prompt}>{prompt}</button>)}
       </div>
       {recoveryNote && <p className="magic-console__privacy" role="status">{recoveryNote}</p>}
-      {query.trim() && searchResults.length > 0 && (
+      {siteFeatures.guide && query.trim() && searchResults.length > 0 && (
         <div className="magic-console__matches" aria-live="polite">
           <span>相关攻略</span>
           {searchResults.slice(0, 3).map((card) => <a href={`/guide#guide-${card.section}`} key={card.id}>{card.title} →</a>)}
@@ -236,7 +237,7 @@ export function MagicAssistant() {
               ) : <div className="magic-answer magic-answer--user">{message.text}</div>}
               {message.status && <small>{message.status}</small>}
               {message.checkedAt && <small>查询时间 · {message.checkedAt}</small>}
-              {message.cards && message.cards.length > 0 && <div className="magic-message__cards">{message.cards.map((card) => <a href={`/guide#guide-${card.section}`} onClick={() => rememberGuide(card)} key={card.id}>{card.title} →</a>)}</div>}
+              {siteFeatures.guide && message.cards && message.cards.length > 0 && <div className="magic-message__cards">{message.cards.map((card) => <a href={`/guide#guide-${card.section}`} onClick={() => rememberGuide(card)} key={card.id}>{card.title} →</a>)}</div>}
               {message.sources && message.sources.length > 0 && <footer>{message.sources.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>来源 · {source.label} ↗</a>)}</footer>}
             </article>
           ))}

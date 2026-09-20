@@ -1,5 +1,6 @@
 import { MessageForSiyi } from "@/components/MessageForSiyi";
 import { WelcomeOpening } from "@/components/WelcomeOpening";
+import { siteFeatures } from "@/data/site-features";
 
 export default function Home() {
   return (
@@ -16,7 +17,7 @@ export default function Home() {
         <div className="home-welcome__copy">
           <p className="home-welcome__eyebrow"><span /> 小魔王的专属主页</p>
           <h1 id="home-title">嗨，小魔王。<br /><em>今天想做点什么？</em></h1>
-          <p className="home-welcome__intro">问点问题，翻翻攻略，或者看看我们的小日子。</p>
+          <p className="home-welcome__intro">问点问题，或者看看我们的小日子。</p>
           <a className="home-welcome__action" href="/assistant">找小助手聊聊 <span aria-hidden="true">↗</span></a>
         </div>
         <div className="home-welcome__illustration" aria-hidden="true">
@@ -28,7 +29,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="molwan-home__doors" aria-label="选择一个入口">
+      <section className={`molwan-home__doors${siteFeatures.guide ? "" : " molwan-home__doors--two"}`} aria-label="选择一个入口">
         <a className="molwan-door molwan-door--assistant" href="/assistant">
           <span className="molwan-door__number">01</span>
           <div>
@@ -38,7 +39,7 @@ export default function Home() {
           </div>
           <span className="molwan-door__map" aria-hidden="true"><i /><i /><i /></span>
         </a>
-        <a className="molwan-door molwan-door--guide" href="/guide">
+        {siteFeatures.guide && <a className="molwan-door molwan-door--guide" href="/guide">
           <span className="molwan-door__number">02</span>
           <div>
             <p>出发之前，翻一翻</p>
@@ -46,9 +47,9 @@ export default function Home() {
             <strong>落地、同济、上海生活与救急 <i>→</i></strong>
           </div>
           <span className="molwan-door__map" aria-hidden="true"><i /><i /><i /></span>
-        </a>
+        </a>}
         <a className="molwan-door molwan-door--anniversary" href="/anniversaries">
-          <span className="molwan-door__number">03</span>
+          <span className="molwan-door__number">{siteFeatures.guide ? "03" : "02"}</span>
           <div>
             <p>把值得记得的日子收好</p>
             <h2>纪念日</h2>
@@ -61,7 +62,7 @@ export default function Home() {
       <MessageForSiyi />
 
       <footer className="molwan-footer">
-        <span>即时查询、实用攻略与纪念日。</span>
+        <span>即时查询、留言与纪念日。</span>
         <WelcomeOpening />
         <a href="/messages">打开小留言 →</a>
       </footer>

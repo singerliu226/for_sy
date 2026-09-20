@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { MagicAssistant } from "@/components/MagicAssistant";
+import { siteFeatures } from "@/data/site-features";
 
 export const metadata: Metadata = {
   title: "魔丸小助手｜上海即时查询",
@@ -11,7 +12,7 @@ export default function AssistantPage() {
     <main className="molwan-site assistant-site">
       <header className="molwan-nav guide-nav">
         <a href="/" className="molwan-brand"><span className="molwan-brand__mark">丸</span><span>魔丸小助手</span></a>
-        <nav aria-label="主导航"><a className="is-current" href="/assistant">小助手</a><a href="/guide">魔都攻略</a><a href="/messages">小留言</a><a href="/anniversaries">纪念日</a></nav>
+        <nav aria-label="主导航"><a className="is-current" href="/assistant">小助手</a>{siteFeatures.guide && <a href="/guide">魔都攻略</a>}<a href="/messages">小留言</a><a href="/anniversaries">纪念日</a></nav>
       </header>
 
       <section className="assistant-hero">
@@ -22,7 +23,7 @@ export default function AssistantPage() {
 
       <MagicAssistant />
 
-      <footer className="molwan-footer guide-footer"><span>通勤、报到、生活与紧急情况。</span><a href="/guide">查看魔都攻略 →</a></footer>
+      <footer className="molwan-footer guide-footer"><span>有需要时，问问现在要解决的那件事。</span>{siteFeatures.guide && <a href="/guide">查看魔都攻略 →</a>}</footer>
     </main>
   );
 }
