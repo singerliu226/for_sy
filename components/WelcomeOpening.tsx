@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import "./welcome-opening.css";
 
 type Frames = { size: number; fps: number; count: number; cols: number; perSheet: number; sheets: string[]; frames: { x: number; y: number; angle: number }[] };
-const seenKey = "molwan-welcome-seen-v1";
+const seenKey = "molwan-welcome-seen-v2";
 
 function loadImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -93,18 +93,41 @@ export function WelcomeOpening() {
         if (cancelled) return;
         const context = canvas.current?.getContext("2d");
         if (!context) throw new Error("Canvas unavailable");
-        const started = performance.now();
-        let lastFrame = -1, lastLine = "";
+        let previousTime = 0, activeTime = 0, lastLine = "";
         const draw = (now: number) => {
           if (cancelled) return;
-          const elapsed = reduced ? 5 : (now - started) / 1000;
+          // Only advance while visible; loading, background tabs and stalls must
+          // never consume the part of the performance the visitor has not seen.
+          if (previousTime && document.visibilityState === "visible") activeTime += Math.min((now - previousTime) / 1000, .05);
+          previousTime = now;
+          const time = reduced ? 8.4 : activeTime;
+          const elapsed = Math.max(0, Math.min(5, time - 1.8));
           const index = Math.min(frames.count - 1, Math.floor(elapsed * frames.fps));
-          const nextLine = elapsed < 1.15 ? "等一下哦…" : elapsed < 3.4 ? "哎，拿反了。" : elapsed < 4.7 ? "这回对了。" : "欢迎小魔王！";
+          const nextLine = time < 1.8 ? "来啦来啦！" : elapsed < 1.15 ? "等一下哦…" : elapsed < 3.4 ? "哎，拿反了。" : elapsed < 4.7 ? "这回对了。" : "欢迎小魔王！";
           if (nextLine !== lastLine) { setLine(nextLine); lastLine = nextLine; }
-          if (index !== lastFrame) {
+          {
             const position = frames.frames[index];
             const cell = index % frames.perSheet;
             context.clearRect(0, 0, frames.size, frames.size);
+            let x = 0, y = 0, angle = 0, squash = 1;
+            if (time < 1.8) {
+              const p = time / 1.8;
+              x = -290 * Math.pow(1 - p, 2);
+              y = -Math.abs(Math.sin(p * Math.PI * 2)) * 58;
+              angle = Math.sin(p * Math.PI * 3) * .15;
+              squash = 1 + Math.sin(p * Math.PI * 4) * .065;
+            } else if (time > 6.8 && time < 8.4) {
+              const p = (time - 6.8) / 1.6;
+              y = -Math.abs(Math.sin(p * Math.PI * 2)) * 66;
+              angle = Math.sin(p * Math.PI * 2) * .1;
+              squash = 1 + Math.cos(p * Math.PI * 4) * .055 * Math.sin(p * Math.PI);
+            }
+            context.save();
+            // Leave room above the head for the two full-body jumps.
+            context.translate(200 + x, 378 + y);
+            context.rotate(angle);
+            context.scale(.85 / squash, .85 * squash);
+            context.translate(-200, -378);
             context.drawImage(images[Math.floor(index / frames.perSheet)], cell % frames.cols * frames.size, Math.floor(cell / frames.cols) * frames.size, frames.size, frames.size, 0, 0, frames.size, frames.size);
             // Track the real sign; correct its upside-down lettering during the turn.
             const progress = Math.max(0, Math.min(1, (elapsed - 2) / 1.35));
@@ -120,14 +143,18 @@ export function WelcomeOpening() {
             context.globalAlpha = elapsed < 1.75 ? 1 : elapsed < 2 ? (2 - elapsed) / .25 : elapsed < 3.35 ? 0 : Math.min(1, (elapsed - 3.35) / .25);
             context.fillText("欢迎小魔王", 0, 0, 174);
             context.restore();
-            lastFrame = index;
+            context.restore();
+            if (canvas.current) {
+              canvas.current.dataset.frame = String(index);
+              canvas.current.dataset.phase = time < 1.8 ? "enter" : time < 6.8 ? "sign" : time < 8.4 ? "jump" : "done";
+            }
           }
           setPainted(true);
-          if (elapsed < 5) raf = requestAnimationFrame(draw);
+          if (time < 8.4) raf = requestAnimationFrame(draw);
         };
         raf = requestAnimationFrame(draw);
       } catch {
-        if (!cancelled) setLine("欢迎小魔王！");
+        if (!cancelled) setLine("动画没加载好，点「再演一次」试试");
       }
     }
     void animate();
