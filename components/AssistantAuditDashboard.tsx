@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 type AuditRecord = {
   id: string;
   conversationId: string;
-  initiator: "思怡" | "魔王";
+  initiator: "小魔王" | "大魔王";
   role: "user" | "assistant";
   text: string;
   createdAt: string;

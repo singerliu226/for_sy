@@ -176,10 +176,10 @@ export function WelcomeOpening() {
       <button className="welcome-replay" type="button" ref={replay} disabled={!ready} onClick={playAgain}>再看一次小怪兽 <span aria-hidden="true">↺</span></button>
       <dialog ref={dialog} className={`welcome-opening${leaving ? " is-leaving" : ""}${reduced ? " is-reduced" : ""}`} onCancel={(event) => { event.preventDefault(); dismiss(); }} aria-labelledby="welcome-title" aria-describedby="welcome-hint">
         {open && <>
-          <div className="welcome-top"><span>魔丸小助手<span className="welcome-top__dot" aria-hidden="true"> · </span><span className="welcome-top__small">有人来接你啦</span></span><button type="button" onClick={dismiss}>直接进入 <span aria-hidden="true">↗</span></button></div>
+          <div className="welcome-top"><span>魔族小窝<span className="welcome-top__dot" aria-hidden="true"> · </span><span className="welcome-top__small">小魔丸来开门</span></span><button type="button" onClick={dismiss}>直接进来 <span aria-hidden="true">↗</span></button></div>
           <div className="welcome-scene">
             <p className="welcome-eyebrow">叮咚——</p>
-            <h1 id="welcome-title">咦，你来啦。</h1>
+            <h1 id="welcome-title">咦，小魔王回来啦。</h1>
             <div className="welcome-stage">
               <span className="welcome-spark welcome-spark--one" aria-hidden="true">✧</span><span className="welcome-spark welcome-spark--two" aria-hidden="true">✦</span><span className="welcome-spark welcome-spark--three" aria-hidden="true">✧</span>
               <button type="button" className={`welcome-character${tapped ? " is-petted" : ""}`} onClick={pet} aria-label="摸摸小怪兽">
@@ -190,10 +190,10 @@ export function WelcomeOpening() {
               </button>
               <p className="welcome-bubble" role="status">{line}</p>
             </div>
-            <button className="welcome-enter" ref={enter} type="button" onClick={dismiss}>我来啦 <span aria-hidden="true">→</span></button>
+            <button className="welcome-enter" ref={enter} type="button" onClick={dismiss}>进屋咯 <span aria-hidden="true">→</span></button>
             <p id="welcome-hint" className="welcome-hint">也可以戳戳这个憨憨。</p>
           </div>
-          <div className="welcome-bottom"><span>小魔王专用通道</span><button type="button" onClick={playAgain}>再演一次 ↺</button></div>
+          <div className="welcome-bottom"><span>魔族小窝入口</span><button type="button" onClick={playAgain}>再演一次 ↺</button></div>
         </>}
       </dialog>
     </>

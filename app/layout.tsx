@@ -8,11 +8,11 @@ import "./refinement.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.SITE_URL ?? "http://47.103.122.202:3001"),
-  title: "魔丸小助手",
-  description: "给思怡的上海生活地图，和慢慢收藏的纪念日。",
+  title: "魔族小窝",
+  description: "大魔王和小魔王的小窝。",
   openGraph: {
-    title: "魔丸小助手",
-    description: "给思怡的上海生活地图，和慢慢收藏的纪念日。",
+    title: "魔族小窝",
+    description: "大魔王和小魔王的小窝。",
     images: [{ url: "/og.png", width: 1536, height: 1024 }],
     locale: "zh_CN",
     type: "website",

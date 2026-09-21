@@ -1,14 +1,21 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { isMember, normaliseMember, otherMember, type Member } from "@/lib/members";
 
 export const dynamic = "force-dynamic";
 
-type Person = "思怡" | "魔王";
+type Person = Member;
 
 type Attachment = {
   fileName: string;
   mimeType: string;
+};
+
+type MessageReference = {
+  type: "first-year" | "assistant";
+  id: string;
+  title: string;
 };
 
 type BoardMessage = {
@@ -20,6 +27,7 @@ type BoardMessage = {
   createdAt: string;
   image?: Attachment;
   audio?: Attachment;
+  reference?: MessageReference;
 };
 
 type UploadedFile = {
@@ -85,8 +93,13 @@ function rateLimited(address: string) {
   return false;
 }
 
-function isPerson(value: unknown): value is Person {
-  return value === "思怡" || value === "魔王";
+function normaliseReference(value: unknown): MessageReference | null {
+  if (!value || typeof value !== "object") return null;
+  const reference = value as Partial<MessageReference>;
+  if ((reference.type !== "first-year" && reference.type !== "assistant") || typeof reference.id !== "string" || typeof reference.title !== "string") return null;
+  const id = reference.id.replace(/[^a-z0-9-]/gi, "").slice(0, 96);
+  const title = cleanMessage(reference.title).slice(0, 100);
+  return id && title ? { type: reference.type, id, title } : null;
 }
 
 function isAttachment(value: unknown): value is Attachment {
@@ -98,20 +111,24 @@ function isAttachment(value: unknown): value is Attachment {
 function normaliseMessage(value: unknown): BoardMessage | null {
   if (!value || typeof value !== "object") return null;
   const message = value as Partial<BoardMessage>;
-  if (typeof message.id !== "string" || !isPerson(message.author) || typeof message.body !== "string" || typeof message.createdAt !== "string") return null;
+  const author = normaliseMember(message.author);
+  if (typeof message.id !== "string" || !author || typeof message.body !== "string" || typeof message.createdAt !== "string") return null;
   if (message.image !== undefined && !isAttachment(message.image)) return null;
   if (message.audio !== undefined && !isAttachment(message.audio)) return null;
+  const recipient = normaliseMember(message.recipient) ?? otherMember(author);
+  const reference = normaliseReference(message.reference);
 
-  // Messages written before the two-way board existed were all for 魔王.
+  // Messages written before the 魔族小窝 rename are normalised without erasing them.
   return {
     id: message.id,
-    author: message.author,
-    recipient: isPerson(message.recipient) ? message.recipient : "魔王",
+    author,
+    recipient,
     ...(typeof message.replyToId === "string" && messageIdPattern.test(message.replyToId) ? { replyToId: message.replyToId } : {}),
     body: message.body,
     createdAt: message.createdAt,
     ...(message.image ? { image: message.image } : {}),
     ...(message.audio ? { audio: message.audio } : {}),
+    ...(reference ? { reference } : {}),
   };
 }
 
@@ -177,12 +194,23 @@ async function saveUpload(upload: ValidatedUpload) {
 }
 
 export async function GET(request: Request) {
-  const requestedRecipient = new URL(request.url).searchParams.get("recipient");
-  if (requestedRecipient && !isPerson(requestedRecipient)) return json({ error: "收件人不对。" }, 400);
+  const search = new URL(request.url).searchParams;
+  const requestedRecipient = search.get("recipient");
+  const recipient = requestedRecipient ? normaliseMember(requestedRecipient) : null;
+  const referenceType = search.get("referenceType");
+  const referenceId = search.get("referenceId");
+  if (requestedRecipient && !recipient) return json({ error: "收件人不对。" }, 400);
+  if ((referenceType || referenceId) && ((referenceType !== "first-year" && referenceType !== "assistant") || !referenceId || !/^[a-z0-9-]{1,96}$/i.test(referenceId))) {
+    return json({ error: "这段话的出处不对。" }, 400);
+  }
 
   try {
     const messages = await readMessages();
-    const visibleMessages = requestedRecipient ? messages.filter((message) => message.recipient === requestedRecipient) : messages;
+    const visibleMessages = messages.filter((message) => {
+      if (recipient && message.recipient !== recipient) return false;
+      if (referenceType && referenceId) return message.reference?.type === referenceType && message.reference?.id === referenceId;
+      return true;
+    });
     return json({ messages: visibleMessages.reverse() });
   } catch {
     return json({ error: "留言板暂时打不开，过一会儿再试试。" }, 500);
@@ -195,33 +223,40 @@ export async function POST(request: Request) {
 
   let message = "";
   let website = "";
-  let requestedAuthor: unknown = "思怡";
+  let requestedAuthor: unknown = "小魔王";
   let replyToId = "";
   let imageFile: UploadedFile | null = null;
   let audioFile: UploadedFile | null = null;
+  let reference: MessageReference | null = null;
 
   try {
     if (request.headers.get("content-type")?.includes("multipart/form-data")) {
       const form = await request.formData();
       message = cleanMessage(form.get("message"));
       website = typeof form.get("website") === "string" ? String(form.get("website")) : "";
-      requestedAuthor = form.get("author") ?? "思怡";
+      requestedAuthor = form.get("author") ?? "小魔王";
       replyToId = typeof form.get("replyToId") === "string" ? String(form.get("replyToId")) : "";
       imageFile = asUpload(form.get("image"));
       audioFile = asUpload(form.get("audio"));
+      reference = normaliseReference({
+        type: form.get("referenceType"),
+        id: form.get("referenceId"),
+        title: form.get("referenceTitle"),
+      });
     } else {
-      const body = await request.json() as { message?: unknown; website?: unknown; author?: unknown; replyToId?: unknown };
+      const body = await request.json() as { message?: unknown; website?: unknown; author?: unknown; replyToId?: unknown; reference?: unknown };
       message = cleanMessage(body.message);
       website = typeof body.website === "string" ? body.website : "";
-      requestedAuthor = body.author ?? "思怡";
+      requestedAuthor = body.author ?? "小魔王";
       replyToId = typeof body.replyToId === "string" ? body.replyToId : "";
+      reference = normaliseReference(body.reference);
     }
   } catch {
     return json({ error: "这次没能好好收到，再发一次试试。" }, 400);
   }
 
   if (website.trim()) return json({ ok: true });
-  if (!isPerson(requestedAuthor)) return json({ error: "写信的人不对。" }, 400);
+  if (!isMember(requestedAuthor)) return json({ error: "先选一下谁在写。" }, 400);
   if (replyToId && !messageIdPattern.test(replyToId)) return json({ error: "要回复的留言不见了，刷新后再试试。" }, 400);
   if (message.length > MESSAGE_LENGTH_LIMIT) return json({ error: `这一条最多 ${MESSAGE_LENGTH_LIMIT} 个字。` }, 400);
 
@@ -241,9 +276,10 @@ export async function POST(request: Request) {
       const next: BoardMessage = {
         id: randomUUID(),
         author: requestedAuthor,
-        recipient: requestedAuthor === "魔王" ? "思怡" : "魔王",
+        recipient: otherMember(requestedAuthor),
         body: message,
         createdAt: new Date().toISOString(),
+        ...(reference ? { reference } : {}),
       };
       if (replyToId) {
         const messages = await readMessages();

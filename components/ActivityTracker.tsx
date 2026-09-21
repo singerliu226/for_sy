@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 const visitorStorageKey = "molwan-anonymous-visitor";
+const memberStorageKey = "mozu-member-account-v1";
 let temporaryVisitorId = "";
 
 type ActivityKind = "pageview" | "click";
@@ -43,11 +44,20 @@ function clickDestination(control: HTMLElement) {
   }
 }
 
+function activeMember() {
+  try {
+    const member = window.localStorage.getItem(memberStorageKey);
+    return member === "大魔王" || member === "小魔王" ? member : "";
+  } catch {
+    return "";
+  }
+}
+
 function sendActivity(visitor: string, type: ActivityKind, label = "", destination = "") {
   void fetch("/api/activity", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ visitor, type, path: currentPath(), label, destination }),
+    body: JSON.stringify({ visitor, type, path: currentPath(), label, destination, actor: activeMember() }),
     keepalive: true,
   }).catch(() => undefined);
 }

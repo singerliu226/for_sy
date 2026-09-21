@@ -1,9 +1,10 @@
 import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { isMember, members, normaliseMember, type Member } from "@/lib/members";
 
-export const auditInitiators = ["思怡", "魔王"] as const;
-export type AuditInitiator = (typeof auditInitiators)[number];
+export const auditInitiators = members;
+export type AuditInitiator = Member;
 export type AuditRole = "user" | "assistant";
 export type AuditOrigin = "live" | "browser-recovery";
 
@@ -40,7 +41,7 @@ function redactSensitiveText(value: string) {
 }
 
 export function isAuditInitiator(value: unknown): value is AuditInitiator {
-  return typeof value === "string" && (auditInitiators as readonly string[]).includes(value);
+  return isMember(value);
 }
 
 function isAuditRole(value: unknown): value is AuditRole {
@@ -54,10 +55,11 @@ function isAuditOrigin(value: unknown): value is AuditOrigin {
 function normaliseRecord(value: unknown): AssistantAuditRecord | null {
   if (!value || typeof value !== "object") return null;
   const record = value as Partial<AssistantAuditRecord>;
+  const initiator = normaliseMember(record.initiator);
   if (
     typeof record.id !== "string" ||
     typeof record.conversationId !== "string" ||
-    !isAuditInitiator(record.initiator) ||
+    !initiator ||
     !isAuditRole(record.role) ||
     !isAuditOrigin(record.origin) ||
     typeof record.createdAt !== "string" ||
@@ -69,7 +71,7 @@ function normaliseRecord(value: unknown): AssistantAuditRecord | null {
   return {
     id: record.id.slice(0, 96),
     conversationId: record.conversationId.slice(0, 96),
-    initiator: record.initiator,
+    initiator,
     role: record.role,
     text,
     createdAt: record.createdAt,

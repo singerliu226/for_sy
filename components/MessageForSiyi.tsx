@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { Member } from "@/lib/members";
 
 type Attachment = {
   fileName: string;
@@ -9,8 +10,8 @@ type Attachment = {
 
 type MessageForSiyi = {
   id: string;
-  author: "魔王";
-  recipient: "思怡";
+  author: Member;
+  recipient: Member;
   body: string;
   createdAt: string;
   image?: Attachment;
@@ -38,7 +39,7 @@ export function MessageForSiyi() {
   const [messages, setMessages] = useState<MessageForSiyi[] | null>(null);
 
   useEffect(() => {
-    void fetch("/api/messages?recipient=%E6%80%9D%E6%80%A1", { cache: "no-store" })
+    void fetch("/api/messages?recipient=%E5%B0%8F%E9%AD%94%E7%8E%8B", { cache: "no-store" })
       .then(async (response) => {
         const data = await response.json() as { messages?: MessageForSiyi[] };
         if (!response.ok || !Array.isArray(data.messages)) throw new Error("load failed");
@@ -50,24 +51,24 @@ export function MessageForSiyi() {
   return (
     <section className="message-for-siyi" aria-labelledby="message-for-siyi-title">
       <div className="message-for-siyi__heading">
-        <p>FROM THE KING</p>
-        <h2 id="message-for-siyi-title">魔王留给你的</h2>
+        <p>MAILBOX</p>
+        <h2 id="message-for-siyi-title">有你的信！</h2>
       </div>
       {messages === null ? <p className="message-for-siyi__empty">正在打开这封信…</p> : messages.length === 0 ? (
-        <p className="message-for-siyi__empty">这里会放我想让你一打开就看到的话。<a href="/messages">去留句话 →</a></p>
+        <p className="message-for-siyi__empty">信箱还是空的。<a href="/messages">去留一句 →</a></p>
       ) : (
         <div className="message-for-siyi__list">
           {messages.map((message) => (
             <article className="message-for-siyi__note" key={message.id}>
               {message.body && <p>{message.body}</p>}
-              {message.image && <img src={mediaUrl(message.image)} alt="魔王留给思怡的图片" />}
+              {message.image && <img src={mediaUrl(message.image)} alt="留在信箱里的图片" />}
               {message.audio && <audio controls preload="metadata" src={mediaUrl(message.audio)}>你的浏览器暂时不能播放这段语音。</audio>}
-              <time dateTime={message.createdAt}>魔王 · {displayTime(message.createdAt)}</time>
+              <time dateTime={message.createdAt}>{message.author} · {displayTime(message.createdAt)}</time>
             </article>
           ))}
         </div>
       )}
-      {messages && messages.length > 0 && <a className="message-for-siyi__link" href="/messages">去我们的小留言回复 →</a>}
+      {messages && messages.length > 0 && <a className="message-for-siyi__link" href="/messages">去看看 →</a>}
     </section>
   );
 }

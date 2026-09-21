@@ -1,6 +1,7 @@
 import { createHmac, randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { isMember, type Member } from "@/lib/members";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ type ActivityEvent = {
   path: string;
   label?: string;
   destination?: string;
+  actor?: Member;
   createdAt: string;
   source?: ActivitySource;
   attribution?: VisitorAttribution;
@@ -69,7 +71,7 @@ function normaliseEvent(value: unknown): ActivityEvent | null {
   const label = cleanText(event.label, 90);
   const destination = cleanText(event.destination, 160);
   const device = validDevice(event.device) ? event.device : "";
-  return { id: event.id, visitor: event.visitor, ...(device ? { device } : {}), type: event.type, path: event.path, createdAt: event.createdAt, ...(label ? { label } : {}), ...(destination ? { destination } : {}), ...(isActivitySource(event.source) ? { source: event.source } : {}) };
+  return { id: event.id, visitor: event.visitor, ...(device ? { device } : {}), type: event.type, path: event.path, createdAt: event.createdAt, ...(label ? { label } : {}), ...(destination ? { destination } : {}), ...(isMember(event.actor) ? { actor: event.actor } : {}), ...(isActivitySource(event.source) ? { source: event.source } : {}) };
 }
 
 function normaliseAttribution(value: unknown): VisitorAttributionRule | null {
@@ -215,7 +217,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  let body: { visitor?: unknown; type?: unknown; path?: unknown; label?: unknown; destination?: unknown };
+  let body: { visitor?: unknown; type?: unknown; path?: unknown; label?: unknown; destination?: unknown; actor?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -227,6 +229,7 @@ export async function POST(request: Request) {
 
   const label = cleanText(body.label, 90);
   const destination = cleanText(body.destination, 160);
+  const actor = isMember(body.actor) ? body.actor : undefined;
   const device = deviceSignature(request);
   const event: ActivityEvent = {
     id: randomUUID(),
@@ -237,6 +240,7 @@ export async function POST(request: Request) {
     createdAt: new Date().toISOString(),
     ...(body.type === "click" && label ? { label } : {}),
     ...(body.type === "click" && destination ? { destination } : {}),
+    ...(actor ? { actor } : {}),
     source: "live",
   };
 

@@ -1,29 +1,31 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { MagicAssistant } from "@/components/MagicAssistant";
-import { siteFeatures } from "@/data/site-features";
+import { MemberIdentity } from "@/components/MemberIdentity";
 
 export const metadata: Metadata = {
-  title: "魔丸小助手｜上海即时查询",
-  description: "面向同济与上海日常的即时查询和可验证攻略。",
+  title: "小魔丸｜魔族小窝",
+  description: "大魔王和小魔王共用的小问答。",
 };
 
 export default function AssistantPage() {
   return (
     <main className="molwan-site assistant-site">
       <header className="molwan-nav guide-nav">
-        <a href="/" className="molwan-brand"><span className="molwan-brand__mark">丸</span><span>魔丸小助手</span></a>
-        <nav aria-label="主导航"><a className="is-current" href="/assistant">小助手</a>{siteFeatures.guide && <a href="/guide">魔都攻略</a>}<a href="/messages">小留言</a><a href="/anniversaries">纪念日</a></nav>
+        <Link href="/" className="molwan-brand"><span className="molwan-brand__mark">丸</span><span>魔族小窝</span></Link>
+        <nav aria-label="主导航"><a href="/first-year">第一年</a><a className="is-current" href="/assistant">小魔丸</a><a href="/messages">小留言</a><a href="/anniversaries">纪念日</a></nav>
+        <MemberIdentity />
       </header>
 
       <section className="assistant-hero">
-        <p className="molwan-kicker">SHANGHAI QUICK CHECK</p>
-        <h1>魔王派给你的<br /><em>AI小助手</em></h1>
-        <p>目前的小助手可能还笨笨的，魔王正在训练他，如果他答不出来不要生气，直接去找魔王哇。</p>
+        <p className="molwan-kicker">LITTLE MARBLE</p>
+        <h1>有事就喊一声，<br /><em>小魔丸在。</em></h1>
+        <p>题目、生活里的小麻烦，或者临时想查的事，都可以先问问它。</p>
       </section>
 
       <MagicAssistant />
 
-      <footer className="molwan-footer guide-footer"><span>有需要时，问问现在要解决的那件事。</span>{siteFeatures.guide && <a href="/guide">查看魔都攻略 →</a>}</footer>
+      <footer className="molwan-footer guide-footer"><span>说得不清楚也没关系，慢慢补。</span><a href="/messages">去留句话 →</a></footer>
     </main>
   );
 }

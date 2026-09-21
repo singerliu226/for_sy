@@ -9,6 +9,7 @@ type ActivityEvent = {
   path: string;
   label?: string;
   destination?: string;
+  actor?: "大魔王" | "小魔王";
   createdAt: string;
   source?: "live" | "history";
   attribution?: { label: string; confidence: "高" | "中" | "低"; basis: string };
@@ -34,6 +35,7 @@ function displayTime(value: string) {
 }
 
 function visitorLabel(event: ActivityEvent, privateView: boolean) {
+  if (event.actor) return event.actor;
   if (event.attribution) return `${event.attribution.label} · ${event.attribution.confidence}置信`;
   if (privateView) return "其他访客 · 自动归类";
   return `访客 ${event.visitor.replace(/-/g, "").slice(0, 6).toUpperCase()}`;

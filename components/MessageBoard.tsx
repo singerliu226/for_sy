@@ -1,8 +1,10 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { MemberIdentity, useMemberIdentity } from "@/components/MemberIdentity";
+import type { Member } from "@/lib/members";
 
-type Person = "思怡" | "魔王";
+type Person = Member;
 
 type Attachment = {
   fileName: string;
@@ -18,6 +20,7 @@ type BoardMessage = {
   createdAt: string;
   image?: Attachment;
   audio?: Attachment;
+  reference?: { type: "first-year" | "assistant"; id: string; title: string };
 };
 
 type ThreadItem = {
@@ -74,10 +77,10 @@ function makeThread(messages: BoardMessage[]) {
   return nested;
 }
 
-export function MessageBoard() {
+export function MessageBoard({ context }: { context?: { type: "first-year" | "assistant"; id: string; title: string } }) {
   const [messages, setMessages] = useState<BoardMessage[] | null>(null);
   const [loadError, setLoadError] = useState("");
-  const [author, setAuthor] = useState<Person>("思怡");
+  const { member: author } = useMemberIdentity();
   const [replyTo, setReplyTo] = useState<BoardMessage | null>(null);
   const [draft, setDraft] = useState("");
   const [image, setImage] = useState<File | null>(null);
@@ -90,14 +93,11 @@ export function MessageBoard() {
   const imageInput = useRef<HTMLInputElement>(null);
   const audioInput = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const savedAuthor = window.localStorage.getItem("molwan-message-author");
-    if (savedAuthor === "思怡" || savedAuthor === "魔王") setAuthor(savedAuthor);
-    return () => mediaRecorder.current?.stream.getTracks().forEach((track) => track.stop());
-  }, []);
+  useEffect(() => () => mediaRecorder.current?.stream.getTracks().forEach((track) => track.stop()), []);
 
   async function reloadMessages() {
-    const response = await fetch("/api/messages", { cache: "no-store" });
+    const query = context ? "?referenceType=" + encodeURIComponent(context.type) + "&referenceId=" + encodeURIComponent(context.id) : "";
+    const response = await fetch("/api/messages" + query, { cache: "no-store" });
     const data = await response.json() as { messages?: BoardMessage[]; error?: string };
     if (!response.ok || !Array.isArray(data.messages)) throw new Error(data.error ?? "load failed");
     setMessages(data.messages);
@@ -109,14 +109,22 @@ export function MessageBoard() {
       setMessages([]);
       setLoadError("留言暂时没打开，刷新一下再试试。");
     });
-  }, []);
+  }, [context?.id, context?.type]);
 
   const threadedMessages = useMemo(() => messages ? makeThread(messages) : [], [messages]);
 
-  function chooseAuthor(nextAuthor: Person) {
-    setAuthor(nextAuthor);
-    window.localStorage.setItem("molwan-message-author", nextAuthor);
-  }
+  useEffect(() => {
+    try {
+      const raw = window.sessionStorage.getItem("mozu-message-draft-v1");
+      if (!raw) return;
+      const pending = JSON.parse(raw) as { text?: unknown; reference?: unknown };
+      if (typeof pending.text === "string") setDraft(pending.text.slice(0, MESSAGE_LENGTH_LIMIT));
+      window.sessionStorage.removeItem("mozu-message-draft-v1");
+      setFeedback("小魔丸的话已经放进草稿了，改完再发。");
+    } catch {
+      // A message can still be written normally if browser storage is unavailable.
+    }
+  }, []);
 
   function selectImage(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] ?? null;
@@ -193,7 +201,7 @@ export function MessageBoard() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (sending || (!draft.trim() && !image && !audio)) return;
+    if (sending || !author || (!draft.trim() && !image && !audio)) return;
 
     setSending(true);
     setFeedback("");
@@ -202,6 +210,11 @@ export function MessageBoard() {
     form.append("website", "");
     form.append("author", author);
     if (replyTo) form.append("replyToId", replyTo.id);
+    if (context) {
+      form.append("referenceType", context.type);
+      form.append("referenceId", context.id);
+      form.append("referenceTitle", context.title);
+    }
     if (image) form.append("image", image);
     if (audio) form.append("audio", audio);
 
@@ -218,7 +231,7 @@ export function MessageBoard() {
       setAudio(null);
       if (imageInput.current) imageInput.current.value = "";
       if (audioInput.current) audioInput.current.value = "";
-      setFeedback("已经保存好了，刷新页面也还会在这里。");
+      setFeedback("发过去啦。");
       window.setTimeout(() => document.getElementById(`message-${data.message!.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 0);
     } catch (error) {
       setFeedback(error instanceof Error && error.message ? error.message : "这次没能留住，稍后再试一次。");
@@ -231,7 +244,7 @@ export function MessageBoard() {
     <section className="message-board" aria-labelledby="message-board-title">
       <div className="message-board__heading">
         <p>JUST US</p>
-        <h2 id="message-board-title">我们的小留言</h2>
+        <h2 id="message-board-title">{context ? "关于「" + context.title + "」" : "我们的小留言"}</h2>
       </div>
 
       <section className="message-board__conversation" aria-label="两个人的留言">
@@ -245,6 +258,7 @@ export function MessageBoard() {
                 {message.body && <p>{message.body}</p>}
                 {message.image && <img src={mediaUrl(message.image)} alt={`${message.author}附上的图片`} />}
                 {message.audio && <audio controls preload="metadata" src={mediaUrl(message.audio)}>你的浏览器暂时不能播放这段语音。</audio>}
+                {message.reference && !context && <a className="message-board__source" href={message.reference.type === "first-year" ? "/first-year?entry=" + encodeURIComponent(message.reference.id) : "/assistant"}>关于「{message.reference.title}」</a>}
                 <button type="button" onClick={() => replyToMessage(message)}>回复</button>
               </article>
             ))}
@@ -256,10 +270,8 @@ export function MessageBoard() {
       <form className="message-board__form" id="message-compose" onSubmit={submit}>
         <div className="message-board__form-head">
           <div>
-            <p>轮到谁写</p>
-            <div className="message-board__identity" role="group" aria-label="选择写信的人">
-              {(["思怡", "魔王"] as Person[]).map((person) => <button className={author === person ? "is-active" : ""} key={person} type="button" onClick={() => chooseAuthor(person)}>我是{person}</button>)}
-            </div>
+            <p>{author ? "这次由" + author + "写" : "先选一下你是谁"}</p>
+            <MemberIdentity className="message-board__identity" />
           </div>
           {replyTo && <p className="message-board__replying">回复 {replyTo.author} <button type="button" onClick={() => setReplyTo(null)}>取消</button></p>}
         </div>
