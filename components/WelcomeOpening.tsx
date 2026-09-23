@@ -62,7 +62,7 @@ export function WelcomeOpening() {
 
   function tryVideo() {
     const player = video.current;
-    if (!player) return;
+    if (!player || videoFailed) return;
     player.muted = true;
     player.defaultMuted = true;
     player.volume = 0;
@@ -74,7 +74,7 @@ export function WelcomeOpening() {
       <button className="welcome-replay" type="button" ref={replay} disabled={!ready} onClick={playAgain}>再看一遍小魔丸 <span aria-hidden="true">↺</span></button>
       <dialog ref={dialog} className={`welcome-opening${leaving ? " is-leaving" : ""}`} onCancel={(event) => { event.preventDefault(); dismiss(); }} aria-labelledby="welcome-title" aria-describedby="welcome-hint">
         {open && <>
-          {!reduced && !videoFailed && <div className={`welcome-video${videoPlaying ? " is-playing" : ""}`} aria-hidden="true">
+          {!reduced && <div className={`welcome-video${videoPlaying && !videoFailed ? " is-playing" : ""}`} aria-hidden="true">
             <div className="welcome-video__frame">
               <video ref={video} src="/welcome/midautumn-homecoming-safe" autoPlay defaultMuted muted playsInline preload="auto" onCanPlay={tryVideo} onPlaying={() => setVideoPlaying(true)} onEnded={dismiss} onError={() => setVideoFailed(true)} />
             </div>
