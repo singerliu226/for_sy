@@ -75,26 +75,21 @@ export function WelcomeOpening() {
       <dialog ref={dialog} className={`welcome-opening${leaving ? " is-leaving" : ""}`} onCancel={(event) => { event.preventDefault(); dismiss(); }} aria-labelledby="welcome-title" aria-describedby="welcome-hint">
         {open && <>
           {!reduced && !videoFailed && <div className={`welcome-video${videoPlaying ? " is-playing" : ""}`} aria-hidden="true">
-            <i className="welcome-video__moon" /><i className="welcome-video__lantern welcome-video__lantern--left" /><i className="welcome-video__lantern welcome-video__lantern--right" />
-            <p className="welcome-video__title">中秋回家</p>
             <div className="welcome-video__frame">
-              <video ref={video} src="/welcome/midautumn-homecoming" autoPlay defaultMuted muted playsInline preload="auto" onCanPlay={tryVideo} onPlaying={() => setVideoPlaying(true)} onEnded={dismiss} onError={() => setVideoFailed(true)} />
-              <span>思怡，欢迎回家！</span>
+              <video ref={video} src="/welcome/midautumn-homecoming-safe" autoPlay defaultMuted muted playsInline preload="auto" onCanPlay={tryVideo} onPlaying={() => setVideoPlaying(true)} onEnded={dismiss} onError={() => setVideoFailed(true)} />
             </div>
+            <p className="welcome-video__caption">思怡，回来啦。</p>
           </div>}
 
           <main className={`welcome-fallback${videoPlaying ? " is-covered" : ""}`}>
             <p className="welcome-fallback__eyebrow">中秋回家</p>
-            <h1 id="welcome-title">思怡，<em>欢迎回家！</em></h1>
+            <h1 id="welcome-title">思怡，<em>回来啦。</em></h1>
             <div className="welcome-fallback__card" aria-hidden="true">
-              <span className="welcome-fallback__moon" />
-              <span className="welcome-fallback__lantern welcome-fallback__lantern--left" /><span className="welcome-fallback__lantern welcome-fallback__lantern--right" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/welcome/monster-poster.webp" alt="" width="400" height="400" />
-              <strong>思怡，欢迎回家！</strong>
             </div>
             <button className="welcome-enter" type="button" onClick={dismiss}>进屋吧 <span aria-hidden="true">→</span></button>
-            <p id="welcome-hint" className="welcome-hint">{videoFailed ? "视频没加载出来，先进去吧。" : "小魔丸正在开门。"}</p>
+            <p id="welcome-hint" className="welcome-hint">{videoFailed ? "视频没出来，先进去吧。" : "小魔丸马上出来。"}</p>
           </main>
         </>}
       </dialog>
