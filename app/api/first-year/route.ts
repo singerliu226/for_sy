@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { requireMember } from "@/lib/auth";
 import { isMember, type Member } from "@/lib/members";
 
 export const dynamic = "force-dynamic";
@@ -23,7 +24,7 @@ export type LittlePromise = {
   createdBy: Member;
   createdAt: string;
   checkedBy: Member[];
-  completedAt?: string;
+  approvedAt?: string;
 };
 
 type FirstYearStore = {
@@ -69,7 +70,7 @@ function normalisePage(value: unknown): FirstYearPage | null {
 
 function normalisePromise(value: unknown): LittlePromise | null {
   if (!value || typeof value !== "object") return null;
-  const promise = value as Partial<LittlePromise>;
+  const promise = value as Partial<LittlePromise> & { completedAt?: unknown };
   if (typeof promise.id !== "string" || !isMember(promise.createdBy) || typeof promise.title !== "string" || !validDate(promise.date) || typeof promise.createdAt !== "string") return null;
   const title = cleanText(promise.title, 100);
   if (!title) return null;
@@ -81,7 +82,9 @@ function normalisePromise(value: unknown): LittlePromise | null {
     createdBy: promise.createdBy,
     createdAt: promise.createdAt,
     checkedBy,
-    ...(typeof promise.completedAt === "string" ? { completedAt: promise.completedAt } : {}),
+    // Old entries used completedAt for the moment both people agreed. Keep them
+    // on the calendar, but do not turn approval into a false "completed" state.
+    ...(typeof promise.approvedAt === "string" ? { approvedAt: promise.approvedAt } : typeof promise.completedAt === "string" && checkedBy.length === 2 ? { approvedAt: promise.completedAt } : {}),
   };
 }
 
@@ -116,7 +119,9 @@ function withWriteLock<T>(task: () => Promise<T>) {
   return result;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const access = requireMember(request);
+  if ("response" in access) return access.response;
   try {
     const store = await readStore();
     return json({
@@ -136,9 +141,10 @@ export async function POST(request: Request) {
     return json({ error: "这次没有收到内容，再试一下。" }, 400);
   }
 
+  const access = requireMember(request);
+  if ("response" in access) return access.response;
   const action = body.action;
-  const author = body.author;
-  if (!isMember(author)) return json({ error: "先选一下你是谁。" }, 400);
+  const author = access.member;
 
   try {
     const result = await withWriteLock(async () => {
@@ -195,7 +201,7 @@ export async function POST(request: Request) {
         const promise = store.promises.find((item) => item.id === id);
         if (!promise) throw new Error("这件小事找不到了，刷新后再试试。");
         if (!promise.checkedBy.includes(author)) promise.checkedBy.push(author);
-        if (promise.checkedBy.length === 2 && !promise.completedAt) promise.completedAt = new Date().toISOString();
+        if (promise.checkedBy.length === 2 && !promise.approvedAt) promise.approvedAt = new Date().toISOString();
         await saveStore(store);
         return { promise };
       }

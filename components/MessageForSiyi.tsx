@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useMemberIdentity } from "@/components/MemberIdentity";
 import type { Member } from "@/lib/members";
 
 type Attachment = {
@@ -37,8 +38,14 @@ function mediaUrl(attachment: Attachment) {
 
 export function MessageForSiyi() {
   const [messages, setMessages] = useState<MessageForSiyi[] | null>(null);
+  const { member, loading } = useMemberIdentity();
 
   useEffect(() => {
+    if (loading) return;
+    if (!member) {
+      const timer = window.setTimeout(() => setMessages(null), 0);
+      return () => window.clearTimeout(timer);
+    }
     void fetch("/api/messages?recipient=%E5%B0%8F%E9%AD%94%E7%8E%8B", { cache: "no-store" })
       .then(async (response) => {
         const data = await response.json() as { messages?: MessageForSiyi[] };
@@ -46,7 +53,7 @@ export function MessageForSiyi() {
         setMessages(data.messages.slice(0, 6));
       })
       .catch(() => setMessages([]));
-  }, []);
+  }, [member, loading]);
 
   return (
     <section className="message-for-siyi" aria-labelledby="message-for-siyi-title">
@@ -54,7 +61,7 @@ export function MessageForSiyi() {
         <p>MAILBOX</p>
         <h2 id="message-for-siyi-title">有你的信！</h2>
       </div>
-      {messages === null ? <p className="message-for-siyi__empty">正在打开这封信…</p> : messages.length === 0 ? (
+      {!member && !loading ? <p className="message-for-siyi__empty">先<a href="/login">登录</a>，再看看这两天有没有新话。</p> : messages === null ? <p className="message-for-siyi__empty">正在打开这封信…</p> : messages.length === 0 ? (
         <p className="message-for-siyi__empty">信箱还是空的。<a href="/messages">去留一句 →</a></p>
       ) : (
         <div className="message-for-siyi__list">

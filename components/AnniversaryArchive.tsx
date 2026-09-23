@@ -63,7 +63,7 @@ export function AnniversaryArchive() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!member || saving) {
-      if (!member) setFeedback("先在右上角选一下你是谁。");
+      if (!member) setFeedback("先登录，再把这一天收好。");
       return;
     }
     setSaving(true);
@@ -72,7 +72,7 @@ export function AnniversaryArchive() {
       const response = await fetch("/api/anniversaries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, line, date, sourcePageId, author: member }),
+        body: JSON.stringify({ title, line, date, sourcePageId }),
       });
       const result = await response.json() as { error?: string };
       if (!response.ok) throw new Error(result.error ?? "这天没能收好。");

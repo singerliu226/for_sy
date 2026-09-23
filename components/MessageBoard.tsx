@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { MemberIdentity, useMemberIdentity } from "@/components/MemberIdentity";
+import { useMemberIdentity } from "@/components/MemberIdentity";
 import type { Member } from "@/lib/members";
 
 type Person = Member;
@@ -80,7 +80,7 @@ function makeThread(messages: BoardMessage[]) {
 export function MessageBoard({ context }: { context?: { type: "first-year" | "assistant"; id: string; title: string } }) {
   const [messages, setMessages] = useState<BoardMessage[] | null>(null);
   const [loadError, setLoadError] = useState("");
-  const { member: author } = useMemberIdentity();
+  const { member: author, loading: identityLoading } = useMemberIdentity();
   const [replyTo, setReplyTo] = useState<BoardMessage | null>(null);
   const [draft, setDraft] = useState("");
   const [image, setImage] = useState<File | null>(null);
@@ -105,11 +105,19 @@ export function MessageBoard({ context }: { context?: { type: "first-year" | "as
   }
 
   useEffect(() => {
-    void reloadMessages().catch(() => {
+    if (identityLoading) return;
+    if (!author) {
+      const timer = window.setTimeout(() => {
+        setMessages(null);
+        setLoadError("");
+      }, 0);
+      return () => window.clearTimeout(timer);
+    }
+    void reloadMessages().catch((error) => {
       setMessages([]);
-      setLoadError("留言暂时没打开，刷新一下再试试。");
+      setLoadError(error instanceof Error && error.message ? error.message : "留言暂时没打开，刷新一下再试试。");
     });
-  }, [context?.id, context?.type]);
+  }, [context?.id, context?.type, identityLoading, author]);
 
   const threadedMessages = useMemo(() => messages ? makeThread(messages) : [], [messages]);
 
@@ -208,7 +216,6 @@ export function MessageBoard({ context }: { context?: { type: "first-year" | "as
     const form = new FormData();
     form.append("message", draft.trim());
     form.append("website", "");
-    form.append("author", author);
     if (replyTo) form.append("replyToId", replyTo.id);
     if (context) {
       form.append("referenceType", context.type);
@@ -244,11 +251,11 @@ export function MessageBoard({ context }: { context?: { type: "first-year" | "as
     <section className="message-board" aria-labelledby="message-board-title">
       <div className="message-board__heading">
         <p>JUST US</p>
-        <h2 id="message-board-title">{context ? "关于「" + context.title + "」" : "我们的小留言"}</h2>
+        <h2 id="message-board-title">{context ? "关于「" + context.title + "」" : "记一记最近的事儿"}</h2>
       </div>
 
       <section className="message-board__conversation" aria-label="两个人的留言">
-        {messages === null ? <p className="message-board__empty">正在打开留言…</p> : messages.length === 0 ? (
+        {!author && !identityLoading ? <p className="message-board__empty">先<a href="/login">登录</a>，再打开你们的留言板。</p> : messages === null ? <p className="message-board__empty">正在打开留言…</p> : messages.length === 0 ? (
           <p className="message-board__empty">第一句话，留给你们。</p>
         ) : (
           <div className="message-board__thread">
@@ -269,10 +276,7 @@ export function MessageBoard({ context }: { context?: { type: "first-year" | "as
 
       <form className="message-board__form" id="message-compose" onSubmit={submit}>
         <div className="message-board__form-head">
-          <div>
-            <p>{author ? "这次由" + author + "写" : "先选一下你是谁"}</p>
-            <MemberIdentity className="message-board__identity" />
-          </div>
+          <div><p>{author ? `会以${author}的名字留下。` : "登录后，就能在这里写。"}</p>{!author && !identityLoading && <a className="message-board__login" href="/login">去登录 →</a>}</div>
           {replyTo && <p className="message-board__replying">回复 {replyTo.author} <button type="button" onClick={() => setReplyTo(null)}>取消</button></p>}
         </div>
         <label className="sr-only" htmlFor="board-message">留言内容</label>
@@ -303,7 +307,7 @@ export function MessageBoard({ context }: { context?: { type: "first-year" | "as
 
         <div className="message-board__form-footer">
           <span>{draft.length}/{MESSAGE_LENGTH_LIMIT}</span>
-          <button type="submit" disabled={sending || (!draft.trim() && !image && !audio)}>{sending ? "放进去了…" : "留在这里 →"}</button>
+          <button type="submit" disabled={!author || sending || (!draft.trim() && !image && !audio)}>{sending ? "放进去了…" : author ? "留在这里 →" : "先登录"}</button>
         </div>
         <p className="message-board__feedback" aria-live="polite">{feedback}</p>
       </form>

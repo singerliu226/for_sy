@@ -169,9 +169,8 @@
 /* 魔族小窝：shared room, first-year notebook and selected member state. */
 .member-identity { align-items: center; display: flex; font-family: var(--ui); gap: 8px; margin-left: auto; white-space: nowrap; }
 .member-identity > span { color: #7a6877; font-size: 10px; }
-.member-identity > div { display: flex; gap: 4px; }
-.member-identity button { background: transparent; border: 1px solid #ddcfd7; border-radius: 999px; color: #806979; font-family: var(--ui); font-size: 10px; padding: 6px 9px; }
-.member-identity button.is-active { background: #76596f; border-color: #76596f; color: #fffaf8; }
+.member-identity :is(a,button) { background: transparent; border: 1px solid #ddcfd7; border-radius: 999px; color: #806979; font-family: var(--ui); font-size: 10px; padding: 6px 9px; }
+.member-identity a { text-decoration: none; }
 .molwan-nav > .member-identity { margin-left: auto; }
 .molwan-home__doors--four { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 1200px; }
 .home-room-status { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0 auto 30px; max-width: 1120px; width: calc(100% - 80px); }
@@ -224,16 +223,20 @@
 .journal-page__blank span { color: #c59aab; font: 35px Georgia, serif; }
 .journal-page__blank h3 { color: #5d4d5a; font: 500 30px var(--serif); margin: 13px 0 6px; }
 .journal-page__blank p { font: 14px/1.7 var(--ui); margin: 0; }
-.first-year-create { background: linear-gradient(118deg, #f4e8e8, #f7f0e8); border: 1px solid #e7dbda; border-radius: 20px; display: grid; gap: 36px; grid-template-columns: minmax(0, .9fr) minmax(300px, 1.1fr); margin-top: 40px; padding: clamp(24px, 4vw, 42px); }
-.first-year-create h3 { font-size: 31px; }
-.first-year-create__prompts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 19px; }
-.first-year-create__prompts button { background: rgba(255, 253, 249, .68); border: 1px solid #e3cfd4; border-radius: 999px; color: #7c5c71; font: 11px var(--ui); padding: 8px 10px; }
-.first-year-create form,.promise-form { display: grid; gap: 14px; }
-.first-year-create label,.promise-form label { color: #756772; display: grid; font: 700 10px var(--ui); gap: 7px; letter-spacing: .05em; }
-.first-year-create input,.promise-form input { background: rgba(255, 253, 249, .82); border: 1px solid #dfd3d4; border-radius: 9px; color: #554954; font: 14px var(--ui); min-height: 45px; padding: 10px 12px; width: 100%; }
-.first-year-create form > button,.promise-form > button { background: #76596f; border: 0; border-radius: 10px; color: #fffaf7; font: 700 12px var(--ui); min-height: 46px; }
-.first-year-create form > button:disabled,.promise-form > button:disabled { cursor: not-allowed; opacity: .5; }
-.little-promises { border-top: 1px solid #e6dfde; margin-top: 58px; padding-top: 46px; }
+.first-year-login { background:#76596f; border-radius:999px; color:#fffaf8; display:inline-block; font:700 12px var(--ui); margin-top:28px; padding:12px 18px; }
+.promise-create { align-items:center; background:linear-gradient(118deg,#f4e8e8,#f7f0e8); border:1px solid #e7dbda; border-radius:20px; display:grid; gap:36px; grid-template-columns:minmax(0,.85fr) minmax(300px,1.15fr); margin-top:40px; padding:clamp(24px,4vw,42px); }
+.promise-create > div > p,.promise-waiting header p { color:#a0768d; font:700 10px var(--ui); letter-spacing:.14em; margin:0 0 7px; }
+.promise-create h3,.promise-waiting h3 { color:#5b4b58; font:500 31px/1.3 var(--serif); margin:0; }
+.promise-create > div > span { color:#7c7079; display:block; font:13px/1.75 var(--ui); margin-top:14px; max-width:330px; }
+.promise-form { display:grid; gap:14px; }
+.promise-form label { color:#756772; display:grid; font:700 10px var(--ui); gap:7px; letter-spacing:.05em; }
+.promise-form input { background:rgba(255,253,249,.82); border:1px solid #dfd3d4; border-radius:9px; color:#554954; font:14px var(--ui); min-height:45px; padding:10px 12px; width:100%; }
+.promise-form > button { background:#76596f; border:0; border-radius:10px; color:#fffaf7; font:700 12px var(--ui); min-height:46px; }
+.promise-form > button:disabled { cursor:not-allowed; opacity:.5; }
+.promise-waiting { border-top:1px solid #e6dfde; margin-top:46px; padding-top:38px; }
+.promise-waiting header { align-items:end; display:flex; gap:27px; }
+.promise-waiting .promise-list { margin-top:20px; }
+.little-promises { border-top:1px solid #e6dfde; margin-top:54px; padding-top:46px; }
 .little-promises__heading { align-items: end; display: flex; gap: 27px; }
 .little-promises h3 { font-size: clamp(31px, 3.3vw, 45px); }
 .little-promises h3 em { color: #927287; font-style: normal; }
@@ -260,7 +263,6 @@
 .promise-list article { align-items: center; border-bottom: 1px solid #e5dede; display: grid; gap: 14px; grid-template-columns: 130px minmax(0, 1fr) 140px auto; padding: 15px 5px; }
 .promise-list article time,.promise-list article span { color: #8b7d88; font: 11px var(--ui); }
 .promise-list article strong { color: #554854; font: 600 14px/1.5 var(--ui); }
-.promise-list article.is-done strong { text-decoration: line-through; text-decoration-color: #b596a4; }
 .promise-list article button { background: transparent; border: 1px solid #d6c4cd; border-radius: 999px; color: #76586e; font: 700 10px var(--ui); min-width: 74px; padding: 8px 9px; }
 .promise-list article button:disabled { color: #9e9499; cursor: default; }
 .promise-list__empty { color: #837a82; font: 14px/1.8 var(--ui); padding: 14px 0; }
@@ -282,6 +284,23 @@
 .anniversary-create button:disabled { opacity: .5; }
 .anniversary-card--saved { background: linear-gradient(100deg, #fbf5ed, #ecf0f1); }
 .anniversary-list__feedback { color: #9c6074; font: 13px var(--ui); margin-top: 18px; }
+.message-board__login { color:#7d5d74; font:700 11px var(--ui); text-decoration:underline; text-underline-offset:4px; }
+.auth-site { min-height:100svh; }
+.auth-card { background:#fffdfa; border:1px solid #e4dbde; border-radius:24px; box-shadow:0 18px 50px #694f6810; display:grid; gap:13px; margin:clamp(54px,10vw,120px) auto; max-width:490px; padding:clamp(25px,5vw,46px); width:calc(100% - 40px); }
+.auth-card > p { color:#a0768d; font:700 10px var(--ui); letter-spacing:.15em; margin:0; }
+.auth-card h1 { color:#514452; font:500 42px/1.3 var(--serif); margin:0; }
+.auth-card > span { color:#786e78; font:14px/1.8 var(--ui); }
+.auth-card form { display:grid; gap:14px; margin-top:10px; }
+.auth-card form > label { color:#756772; display:grid; font:700 10px var(--ui); gap:7px; letter-spacing:.05em; }
+.auth-card input { background:#faf6f7; border:1px solid #dfd3d4; border-radius:10px; color:#554954; font:14px var(--ui); min-height:45px; padding:10px 12px; width:100%; }
+.auth-card fieldset { border:0; display:flex; flex-wrap:wrap; gap:8px; margin:0; padding:0; }
+.auth-card legend { color:#756772; font:700 10px var(--ui); letter-spacing:.05em; margin-bottom:8px; }
+.auth-card fieldset label { border:1px solid #dfd3d4; border-radius:999px; color:#6e5c68; cursor:pointer; font:700 12px var(--ui); padding:9px 12px; }
+.auth-card fieldset label.is-picked { background:#eee3eb; border-color:#bf99ac; color:#694d61; }
+.auth-card fieldset input { height:1px; opacity:0; position:absolute; width:1px; }
+.auth-card button { background:#76596f; border:0; border-radius:10px; color:#fffaf7; font:700 12px var(--ui); min-height:46px; }
+.auth-card button:disabled { opacity:.55; }
+.auth-card__feedback { color:#a15d73; font:13px/1.7 var(--ui); margin:2px 0 0; }
 
 @media (max-width: 1000px) {
   .molwan-home__doors--four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -304,8 +323,11 @@
   .journal-page__header { flex-direction: column; gap: 17px; }
   .journal-page__actions { justify-content: start; max-width: none; }
   .journal-page .message-board__form { margin-left: -5px; margin-right: -5px; }
-  .first-year-create { display: block; margin-top: 25px; padding: 23px 18px; }
-  .first-year-create form { margin-top: 25px; }
+  .promise-create { display:block; margin-top:25px; padding:23px 18px; }
+  .promise-create form { margin-top:25px; }
+  .promise-waiting { margin-top:38px; padding-top:30px; }
+  .promise-waiting header { display:block; }
+  .promise-waiting header p { margin-bottom:10px; }
   .little-promises { margin-top: 43px; padding-top: 32px; }
   .little-promises__heading { display: block; }
   .little-promises__heading > p { margin-bottom: 10px; }

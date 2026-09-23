@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { isAuditInitiator, recordLiveConversation, type AuditInitiator } from "@/lib/assistant-audit";
+import { recordLiveConversation, type AuditInitiator } from "@/lib/assistant-audit";
+import { requireMember } from "@/lib/auth";
 
 type HistoryItem = { role: "user" | "assistant"; text: string };
 type ChatBody = { message?: unknown; history?: unknown; initiator?: unknown; conversationId?: unknown };
@@ -108,6 +109,8 @@ function fallbackReply() {
 }
 
 export async function POST(request: Request) {
+  const access = requireMember(request);
+  if ("response" in access) return access.response;
   const address = clientAddress(request);
   if (isRateLimited(address)) return Response.json({ error: "小魔丸要缓一缓啦，十分钟后再问一次。" }, { status: 429 });
 
@@ -120,9 +123,7 @@ export async function POST(request: Request) {
 
   const message = typeof body.message === "string" ? body.message.trim().slice(0, 500) : "";
   if (!message) return Response.json({ error: "先写下一句想问小魔丸的话吧。" }, { status: 400 });
-  if (!isAuditInitiator(body.initiator)) return Response.json({ error: "先在右上角选一下你是谁。" }, { status: 400 });
-
-  const initiator: AuditInitiator = body.initiator;
+  const initiator: AuditInitiator = access.member;
   const history = parseHistory(body.history);
   const sessionId = conversationId(body.conversationId);
   const respond = async (reply: ChatReply) => {

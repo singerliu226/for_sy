@@ -1,6 +1,7 @@
 import { createHmac, randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { memberFromRequest } from "@/lib/auth";
 import { isMember, type Member } from "@/lib/members";
 
 export const dynamic = "force-dynamic";
@@ -229,7 +230,7 @@ export async function POST(request: Request) {
 
   const label = cleanText(body.label, 90);
   const destination = cleanText(body.destination, 160);
-  const actor = isMember(body.actor) ? body.actor : undefined;
+  const actor = memberFromRequest(request) ?? undefined;
   const device = deviceSignature(request);
   const event: ActivityEvent = {
     id: randomUUID(),

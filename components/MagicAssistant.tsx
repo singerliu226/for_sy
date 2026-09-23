@@ -92,7 +92,7 @@ export function MagicAssistant() {
   async function ask(question?: string) {
     const message = (question ?? query).trim();
     if (!message || !member || sending) {
-      if (!member) setNotice("先在右上角选一下你是谁。");
+      if (!member) setNotice("先登录，再来问小魔丸。 ");
       return;
     }
 
@@ -108,7 +108,6 @@ export function MagicAssistant() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message,
-          initiator: member,
           conversationId: sessionId,
           history: nextHistory.slice(0, -1).map((item) => ({ role: item.role, text: item.text })),
         }),
@@ -140,7 +139,7 @@ export function MagicAssistant() {
 
   function share(message: AssistantMessage) {
     if (!member) {
-      setNotice("先在右上角选一下你是谁。");
+      setNotice("先登录，再把这段话留给对方。 ");
       return;
     }
     try {
@@ -158,7 +157,7 @@ export function MagicAssistant() {
       <div className="magic-console__heading">
         <span className="magic-console__orb" aria-hidden="true">丸</span>
         <div><p>小魔丸</p><h2 id="magic-title">小魔丸，帮我看看这个事儿？</h2></div>
-        <span className="magic-console__status"><i />{member ? "准备好了" : "先选个身份"}</span>
+        <span className="magic-console__status"><i />{member ? "准备好了" : "登录后就能问"}</span>
       </div>
       <p className="magic-console__intro">题不会、事儿拿不准，或者想查点啥，都扔给它。</p>
       <form onSubmit={submit} className="magic-console__form">

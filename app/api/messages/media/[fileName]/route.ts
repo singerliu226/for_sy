@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { requireMember } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,9 @@ const mediaTypes: Record<string, string> = {
 };
 const safeFileName = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|jpeg|png|webp|gif|webm|m4a|mp3|wav|ogg)$/i;
 
-export async function GET(_request: Request, context: { params: Promise<{ fileName: string }> }) {
+export async function GET(request: Request, context: { params: Promise<{ fileName: string }> }) {
+  const access = requireMember(request);
+  if ("response" in access) return access.response;
   const { fileName } = await context.params;
   const match = safeFileName.exec(fileName);
   if (!match) return new Response("Not found", { status: 404 });

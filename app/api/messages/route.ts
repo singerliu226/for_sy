@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { isMember, normaliseMember, otherMember, type Member } from "@/lib/members";
+import { requireMember } from "@/lib/auth";
+import { normaliseMember, otherMember, type Member } from "@/lib/members";
 
 export const dynamic = "force-dynamic";
 
@@ -194,6 +195,8 @@ async function saveUpload(upload: ValidatedUpload) {
 }
 
 export async function GET(request: Request) {
+  const access = requireMember(request);
+  if ("response" in access) return access.response;
   const search = new URL(request.url).searchParams;
   const requestedRecipient = search.get("recipient");
   const recipient = requestedRecipient ? normaliseMember(requestedRecipient) : null;
@@ -218,12 +221,13 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const access = requireMember(request);
+  if ("response" in access) return access.response;
   const address = clientAddress(request);
   if (rateLimited(address)) return json({ error: "这一会儿已经写得很多啦，过十分钟再留一条。" }, 429);
 
   let message = "";
   let website = "";
-  let requestedAuthor: unknown = "小魔王";
   let replyToId = "";
   let imageFile: UploadedFile | null = null;
   let audioFile: UploadedFile | null = null;
@@ -234,7 +238,6 @@ export async function POST(request: Request) {
       const form = await request.formData();
       message = cleanMessage(form.get("message"));
       website = typeof form.get("website") === "string" ? String(form.get("website")) : "";
-      requestedAuthor = form.get("author") ?? "小魔王";
       replyToId = typeof form.get("replyToId") === "string" ? String(form.get("replyToId")) : "";
       imageFile = asUpload(form.get("image"));
       audioFile = asUpload(form.get("audio"));
@@ -244,10 +247,9 @@ export async function POST(request: Request) {
         title: form.get("referenceTitle"),
       });
     } else {
-      const body = await request.json() as { message?: unknown; website?: unknown; author?: unknown; replyToId?: unknown; reference?: unknown };
+      const body = await request.json() as { message?: unknown; website?: unknown; replyToId?: unknown; reference?: unknown };
       message = cleanMessage(body.message);
       website = typeof body.website === "string" ? body.website : "";
-      requestedAuthor = body.author ?? "小魔王";
       replyToId = typeof body.replyToId === "string" ? body.replyToId : "";
       reference = normaliseReference(body.reference);
     }
@@ -256,7 +258,6 @@ export async function POST(request: Request) {
   }
 
   if (website.trim()) return json({ ok: true });
-  if (!isMember(requestedAuthor)) return json({ error: "先选一下谁在写。" }, 400);
   if (replyToId && !messageIdPattern.test(replyToId)) return json({ error: "要回复的留言不见了，刷新后再试试。" }, 400);
   if (message.length > MESSAGE_LENGTH_LIMIT) return json({ error: `这一条最多 ${MESSAGE_LENGTH_LIMIT} 个字。` }, 400);
 
@@ -275,8 +276,8 @@ export async function POST(request: Request) {
     const entry = await withWriteLock(async () => {
       const next: BoardMessage = {
         id: randomUUID(),
-        author: requestedAuthor,
-        recipient: otherMember(requestedAuthor),
+        author: access.member,
+        recipient: otherMember(access.member),
         body: message,
         createdAt: new Date().toISOString(),
         ...(reference ? { reference } : {}),

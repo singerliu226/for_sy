@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { requireMember } from "@/lib/auth";
 import { isMember, type Member } from "@/lib/members";
 
 export const dynamic = "force-dynamic";
@@ -66,7 +67,9 @@ function withWriteLock<T>(task: () => Promise<T>) {
   return result;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const access = requireMember(request);
+  if ("response" in access) return access.response;
   try {
     const items = await readItems();
     return json({ items: items.sort((first, second) => second.date.localeCompare(first.date)) });
@@ -83,12 +86,13 @@ export async function POST(request: Request) {
     return json({ error: "这次没有收到内容，再试一下。" }, 400);
   }
 
-  const author = body.author;
+  const access = requireMember(request);
+  if ("response" in access) return access.response;
+  const author = access.member;
   const title = cleanText(body.title, 80);
   const line = cleanText(body.line, 180);
   const date = body.date;
   const sourcePageId = cleanText(body.sourcePageId, 96).replace(/[^a-z0-9-]/gi, "");
-  if (!isMember(author)) return json({ error: "先选一下你是谁。" }, 400);
   if (!validDate(date)) return json({ error: "先选一个日子。" }, 400);
   if (!title || !line) return json({ error: "写个标题，再留一句话吧。" }, 400);
 

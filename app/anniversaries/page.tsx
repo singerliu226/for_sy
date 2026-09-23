@@ -13,7 +13,7 @@ export default function AnniversariesPage() {
     <main className="molwan-site anniversary-site">
       <header className="molwan-nav">
         <Link href="/" className="molwan-brand"><span className="molwan-brand__mark">丸</span><span>魔族小窝</span></Link>
-        <nav aria-label="主导航"><a href="/first-year">第一年</a><a href="/assistant">小魔丸</a><a href="/messages">小留言</a><a className="is-current" href="/anniversaries">纪念日</a></nav>
+        <nav aria-label="主导航"><a href="/first-year">小约定</a><a href="/assistant">小魔丸</a><a href="/messages">最近的事儿</a><a className="is-current" href="/anniversaries">纪念日</a></nav>
         <MemberIdentity />
       </header>
 
