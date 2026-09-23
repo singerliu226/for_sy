@@ -16,6 +16,7 @@ export function WelcomeOpening() {
   const [reduced, setReduced] = useState(false);
   const [videoPlaying, setVideoPlaying] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
+  const [videoBlocked, setVideoBlocked] = useState(false);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -57,16 +58,20 @@ export function WelcomeOpening() {
   function playAgain() {
     setVideoPlaying(false);
     setVideoFailed(false);
+    setVideoBlocked(false);
     setOpen(true);
   }
 
-  function tryVideo() {
+  function tryVideo(userInitiated = false) {
     const player = video.current;
     if (!player || videoFailed) return;
     player.muted = true;
     player.defaultMuted = true;
     player.volume = 0;
-    void player.play().catch(() => setVideoFailed(true));
+    void player.play().then(() => setVideoBlocked(false)).catch(() => {
+      if (userInitiated) setVideoFailed(true);
+      else setVideoBlocked(true);
+    });
   }
 
   return (
@@ -88,8 +93,9 @@ export function WelcomeOpening() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/welcome/monster-poster.webp" alt="" width="400" height="400" />
             </div>
+            {videoBlocked && !videoFailed && <button className="welcome-watch" type="button" onClick={() => tryVideo(true)}>叫小魔丸开门 <span aria-hidden="true">→</span></button>}
             <button className="welcome-enter" type="button" onClick={dismiss}>进屋吧 <span aria-hidden="true">→</span></button>
-            <p id="welcome-hint" className="welcome-hint">{videoFailed ? "视频没出来，先进去吧。" : "小魔丸马上出来。"}</p>
+            <p id="welcome-hint" className="welcome-hint">{videoFailed ? "视频没出来，先进去吧。" : videoBlocked ? "点一下，小魔丸就出来接你。" : "小魔丸马上出来。"}</p>
           </main>
         </>}
       </dialog>
