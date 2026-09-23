@@ -175,11 +175,12 @@
 .molwan-nav > .member-identity { margin-left: auto; }
 .molwan-home__doors--four { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 1200px; }
 .home-room-status { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0 auto 30px; max-width: 1120px; width: calc(100% - 80px); }
-.home-room-status a { background: rgba(255, 253, 249, .65); border: 1px solid #e5dcdf; border-radius: 15px; display: grid; gap: 6px; min-height: 114px; padding: 18px 20px; transition: background .2s, transform .2s; }
+.home-room-status a { background: rgba(255, 253, 249, .65); border: 1px solid #e5dcdf; border-radius: 15px; display: grid; gap: 6px; min-height: 150px; padding: 18px 20px; transition: background .2s, transform .2s; }
 .home-room-status a:hover { background: #fffdfa; transform: translateY(-2px); }
 .home-room-status span { color: #a0788d; font: 700 9px var(--ui); letter-spacing: .12em; }
 .home-room-status strong { color: #5b4e59; font: 500 22px/1.35 var(--serif); }
 .home-room-status small { color: #817680; font: 11px/1.5 var(--ui); }
+.home-room-status b { color: #8b5a74; font: 700 11px var(--ui); margin-top: 2px; }
 .molwan-door--first-year { background: #f4eee2; }
 .molwan-door--message { background: #e8eef2; }
 .molwan-door__book,.molwan-door__letter { bottom: 21px; color: rgba(116, 85, 105, .34); font: 54px/1 var(--serif); position: absolute; right: 25px; }

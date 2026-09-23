@@ -31,18 +31,26 @@ export function HomeRoomStatus() {
 
   const page = data?.pages[0];
   const promise = data?.promises.find((item) => item.checkedBy.length === 2 && !item.completedAt) ?? data?.promises.find((item) => !item.completedAt);
+  const pageHint = page
+    ? `${page.createdBy}刚写下这页。点进来能看全文，也能在下面接着写。`
+    : "点进「第一年」→ 找到“随手记”→ 点“写一条”。今天发生的一件小事，写一句也行。";
+  const promiseHint = promise
+    ? `${displayDate(promise.date)}${promise.checkedBy.length === 2 ? "，你们都点过“我也打勾”了。" : "，等对方也点一次“我也打勾”就算约好了。"}`
+    : "点进「第一年」→ 往下找到“小约定”。写想一起做什么、选好日期；两个人各点一次“我也打勾”就行。";
 
   return (
     <section className="home-room-status" aria-label="小窝近况">
       <a href={page ? "/first-year?entry=" + encodeURIComponent(page.id) : "/first-year"}>
-        <span>最近写的</span>
-        <strong>{page ? page.title : "还没人写"}</strong>
-        <small>{page ? page.createdBy + "刚写了这条" : "你先说一句？"}</small>
+        <span>{page ? "最近写的" : "想留下一点今天"}</span>
+        <strong>{page ? page.title : "去写一页小随手记"}</strong>
+        <small>{pageHint}</small>
+        {!page && <b>现在去写 →</b>}
       </a>
       <a href="/first-year#little-promises">
-        <span>接下来要干啥</span>
-        <strong>{promise ? promise.title : "还没约好"}</strong>
-        <small>{promise ? displayDate(promise.date) + (promise.checkedBy.length === 2 ? " · 都打过勾了" : " · 等对方也打个勾") : "想到了就记一件"}</small>
+        <span>{promise ? "接下来要干啥" : "想约一件小事"}</span>
+        <strong>{promise ? promise.title : "去定一个小约定"}</strong>
+        <small>{promiseHint}</small>
+        {!promise && <b>去约一下 →</b>}
       </a>
     </section>
   );
