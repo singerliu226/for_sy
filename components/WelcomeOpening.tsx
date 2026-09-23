@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./welcome-opening.css";
 
-const seenKey = "molwan-welcome-seen-v3";
+const seenKey = "molwan-welcome-seen-v4";
 
 export function WelcomeOpening() {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -87,15 +87,13 @@ export function WelcomeOpening() {
         {open && <>
           {!reduced && <div className={`welcome-video${videoPlaying && !videoFailed ? " is-playing" : ""}`} aria-hidden="true">
             <div className="welcome-video__frame">
-              <video ref={video} src="/welcome/midautumn-homecoming-safe" autoPlay defaultMuted muted playsInline preload="auto" onCanPlay={tryVideo} onPlaying={() => setVideoPlaying(true)} onEnded={dismiss} onError={() => setVideoFailed(true)} />
+              <video ref={video} src="/welcome/midautumn-homecoming-lettered" autoPlay defaultMuted muted playsInline preload="auto" onCanPlay={tryVideo} onPlaying={() => setVideoPlaying(true)} onEnded={dismiss} onError={() => setVideoFailed(true)} />
             </div>
-            <p className="welcome-video__caption">思怡，回来啦。</p>
           </div>}
 
           {videoFailed && !reduced && <div className="welcome-motion-fallback" aria-hidden="true">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/welcome/homecoming-motion" alt="" width="320" height="426" />
-            <p>思怡，回来啦。</p>
+            <img src="/welcome/homecoming-lettered-motion" alt="" width="320" height="431" />
           </div>}
 
           <main className={`welcome-fallback${videoPlaying || videoFailed ? " is-covered" : ""}`}>
