@@ -87,13 +87,13 @@ export function WelcomeOpening() {
         {open && <>
           {!reduced && <div className={`welcome-video${videoPlaying && !videoFailed ? " is-playing" : ""}`} aria-hidden="true">
             <div className="welcome-video__frame">
-              <video ref={video} src="/welcome/midautumn-homecoming-lettered" autoPlay defaultMuted muted playsInline preload="auto" onCanPlay={tryVideo} onPlaying={() => setVideoPlaying(true)} onEnded={dismiss} onError={() => setVideoFailed(true)} />
+              <video ref={video} src="/welcome/midautumn-homecoming-lettered-v2" autoPlay defaultMuted muted playsInline preload="auto" onCanPlay={tryVideo} onPlaying={() => setVideoPlaying(true)} onEnded={dismiss} onError={() => setVideoFailed(true)} />
             </div>
           </div>}
 
           {videoFailed && !reduced && <div className="welcome-motion-fallback" aria-hidden="true">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/welcome/homecoming-lettered-motion" alt="" width="320" height="431" />
+            <img src="/welcome/homecoming-lettered-motion-v2" alt="" width="320" height="431" />
           </div>}
 
           <main className={`welcome-fallback${videoPlaying || videoFailed ? " is-covered" : ""}`}>
