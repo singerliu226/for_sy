@@ -55,6 +55,12 @@ export function WelcomeOpening() {
     }, reduced ? 0 : 380);
   }, [leaving, reduced]);
 
+  useEffect(() => {
+    if (!open || !videoFailed || reduced) return;
+    const fallbackTimer = setTimeout(dismiss, 5200);
+    return () => clearTimeout(fallbackTimer);
+  }, [dismiss, open, reduced, videoFailed]);
+
   function playAgain() {
     setVideoPlaying(false);
     setVideoFailed(false);
@@ -86,7 +92,13 @@ export function WelcomeOpening() {
             <p className="welcome-video__caption">思怡，回来啦。</p>
           </div>}
 
-          <main className={`welcome-fallback${videoPlaying ? " is-covered" : ""}`}>
+          {videoFailed && !reduced && <div className="welcome-motion-fallback" aria-hidden="true">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/welcome/homecoming-motion" alt="" width="320" height="426" />
+            <p>思怡，回来啦。</p>
+          </div>}
+
+          <main className={`welcome-fallback${videoPlaying || videoFailed ? " is-covered" : ""}`}>
             <p className="welcome-fallback__eyebrow">中秋回家</p>
             <h1 id="welcome-title">思怡，<em>回来啦。</em></h1>
             <div className="welcome-fallback__card" aria-hidden="true">
