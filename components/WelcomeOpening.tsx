@@ -3,36 +3,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./welcome-opening.css";
 
-type Frames = { size: number; fps: number; count: number; cols: number; perSheet: number; sheets: string[]; frames: { x: number; y: number; angle: number }[] };
-const seenKey = "molwan-welcome-seen-v2";
-
-function loadImage(url: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.fetchPriority = "high";
-    image.onload = () => resolve(image);
-    image.onerror = reject;
-    image.src = url;
-  });
-}
+const seenKey = "molwan-welcome-seen-v3";
 
 export function WelcomeOpening() {
   const dialog = useRef<HTMLDialogElement>(null);
-  const canvas = useRef<HTMLCanvasElement>(null);
-  const enter = useRef<HTMLButtonElement>(null);
+  const video = useRef<HTMLVideoElement>(null);
   const replay = useRef<HTMLButtonElement>(null);
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const tapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [open, setOpen] = useState(false);
   const [ready, setReady] = useState(false);
   const [leaving, setLeaving] = useState(false);
-  const [run, setRun] = useState(0);
-  const [painted, setPainted] = useState(false);
-  const [line, setLine] = useState("等等，我先去开门！");
-  const [phase, setPhase] = useState("on-the-way");
-  const [tapped, setTapped] = useState(false);
   const [reduced, setReduced] = useState(false);
-  const [videoReady, setVideoReady] = useState(false);
+  const [videoPlaying, setVideoPlaying] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -48,7 +31,6 @@ export function WelcomeOpening() {
       cancelAnimationFrame(start);
       media.removeEventListener("change", updateMotion);
       if (leaveTimer.current) clearTimeout(leaveTimer.current);
-      if (tapTimer.current) clearTimeout(tapTimer.current);
     };
   }, []);
 
@@ -58,7 +40,6 @@ export function WelcomeOpening() {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     element.showModal();
-    enter.current?.focus({ preventScroll: true });
     return () => { element.close(); document.body.style.overflow = previousOverflow; };
   }, [open]);
 
@@ -70,147 +51,48 @@ export function WelcomeOpening() {
       setOpen(false);
       setLeaving(false);
       replay.current?.focus({ preventScroll: true });
-    }, reduced ? 0 : 520);
+    }, reduced ? 0 : 380);
   }, [leaving, reduced]);
 
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false, raf = 0;
-    const abort = new AbortController();
-    // The entry button stays usable while slower mobile connections load frames.
-    const deadline = setTimeout(() => abort.abort(), 20000);
-    async function animate() {
-      try {
-        const response = await fetch("/welcome/frames.json?v=sign2", { signal: abort.signal });
-        if (!response.ok) throw new Error("No animation metadata");
-        const frames = await response.json() as Frames;
-        const images = await Promise.race([
-          Promise.all(frames.sheets.map(loadImage)),
-          new Promise<never>((_, reject) => {
-            if (abort.signal.aborted) reject(new Error("Loading timeout"));
-            else abort.signal.addEventListener("abort", () => reject(new Error("Loading timeout")), { once: true });
-          }),
-        ]);
-        clearTimeout(deadline);
-        if (cancelled) return;
-        const context = canvas.current?.getContext("2d");
-        if (!context) throw new Error("Canvas unavailable");
-        let previousTime = 0, activeTime = 0, lastLine = "", lastPhase = "";
-        const draw = (now: number) => {
-          if (cancelled) return;
-          // Only advance while visible; loading, background tabs and stalls must
-          // never consume the part of the performance the visitor has not seen.
-          if (previousTime && document.visibilityState === "visible") activeTime += Math.min((now - previousTime) / 1000, .05);
-          previousTime = now;
-          const time = reduced ? 8.4 : activeTime;
-          const elapsed = Math.max(0, Math.min(5, time - 1.8));
-          const index = Math.min(frames.count - 1, Math.floor(elapsed * frames.fps));
-          const nextLine = time < 1.45 ? "等等，我先去开门！" : elapsed < 1.15 ? "牌子呢牌子呢…" : elapsed < 3.4 ? "再写大一点！" : elapsed < 4.7 ? "好了好了！" : "思怡，中秋回家啦！";
-          const nextPhase = time < 1.45 ? "on-the-way" : time < 2.15 ? "at-door" : time < 5.9 ? "making-sign" : time < 6.8 ? "door-opens" : time < 8.4 ? "home" : "done";
-          if (nextLine !== lastLine) { setLine(nextLine); lastLine = nextLine; }
-          if (nextPhase !== lastPhase) { setPhase(nextPhase); lastPhase = nextPhase; }
-          {
-            const position = frames.frames[index];
-            const cell = index % frames.perSheet;
-            context.clearRect(0, 0, frames.size, frames.size);
-            let x = 0, y = 0, angle = 0, squash = 1;
-            if (time < 1.8) {
-              const p = time / 1.8;
-              x = -290 * Math.pow(1 - p, 2);
-              y = -Math.abs(Math.sin(p * Math.PI * 2)) * 58;
-              angle = Math.sin(p * Math.PI * 3) * .15;
-              squash = 1 + Math.sin(p * Math.PI * 4) * .065;
-            } else if (time > 6.8 && time < 8.4) {
-              const p = (time - 6.8) / 1.6;
-              y = -Math.abs(Math.sin(p * Math.PI * 2)) * 66;
-              angle = Math.sin(p * Math.PI * 2) * .1;
-              squash = 1 + Math.cos(p * Math.PI * 4) * .055 * Math.sin(p * Math.PI);
-            }
-            context.save();
-            // Leave room above the head for the two full-body jumps.
-            context.translate(200 + x, 378 + y);
-            context.rotate(angle);
-            context.scale(.85 / squash, .85 * squash);
-            context.translate(-200, -378);
-            context.drawImage(images[Math.floor(index / frames.perSheet)], cell % frames.cols * frames.size, Math.floor(cell / frames.cols) * frames.size, frames.size, frames.size, 0, 0, frames.size, frames.size);
-            // The personalized welcome stays attached to the moving sign.
-            context.save();
-            context.translate(position.x, position.y);
-            context.rotate(position.angle);
-            context.fillStyle = "#774658";
-            context.font = '600 19px "PingFang SC", "Microsoft YaHei", sans-serif';
-            context.textAlign = "center";
-            context.textBaseline = "middle";
-            context.fillText("思怡，欢迎回家", 0, 0, 174);
-            context.restore();
-            context.restore();
-            if (canvas.current) {
-              canvas.current.dataset.frame = String(index);
-              canvas.current.dataset.phase = time < 1.8 ? "enter" : time < 6.8 ? "sign" : time < 8.4 ? "jump" : "done";
-            }
-          }
-          setPainted(true);
-          if (time < 8.4) raf = requestAnimationFrame(draw);
-        };
-        raf = requestAnimationFrame(draw);
-      } catch {
-        if (!cancelled) setLine("动画没加载好，点「再演一次」试试");
-      }
-    }
-    void animate();
-    return () => { cancelled = true; abort.abort(); clearTimeout(deadline); cancelAnimationFrame(raf); };
-  }, [open, run, reduced]);
-
-  function pet() {
-    if (tapTimer.current) clearTimeout(tapTimer.current);
-    setTapped(true);
-    tapTimer.current = setTimeout(() => setTapped(false), 750);
+  function playAgain() {
+    setVideoPlaying(false);
+    setVideoFailed(false);
+    setOpen(true);
   }
 
-  function playAgain() {
-    setTapped(false);
-    setPainted(false);
-    setVideoReady(false);
-    setLine(reduced ? "思怡，中秋回家啦！" : "等等，我先去开门！");
-    setPhase(reduced ? "done" : "on-the-way");
-    setRun((value) => value + 1);
-    setOpen(true);
+  function tryVideo() {
+    const player = video.current;
+    if (!player) return;
+    void player.play().catch(() => setVideoFailed(true));
   }
 
   return (
     <>
       <button className="welcome-replay" type="button" ref={replay} disabled={!ready} onClick={playAgain}>再看一遍小魔丸 <span aria-hidden="true">↺</span></button>
-      <dialog ref={dialog} data-phase={phase} className={`welcome-opening${leaving ? " is-leaving" : ""}${reduced ? " is-reduced" : ""}`} onCancel={(event) => { event.preventDefault(); dismiss(); }} aria-labelledby="welcome-title" aria-describedby="welcome-hint">
+      <dialog ref={dialog} className={`welcome-opening${leaving ? " is-leaving" : ""}`} onCancel={(event) => { event.preventDefault(); dismiss(); }} aria-labelledby="welcome-title" aria-describedby="welcome-hint">
         {open && <>
-          {!reduced && <div className={`welcome-video${videoReady ? " is-ready" : ""}`} aria-hidden="true">
+          {!reduced && !videoFailed && <div className={`welcome-video${videoPlaying ? " is-playing" : ""}`} aria-hidden="true">
             <i className="welcome-video__moon" /><i className="welcome-video__lantern welcome-video__lantern--left" /><i className="welcome-video__lantern welcome-video__lantern--right" />
             <p className="welcome-video__title">中秋回家</p>
-            <div className="welcome-video__frame"><video src="/api/welcome-video" autoPlay muted playsInline preload="auto" onCanPlay={() => setVideoReady(true)} onEnded={dismiss} onError={() => setVideoReady(false)} /><span>思怡，欢迎回家！</span></div>
-          </div>}
-          <div className="welcome-top"><span>魔族小窝<span className="welcome-top__dot" aria-hidden="true"> · </span><span className="welcome-top__small">中秋回家</span></span><button type="button" onClick={dismiss}>直接进屋 <span aria-hidden="true">↗</span></button></div>
-          <div className="welcome-scene">
-            <p className="welcome-eyebrow">叮咚——小魔王到家啦</p>
-            <h1 id="welcome-title">思怡，<em>中秋回家啦！</em></h1>
-            <div className="welcome-stage">
-              <span className="welcome-moon" aria-hidden="true" />
-              <span className="welcome-lantern welcome-lantern--left" aria-hidden="true" /><span className="welcome-lantern welcome-lantern--right" aria-hidden="true" />
-              <div className="welcome-arrival-card" aria-hidden="true"><span>上海</span><i>→</i><span>家</span></div>
-              <div className="welcome-door" aria-hidden="true"><i /><i /><b /></div>
-              <span className="welcome-spark welcome-spark--one" aria-hidden="true">✧</span><span className="welcome-spark welcome-spark--two" aria-hidden="true">✦</span><span className="welcome-spark welcome-spark--three" aria-hidden="true">✧</span>
-              <button type="button" className={`welcome-character${tapped ? " is-petted" : ""}`} onClick={pet} aria-label="摸摸小怪兽">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/welcome/monster-poster.webp" alt="抱着粉色牌子的白色毛绒小怪兽" width="400" height="400" className={painted ? "is-hidden" : ""} />
-                <canvas ref={canvas} width="400" height="400" className={painted ? "is-painted" : ""} aria-hidden="true" />
-                <span className="welcome-pet-reaction" aria-hidden="true">回来啦！</span>
-              </button>
-              {/* Generated with the official Dreamina CLI for the final Mid-Autumn welcome beat. */}
-              <img className="welcome-home-portrait" src="/welcome/generated/044731f1-2122-4765-8962-5611d13ae520_image_1.png" alt="" aria-hidden="true" />
-              <p className="welcome-bubble" role="status">{line}</p>
+            <div className="welcome-video__frame">
+              <video ref={video} src="/api/welcome-video" autoPlay muted playsInline preload="auto" onCanPlay={tryVideo} onPlaying={() => setVideoPlaying(true)} onEnded={dismiss} onError={() => setVideoFailed(true)} />
+              <span>思怡，欢迎回家！</span>
             </div>
-            <button className="welcome-enter" ref={enter} type="button" onClick={dismiss}>进屋吧 <span aria-hidden="true">→</span></button>
-            <p id="welcome-hint" className="welcome-hint">戳一下小魔丸，它正高兴。</p>
-          </div>
-          <div className="welcome-bottom"><span>中秋假期 · 魔族小窝</span><button type="button" onClick={playAgain}>再看一遍 ↺</button></div>
+          </div>}
+
+          <main className={`welcome-fallback${videoPlaying ? " is-covered" : ""}`}>
+            <p className="welcome-fallback__eyebrow">中秋回家</p>
+            <h1 id="welcome-title">思怡，<em>欢迎回家！</em></h1>
+            <div className="welcome-fallback__card" aria-hidden="true">
+              <span className="welcome-fallback__moon" />
+              <span className="welcome-fallback__lantern welcome-fallback__lantern--left" /><span className="welcome-fallback__lantern welcome-fallback__lantern--right" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/welcome/monster-poster.webp" alt="" width="400" height="400" />
+              <strong>思怡，欢迎回家！</strong>
+            </div>
+            <button className="welcome-enter" type="button" onClick={dismiss}>进屋吧 <span aria-hidden="true">→</span></button>
+            <p id="welcome-hint" className="welcome-hint">{videoFailed ? "视频没加载出来，先进去吧。" : "小魔丸正在开门。"}</p>
+          </main>
         </>}
       </dialog>
     </>
