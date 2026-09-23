@@ -35,14 +35,14 @@ export function HomeRoomStatus() {
   return (
     <section className="home-room-status" aria-label="小窝近况">
       <a href={page ? "/first-year?entry=" + encodeURIComponent(page.id) : "/first-year"}>
-        <span>书桌上的本子</span>
-        <strong>{page ? page.title : "还没翻开"}</strong>
-        <small>{page ? page.createdBy + "刚开了这一页" : "写一句今天的小事就行"}</small>
+        <span>最近写的</span>
+        <strong>{page ? page.title : "还没人写"}</strong>
+        <small>{page ? page.createdBy + "刚写了这条" : "你先说一句？"}</small>
       </a>
       <a href="/first-year#little-promises">
-        <span>一起做的小事</span>
-        <strong>{promise ? promise.title : "还没有约定"}</strong>
-        <small>{promise ? displayDate(promise.date) + (promise.checkedBy.length === 2 ? " · 你们都打过勾了" : " · 等对方也打个勾") : "想约就约一件小事"}</small>
+        <span>接下来要干啥</span>
+        <strong>{promise ? promise.title : "还没约好"}</strong>
+        <small>{promise ? displayDate(promise.date) + (promise.checkedBy.length === 2 ? " · 都打过勾了" : " · 等对方也打个勾") : "想到了就记一件"}</small>
       </a>
     </section>
   );

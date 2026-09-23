@@ -17,7 +17,7 @@ export default function FirstYearPage() {
         <MemberIdentity />
       </header>
       <FirstYearJournal />
-      <footer className="molwan-footer first-year-footer"><span>写在这里的东西，不用写得很完整。</span></footer>
+      <footer className="molwan-footer first-year-footer"><span>不用写得多好，想说就说。</span></footer>
     </main>
   );
 }

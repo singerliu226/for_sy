@@ -157,10 +157,10 @@ export function MagicAssistant() {
     <section className="magic-console magic-console--page" aria-labelledby="magic-title">
       <div className="magic-console__heading">
         <span className="magic-console__orb" aria-hidden="true">丸</span>
-        <div><p>LITTLE MARBLE</p><h2 id="magic-title">小魔丸，帮我看看这个事儿～</h2></div>
+        <div><p>小魔丸</p><h2 id="magic-title">小魔丸，帮我看看这个事儿？</h2></div>
         <span className="magic-console__status"><i />{member ? "准备好了" : "先选个身份"}</span>
       </div>
-      <p className="magic-console__intro">题目、生活里的小麻烦、临时想查的事，都可以先说说看。</p>
+      <p className="magic-console__intro">题不会、事儿拿不准，或者想查点啥，都扔给它。</p>
       <form onSubmit={submit} className="magic-console__form">
         <label className="sr-only" htmlFor="magic-question">输入问题</label>
         <input id="magic-question" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="比如：魔丸，你帮我看看这题？" autoComplete="off" />

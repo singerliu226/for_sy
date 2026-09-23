@@ -188,9 +188,9 @@ export function FirstYearJournal() {
   return (
     <section className="first-year-journal" aria-labelledby="first-year-journal-title">
       <section className="first-year-journal__intro">
-        <p>THE FIRST YEAR</p>
-        <h2 id="first-year-journal-title">这一年，<em>也一起过。</em></h2>
-        <span>想写就写，想停一下也行。</span>
+        <p>随手记</p>
+        <h2 id="first-year-journal-title">这周过得咋样？</h2>
+        <span>想说啥就写两句。</span>
       </section>
 
       {error && <p className="first-year-journal__feedback" role="status">{error}</p>}
@@ -198,11 +198,11 @@ export function FirstYearJournal() {
       <div className="first-year-journal__grid">
         <section className="journal-stack" aria-label="手账目录">
           <div className="journal-stack__heading">
-            <div><p>手账</p><h3>最近在写的</h3></div>
-            <a href="#new-journal-page">开一页 →</a>
+            <div><p>随手记</p><h3>最近留下的</h3></div>
+            <a href="#new-journal-page">写一条 →</a>
           </div>
           {data === null ? <p className="journal-stack__empty">正在翻开本子…</p> : data.pages.length === 0 ? (
-            <p className="journal-stack__empty">还没有第一页。随便写一件今天的小事就行。</p>
+            <p className="journal-stack__empty">还没人写。你先来一句？</p>
           ) : (
             <div className="journal-stack__list">
               {data.pages.map((page) => (
@@ -221,11 +221,11 @@ export function FirstYearJournal() {
                 <div><p>{selectedPage.createdBy}开的这一页 · {displayDate(selectedPage.eventDate || selectedPage.createdAt)}</p><h3>{selectedPage.title}</h3></div>
                 {member && <div className="journal-page__actions"><a href={"/assistant?from=" + encodeURIComponent(selectedPage.title)}>问小魔丸</a><a href={"/anniversaries?from=" + encodeURIComponent(selectedPage.title) + "&date=" + encodeURIComponent(selectedPage.eventDate || selectedPage.createdAt.slice(0, 10)) + "&source=" + encodeURIComponent(selectedPage.id)}>收进纪念日</a><button type="button" onClick={hidePage} disabled={saving === selectedPage.id}>收起来</button></div>}
               </header>
-              <p className="journal-page__note">两个人都可以在下面写、发图或者留一段语音。</p>
+              <p className="journal-page__note">想写字、发照片，或者留段语音，都可以。</p>
               <MessageBoard context={{ type: "first-year", id: selectedPage.id, title: selectedPage.title }} />
             </>
           ) : (
-            <div className="journal-page__blank"><span>✦</span><h3>翻到空白页啦。</h3><p>从左边开一页，或者先挑一个开场题目。</p></div>
+            <div className="journal-page__blank"><span>✦</span><h3>这儿还空着。</h3><p>左边点一条，或者自己写个开头。</p></div>
           )}
         </section>
       </div>
@@ -271,7 +271,7 @@ export function FirstYearJournal() {
             const bothChecked = item.checkedBy.length === 2;
             const mineChecked = member ? item.checkedBy.includes(member) : false;
             return <article className={bothChecked ? "is-done" : ""} key={item.id}><time>{displayDate(item.date)}</time><strong>{item.title}</strong><span>{bothChecked ? "你们都打过勾了" : item.checkedBy.join("、") + " 已打勾"}</span><button type="button" disabled={!member || mineChecked || Boolean(item.completedAt) || saving === item.id} onClick={() => void checkPromise(item.id)}>{bothChecked ? "✓" : mineChecked ? "已打勾" : "我也打勾"}</button></article>;
-          }) : <p className="promise-list__empty">还没有约定。可以是一起听首歌，也可以是考完去吃顿饭。</p>}
+          }) : <p className="promise-list__empty">还没约好。一起听首歌、考完吃顿饭，都可以记下来。</p>}
         </div>
         <form className="promise-form" onSubmit={createPromise}>
           <label>想一起做什么？<input value={promiseTitle} onChange={(event) => setPromiseTitle(event.target.value)} placeholder="比如：周六晚上各挑一部电影" maxLength={100} /></label>

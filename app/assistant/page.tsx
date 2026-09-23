@@ -18,14 +18,14 @@ export default function AssistantPage() {
       </header>
 
       <section className="assistant-hero">
-        <p className="molwan-kicker">LITTLE MARBLE</p>
-        <h1>有事就喊一声，<br /><em>小魔丸在。</em></h1>
-        <p>题目、生活里的小麻烦，或者临时想查的事，都可以先问问它。</p>
+        <p className="molwan-kicker">小魔丸</p>
+        <h1>有事拿不准，<br /><em>就来问小魔丸。</em></h1>
+        <p>题不会、日常小事卡住了，先把情况告诉它。</p>
       </section>
 
       <MagicAssistant />
 
-      <footer className="molwan-footer guide-footer"><span>说得不清楚也没关系，慢慢补。</span><a href="/messages">去留句话 →</a></footer>
+      <footer className="molwan-footer guide-footer"><span>没说清也没事，接着聊。</span><a href="/messages">去留句话 →</a></footer>
     </main>
   );
 }

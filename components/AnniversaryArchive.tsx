@@ -114,7 +114,7 @@ export function AnniversaryArchive() {
         </a>
       ))}
       {feedback && <p className="anniversary-list__feedback" role="status">{feedback}</p>}
-      {!items.length && <p className="anniversary-list__future">以后还有很多天，会慢慢长到这里。</p>}
+      {!items.length && <p className="anniversary-list__future">下次有想留的日子，再放进来。</p>}
     </section>
   );
 }

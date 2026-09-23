@@ -5,7 +5,7 @@ import { MemberIdentity } from "@/components/MemberIdentity";
 
 export const metadata: Metadata = {
   title: "纪念日｜魔族小窝",
-  description: "把值得记得的日子收好。",
+  description: "把想留着的日子放在这里。",
 };
 
 export default function AnniversariesPage() {
@@ -18,14 +18,14 @@ export default function AnniversariesPage() {
       </header>
 
       <section className="anniversary-hero">
-        <p className="molwan-kicker">A SMALL ARCHIVE</p>
-        <h1>有些日子，<br /><em>不需要赶着忘记。</em></h1>
-        <p>它们会在这里，慢慢变成一格一格的光。</p>
+        <p className="molwan-kicker">纪念册</p>
+        <h1>有些日子过了，<br /><em>还想再看看。</em></h1>
+        <p>照片和想说的话，都放在这里。</p>
       </section>
 
       <AnniversaryArchive />
 
-      <footer className="molwan-footer"><span>想记的那天，就收好它。</span></footer>
+      <footer className="molwan-footer"><span>想记就记，别等。</span></footer>
     </main>
   );
 }

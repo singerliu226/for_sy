@@ -18,7 +18,7 @@ export default function MessagesPage() {
       </header>
 
       <section className="message-hero">
-        <p className="molwan-kicker">A NOTE FOR US</p>
+        <p className="molwan-kicker">留言板</p>
         <h1>想说的话，<br /><em>就留在这儿。</em></h1>
       </section>
 
