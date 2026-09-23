@@ -75,7 +75,7 @@ export function WelcomeOpening() {
             <i className="welcome-video__moon" /><i className="welcome-video__lantern welcome-video__lantern--left" /><i className="welcome-video__lantern welcome-video__lantern--right" />
             <p className="welcome-video__title">中秋回家</p>
             <div className="welcome-video__frame">
-              <video ref={video} src="/api/welcome-video" autoPlay muted playsInline preload="auto" onCanPlay={tryVideo} onPlaying={() => setVideoPlaying(true)} onEnded={dismiss} onError={() => setVideoFailed(true)} />
+              <video ref={video} src="/welcome/midautumn-homecoming.mp4" autoPlay muted playsInline preload="auto" onCanPlay={tryVideo} onPlaying={() => setVideoPlaying(true)} onEnded={dismiss} onError={() => setVideoFailed(true)} />
               <span>思怡，欢迎回家！</span>
             </div>
           </div>}
