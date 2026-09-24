@@ -5,7 +5,7 @@ function response(body: unknown, status = 200) {
   return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 }
 
-function validRecoveryId(value: unknown) {
+function validRecoveryId(value: unknown): value is string {
   return typeof value === "string" && /^[a-z0-9-]{16,80}$/i.test(value);
 }
 

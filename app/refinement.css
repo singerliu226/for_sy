@@ -121,16 +121,17 @@
 .magic-console__form button { border-radius:12px; background:#76596f; color:#fffaf8; padding:15px 24px; }
 .magic-console__prompts { gap:8px; }
 .magic-console__prompts button { background:#f8f5f0; color:#736c76; border:1px solid #e9e1dc; border-radius:10px; font-size:12px; padding:10px 13px; line-height:1.6; }
-.magic-console__relay { align-items:center; background:#f6eef2; border:1px solid #e7d5de; border-radius:14px; display:grid; gap:12px 18px; grid-template-columns:1fr auto; margin-top:18px; padding:17px 18px; }
-.magic-console__relay strong { color:#685160; display:block; font:600 14px/1.5 var(--ui); }
-.magic-console__relay > div > span { color:#817480; display:block; font:12px/1.65 var(--ui); margin-top:3px; }
-.magic-console__relay > button { background:#fffafc; border:1px solid #d8bdcc; border-radius:999px; color:#7d566e; font:700 11px var(--ui); padding:9px 12px; }
-.magic-console__relay form { border-top:1px solid #e4cfd9; display:grid; gap:9px; grid-column:1 / -1; padding-top:15px; }
-.magic-console__relay textarea { background:#fffdfa; border:1px solid #ddcbd4; border-radius:10px; color:#514552; font:14px/1.7 var(--ui); padding:10px 12px; resize:vertical; width:100%; }
-.magic-console__relay form > div { align-items:center; display:flex; gap:12px; justify-content:space-between; }
-.magic-console__relay form small { color:#837782; font:11px/1.55 var(--ui); }
-.magic-console__relay form button { background:#76596f; border:0; border-radius:9px; color:#fffaf8; flex:0 0 auto; font:700 11px var(--ui); padding:10px 13px; }
-.magic-console__relay form button:disabled { opacity:.5; }
+.magic-console__relay-draft { background:#f6eef2; border:1px solid #e7d5de; border-radius:14px; display:grid; gap:13px; margin-top:19px; padding:19px; }
+.magic-console__relay-draft strong { color:#685160; display:block; font:600 14px/1.5 var(--ui); }
+.magic-console__relay-draft span { color:#817480; display:block; font:12px/1.65 var(--ui); margin-top:4px; }
+.magic-console__relay-draft textarea { background:#fffdfa; border:1px solid #ddcbd4; border-radius:10px; color:#514552; font:14px/1.7 var(--ui); padding:11px 13px; resize:vertical; width:100%; }
+.magic-console__relay-actions { display:flex; gap:10px; justify-content:flex-end; }
+.magic-console__relay-actions button { background:#fffdfa; border:1px solid #d8bdcc; border-radius:9px; color:#7d566e; font:700 12px var(--ui); padding:10px 13px; }
+.magic-console__relay-actions button[type="submit"] { background:#76596f; border-color:#76596f; color:#fffaf8; }
+.magic-console__relay-actions button:disabled { opacity:.5; }
+.magic-console__notice { background:#f7f0e9; border:1px solid #e8d9ce; border-radius:10px; color:#6f5664; font:13px/1.7 var(--ui); margin:15px 0 0; padding:10px 13px; }
+.magic-console__notice a { color:#72556b; text-decoration:underline; text-underline-offset:3px; }
+.magic-console__privacy { font-size:12px; line-height:1.65; }
 .magic-message { border:1px solid #e6dfe6; background:#f9f5f8; border-radius:14px; padding:22px; }
 .magic-message--user { background:#eef1eb; border-color:#e0e5dc; }
 .magic-message :is(p,li,span),.magic-message__body { color:#504753; font-family:var(--ui); }
@@ -191,9 +192,9 @@
   .magic-console { width:calc(100% - 32px); padding:22px; border-radius:18px; }
   .magic-console__heading h2 { font-size:20px; }
   .magic-console__prompts button { flex-basis:210px; }
-  .magic-console__relay { align-items:start; grid-template-columns:1fr; }
-  .magic-console__relay > button { justify-self:start; }
-  .magic-console__relay form > div { align-items:flex-start; flex-direction:column; }
+  .magic-console__relay-draft { padding:15px; }
+  .magic-console__relay-actions { justify-content:stretch; }
+  .magic-console__relay-actions button { flex:1; }
   .magic-message { padding:16px; }
   .anniversary-list { padding:0 20px 44px; }
   .anniversary-card { padding:24px 20px; grid-template-columns:24px 1fr 20px; gap:12px; }

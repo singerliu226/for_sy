@@ -103,7 +103,7 @@ export default function Home() {
   const [capsule, setCapsule] = useState("");
   const [sealing, setSealing] = useState(false);
   const [sealed, setSealed] = useState(false);
-  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const holdTimer = useRef<number | null>(null);
   const active = moments[activeMoment];
 
   useEffect(() => {

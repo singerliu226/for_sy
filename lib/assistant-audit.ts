@@ -169,10 +169,24 @@ export async function getAssistantAuditRecords() {
   return readRecords();
 }
 
-export async function getRecentAssistantMemory(initiator: AuditInitiator, limit = 10) {
+export async function getRecentAssistantConversation(initiator: AuditInitiator, limit = 24) {
   const records = await readRecords();
   return records
     .filter((record) => record.initiator === initiator && record.origin === "live")
-    .slice(-Math.max(2, Math.min(limit, 16)))
-    .map((record) => ({ role: record.role, text: record.text.slice(0, 900) }));
+    .slice(-Math.max(2, Math.min(limit, 40)))
+    .map((record) => ({ role: record.role, text: record.text }));
+}
+
+export async function getRecentAssistantMemory(initiator: AuditInitiator) {
+  const conversation = await getRecentAssistantConversation(initiator, 24);
+  return conversation.map((record) => ({ role: record.role, text: record.text.slice(0, 700) }));
+}
+
+export async function deleteAssistantConversation(initiator: AuditInitiator) {
+  return withWriteLock(async () => {
+    const records = await readRecords();
+    const remaining = records.filter((record) => record.initiator !== initiator);
+    if (remaining.length !== records.length) await saveRecords(remaining);
+    return records.length - remaining.length;
+  });
 }

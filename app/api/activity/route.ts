@@ -53,11 +53,11 @@ function cleanText(value: unknown, limit: number) {
   return value.replace(/[\u0000-\u001f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, limit);
 }
 
-function validVisitor(value: unknown) {
+function validVisitor(value: unknown): value is string {
   return typeof value === "string" && /^[a-z0-9-]{16,64}$/i.test(value);
 }
 
-function validDevice(value: unknown) {
+function validDevice(value: unknown): value is string {
   return typeof value === "string" && /^device-[a-f0-9]{24}$/i.test(value);
 }
 
@@ -68,11 +68,12 @@ function validPath(value: unknown) {
 function normaliseEvent(value: unknown): ActivityEvent | null {
   if (!value || typeof value !== "object") return null;
   const event = value as Partial<ActivityEvent>;
-  if (typeof event.id !== "string" || !validVisitor(event.visitor) || !isActivityKind(event.type) || !validPath(event.path) || typeof event.createdAt !== "string") return null;
+  const path = validPath(event.path);
+  if (typeof event.id !== "string" || !validVisitor(event.visitor) || !isActivityKind(event.type) || !path || typeof event.createdAt !== "string") return null;
   const label = cleanText(event.label, 90);
   const destination = cleanText(event.destination, 160);
   const device = validDevice(event.device) ? event.device : "";
-  return { id: event.id, visitor: event.visitor, ...(device ? { device } : {}), type: event.type, path: event.path, createdAt: event.createdAt, ...(label ? { label } : {}), ...(destination ? { destination } : {}), ...(isMember(event.actor) ? { actor: event.actor } : {}), ...(isActivitySource(event.source) ? { source: event.source } : {}) };
+  return { id: event.id, visitor: event.visitor, ...(device ? { device } : {}), type: event.type, path, createdAt: event.createdAt, ...(label ? { label } : {}), ...(destination ? { destination } : {}), ...(isMember(event.actor) ? { actor: event.actor } : {}), ...(isActivitySource(event.source) ? { source: event.source } : {}) };
 }
 
 function normaliseAttribution(value: unknown): VisitorAttributionRule | null {
@@ -225,7 +226,8 @@ export async function POST(request: Request) {
     return json({ error: "记录格式不对。" }, 400);
   }
 
-  if (!validVisitor(body.visitor) || !isActivityKind(body.type) || !validPath(body.path)) return json({ error: "记录格式不对。" }, 400);
+  const path = validPath(body.path);
+  if (!validVisitor(body.visitor) || !isActivityKind(body.type) || !path) return json({ error: "记录格式不对。" }, 400);
   if (isRateLimited(body.visitor)) return json({ ok: true });
 
   const label = cleanText(body.label, 90);
@@ -237,7 +239,7 @@ export async function POST(request: Request) {
     visitor: body.visitor,
     ...(device ? { device } : {}),
     type: body.type,
-    path: body.path,
+    path,
     createdAt: new Date().toISOString(),
     ...(body.type === "click" && label ? { label } : {}),
     ...(body.type === "click" && destination ? { destination } : {}),

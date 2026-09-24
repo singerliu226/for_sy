@@ -87,7 +87,7 @@ export function WelcomeOpening() {
         {open && <>
           {!reduced && <div className={`welcome-video${videoPlaying && !videoFailed ? " is-playing" : ""}`} aria-hidden="true">
             <div className="welcome-video__frame">
-              <video ref={video} src="/welcome/midautumn-homecoming-lettered-v2" autoPlay defaultMuted muted playsInline preload="auto" onCanPlay={tryVideo} onPlaying={() => setVideoPlaying(true)} onEnded={dismiss} onError={() => setVideoFailed(true)} />
+              <video ref={video} src="/welcome/midautumn-homecoming-lettered-v2" autoPlay muted playsInline preload="auto" onCanPlay={() => tryVideo()} onPlaying={() => setVideoPlaying(true)} onEnded={dismiss} onError={() => setVideoFailed(true)} />
             </div>
           </div>}
 

@@ -37,10 +37,22 @@ export function useMemberIdentity() {
   useEffect(() => {
     const timer = window.setTimeout(() => void refresh(), 0);
     const sync = () => void refresh();
+    const syncStorage = (event: StorageEvent) => {
+      if (event.key === memberStorageKey) void refresh();
+    };
+    const syncVisible = () => {
+      if (document.visibilityState === "visible") void refresh();
+    };
     window.addEventListener("mozu-member-change", sync);
+    window.addEventListener("storage", syncStorage);
+    window.addEventListener("focus", sync);
+    document.addEventListener("visibilitychange", syncVisible);
     return () => {
       window.clearTimeout(timer);
       window.removeEventListener("mozu-member-change", sync);
+      window.removeEventListener("storage", syncStorage);
+      window.removeEventListener("focus", sync);
+      document.removeEventListener("visibilitychange", syncVisible);
     };
   }, [refresh]);
 

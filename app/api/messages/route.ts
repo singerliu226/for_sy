@@ -223,7 +223,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const access = requireMember(request);
   if ("response" in access) return access.response;
-  const address = clientAddress(request);
+  const address = `${access.member}:${clientAddress(request)}`;
   if (rateLimited(address)) return json({ error: "这一会儿已经写得很多啦，过十分钟再留一条。" }, 429);
 
   let message = "";

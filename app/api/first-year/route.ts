@@ -45,7 +45,7 @@ function cleanText(value: unknown, limit: number) {
   return value.replace(/[\p{Cc}]+/gu, " ").replace(/\s+/g, " ").trim().slice(0, limit);
 }
 
-function validDate(value: unknown) {
+function validDate(value: unknown): value is string {
   return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(new Date(value + "T12:00:00").getTime());
 }
 
