@@ -168,3 +168,11 @@ export async function recoverBrowserConversation(input: {
 export async function getAssistantAuditRecords() {
   return readRecords();
 }
+
+export async function getRecentAssistantMemory(initiator: AuditInitiator, limit = 10) {
+  const records = await readRecords();
+  return records
+    .filter((record) => record.initiator === initiator && record.origin === "live")
+    .slice(-Math.max(2, Math.min(limit, 16)))
+    .map((record) => ({ role: record.role, text: record.text.slice(0, 900) }));
+}

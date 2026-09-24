@@ -2,27 +2,14 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useMemberIdentity } from "@/components/MemberIdentity";
+import { otherMember } from "@/lib/members";
 
-type Source = { label: string; url: string };
+type AssistantMessage = { role: "user" | "assistant"; text: string };
+type AssistantResponse = { answer: string };
 
-type AssistantMessage = {
-  role: "user" | "assistant";
-  text: string;
-  sources?: Source[];
-  status?: string;
-  checkedAt?: string;
-};
-
-type AssistantResponse = {
-  answer: string;
-  sources: Source[];
-  sourceStatus?: string;
-  checkedAt?: string;
-};
-
-const historyKey = "mozu-little-marble-history-v1";
-const oldHistoryKeys = ["molwan-assistant-history-v3", "molwan-assistant-history-v2"];
-const quickPrompts = ["魔丸，帮我看看这题？", "我有点乱，怎么先把这件事理顺？", "这家店现在还开着吗？"];
+const historyKey = "mozu-little-marble-history-v2";
+const oldHistoryKeys = ["mozu-little-marble-history-v1", "molwan-assistant-history-v3", "molwan-assistant-history-v2"];
+const quickPrompts = ["我今天有点烦，想说两句。", "这道题我卡住了。", "我有件事拿不准。"];
 
 function newId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") return crypto.randomUUID();
@@ -52,11 +39,6 @@ function displayBlocks(value: string) {
   return tidyText(value).split(/\n{2,}/).filter(Boolean);
 }
 
-function visibleStatus(value?: string) {
-  if (value === "这段是小魔丸的说明，没有附上可打开的来源。" || value === "这次没有拿到能确认的来源") return "";
-  return value ?? "";
-}
-
 export function MagicAssistant() {
   const { member } = useMemberIdentity();
   const [query, setQuery] = useState("");
@@ -64,6 +46,9 @@ export function MagicAssistant() {
   const [sessionId] = useState(newId);
   const [sending, setSending] = useState(false);
   const [notice, setNotice] = useState("");
+  const [relayOpen, setRelayOpen] = useState(false);
+  const [relayText, setRelayText] = useState("");
+  const [relaying, setRelaying] = useState(false);
 
   useEffect(() => {
     const current = readHistory(historyKey);
@@ -84,19 +69,14 @@ export function MagicAssistant() {
     try {
       window.localStorage.setItem(historyKey, JSON.stringify(messages.slice(-8)));
     } catch {
-      // The chat can still be used when the browser declines local storage.
+      // The server keeps the actual memory; this only keeps the current screen smooth.
     }
   }, [messages]);
-
-  useEffect(() => {
-    const from = new URLSearchParams(window.location.search).get("from");
-    if (from) setQuery("关于「" + from.slice(0, 80) + "」：");
-  }, []);
 
   async function ask(question?: string) {
     const message = (question ?? query).trim();
     if (!message || !member || sending) {
-      if (!member) setNotice("先登录，再来问小魔丸。 ");
+      if (!member) setNotice("先登录，再来找小魔丸。 ");
       return;
     }
 
@@ -113,23 +93,16 @@ export function MagicAssistant() {
         body: JSON.stringify({
           message,
           conversationId: sessionId,
-          history: nextHistory.slice(0, -1).map((item) => ({ role: item.role, text: item.text })),
+          history: nextHistory.slice(0, -1),
         }),
       });
       const result = await response.json() as AssistantResponse & { error?: string };
       if (!response.ok || !result.answer) throw new Error(result.error ?? "小魔丸没接到这句话。");
-      setMessages((current) => [...current, {
-        role: "assistant",
-        text: result.answer,
-        sources: result.sources,
-        status: result.sourceStatus,
-        checkedAt: result.checkedAt,
-      }].slice(-8));
+      setMessages((current) => [...current, { role: "assistant", text: result.answer }].slice(-8));
     } catch (error) {
       setMessages((current) => [...current, {
         role: "assistant",
-        text: "这次我没查明白。换个说法问我，或者直接问大魔王也行。",
-        status: error instanceof Error && error.message ? error.message : "暂时没连上",
+        text: error instanceof Error && error.message ? error.message : "这会儿有点没连上，等一下再说。",
       }].slice(-8));
     } finally {
       setSending(false);
@@ -141,50 +114,61 @@ export function MagicAssistant() {
     void ask();
   }
 
-  function share(message: AssistantMessage) {
-    if (!member) {
-      setNotice("先登录，再把这段话留给对方。 ");
-      return;
-    }
+  async function relay(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!member || !relayText.trim() || relaying) return;
+    setRelaying(true);
+    setNotice("");
     try {
-      window.sessionStorage.setItem("mozu-message-draft-v1", JSON.stringify({
-        text: "小魔丸刚刚说：\n" + tidyText(message.text),
-      }));
-      window.location.href = "/messages";
-    } catch {
-      setNotice("没能把这段话带过去，复制一下再发吧。");
+      const form = new FormData();
+      form.append("message", relayText.trim());
+      form.append("website", "");
+      const response = await fetch("/api/messages", { method: "POST", body: form });
+      const result = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(result.error ?? "这句话没能递过去。");
+      setRelayText("");
+      setRelayOpen(false);
+      setNotice(`已经递给${otherMember(member)}了。`);
+    } catch (error) {
+      setNotice(error instanceof Error && error.message ? error.message : "这句话没能递过去。");
+    } finally {
+      setRelaying(false);
     }
   }
+
+  const recipient = member ? otherMember(member) : "对方";
 
   return (
     <section className="magic-console magic-console--page" aria-labelledby="magic-title">
       <div className="magic-console__heading">
         <span className="magic-console__orb" aria-hidden="true">丸</span>
-        <div><p>小魔丸</p><h2 id="magic-title">小魔丸，帮我看看这个事儿？</h2></div>
-        <span className="magic-console__status"><i />{member ? "准备好了" : "登录后就能问"}</span>
+        <div><p>小魔丸</p><h2 id="magic-title">想问什么，或者想说什么？</h2></div>
+        <span className="magic-console__status"><i />{member ? "我在" : "登录后就能说"}</span>
       </div>
-      <p className="magic-console__intro">题不会、事儿拿不准，或者想查点啥，都扔给它。</p>
+      <p className="magic-console__intro">题不会、心里堵着、事情拿不准，都可以慢慢说。上次聊到的事，小魔丸也会接着记着。</p>
       <form onSubmit={submit} className="magic-console__form">
-        <label className="sr-only" htmlFor="magic-question">输入问题</label>
-        <input id="magic-question" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="比如：魔丸，你帮我看看这题？" autoComplete="off" />
-        <button type="submit" disabled={sending || !member}>{sending ? "我看看…" : "问问魔丸 →"}</button>
+        <label className="sr-only" htmlFor="magic-question">想对小魔丸说的话</label>
+        <input id="magic-question" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="比如：我今天有点烦。" autoComplete="off" />
+        <button type="submit" disabled={sending || !member}>{sending ? "我在听…" : "说给魔丸听 →"}</button>
       </form>
       <div className="magic-console__prompts">
         {quickPrompts.map((prompt) => <button type="button" onClick={() => void ask(prompt)} key={prompt}>{prompt}</button>)}
       </div>
+
+      <section className="magic-console__relay" aria-label={`给${recipient}留话`}>
+        <div><strong>想让{recipient}知道点什么？</strong><span>写一句，小魔丸会帮你递过去。</span></div>
+        <button type="button" onClick={() => setRelayOpen((current) => !current)}>{relayOpen ? "先不写了" : `给${recipient}留句话`}</button>
+        {relayOpen && <form onSubmit={relay}><label className="sr-only" htmlFor="magic-relay">留给对方的话</label><textarea id="magic-relay" value={relayText} onChange={(event) => setRelayText(event.target.value)} placeholder={`想跟${recipient}说什么？`} maxLength={280} rows={3} /><div><small>发出去后，${recipient}打开“最近的事儿”就能看到。</small><button type="submit" disabled={!relayText.trim() || relaying}>{relaying ? "正在递过去…" : "帮我递过去 →"}</button></div></form>}
+      </section>
+
       {notice && <p className="magic-console__privacy" role="status">{notice}</p>}
       {messages.length > 0 && (
         <div className="magic-console__conversation" aria-live="polite">
-          <div className="magic-console__conversation-head"><span>这次聊的</span><button type="button" onClick={() => setMessages([])}>清掉这段</button></div>
+          <div className="magic-console__conversation-head"><span>刚才聊的</span><button type="button" onClick={() => setMessages([])}>清掉这段</button></div>
           {messages.slice(-6).map((message, index) => (
             <article className={"magic-message magic-message--" + message.role} key={message.role + "-" + index + "-" + message.text.slice(0, 18)}>
               <p>{message.role === "user" ? (member || "你") : "小魔丸"}</p>
-              <div className={"magic-answer " + (message.role === "user" ? "magic-answer--user" : "")}>
-                {message.role === "assistant" ? displayBlocks(message.text).map((block, blockIndex) => <p key={blockIndex}>{block}</p>) : message.text}
-              </div>
-              {visibleStatus(message.status) && <small>{visibleStatus(message.status)}</small>}
-              {message.sources && message.sources.length > 0 && <footer><span>刚查到的资料{message.checkedAt ? ` · ${message.checkedAt}` : ""}</span>{message.sources.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.label} ↗</a>)}</footer>}
-              {message.role === "assistant" && <div className="magic-message__share-box"><button className="magic-message__share" type="button" onClick={() => share(message)}>带去留言板</button><small>会先放进草稿，不会直接发出去。</small></div>}
+              <div className={"magic-answer " + (message.role === "user" ? "magic-answer--user" : "")}>{message.role === "assistant" ? displayBlocks(message.text).map((block, blockIndex) => <p key={blockIndex}>{block}</p>) : message.text}</div>
             </article>
           ))}
         </div>
