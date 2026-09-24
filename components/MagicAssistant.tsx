@@ -2,7 +2,6 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useMemberIdentity } from "@/components/MemberIdentity";
-import { otherMember } from "@/lib/members";
 
 type Source = { label: string; url: string };
 
@@ -51,6 +50,11 @@ function tidyText(value: string) {
 
 function displayBlocks(value: string) {
   return tidyText(value).split(/\n{2,}/).filter(Boolean);
+}
+
+function visibleStatus(value?: string) {
+  if (value === "这段是小魔丸的说明，没有附上可打开的来源。" || value === "这次没有拿到能确认的来源") return "";
+  return value ?? "";
 }
 
 export function MagicAssistant() {
@@ -178,10 +182,9 @@ export function MagicAssistant() {
               <div className={"magic-answer " + (message.role === "user" ? "magic-answer--user" : "")}>
                 {message.role === "assistant" ? displayBlocks(message.text).map((block, blockIndex) => <p key={blockIndex}>{block}</p>) : message.text}
               </div>
-              {message.status && <small>{message.status}</small>}
-              {message.checkedAt && <small>查到的时间 · {message.checkedAt}</small>}
-              {message.role === "assistant" && <button className="magic-message__share" type="button" onClick={() => share(message)}>给{member ? otherMember(member) : "对方"}看看</button>}
-              {message.sources && message.sources.length > 0 && <footer>{message.sources.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>来源 · {source.label} ↗</a>)}</footer>}
+              {visibleStatus(message.status) && <small>{visibleStatus(message.status)}</small>}
+              {message.sources && message.sources.length > 0 && <footer><span>刚查到的资料{message.checkedAt ? ` · ${message.checkedAt}` : ""}</span>{message.sources.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.label} ↗</a>)}</footer>}
+              {message.role === "assistant" && <div className="magic-message__share-box"><button className="magic-message__share" type="button" onClick={() => share(message)}>带去留言板</button><small>会先放进草稿，不会直接发出去。</small></div>}
             </article>
           ))}
         </div>

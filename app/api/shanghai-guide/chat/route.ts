@@ -5,7 +5,7 @@ import { requireMember } from "@/lib/auth";
 type HistoryItem = { role: "user" | "assistant"; text: string };
 type ChatBody = { message?: unknown; history?: unknown; initiator?: unknown; conversationId?: unknown };
 type Source = { label: string; url: string };
-type ChatReply = { answer: string; sources: Source[]; sourceStatus: string; checkedAt?: string };
+type ChatReply = { answer: string; sources: Source[]; sourceStatus?: string; checkedAt?: string };
 
 const requestBuckets = new Map<string, number[]>();
 const requestWindowMs = 10 * 60 * 1000;
@@ -104,7 +104,6 @@ function fallbackReply() {
   return {
     answer: "这个我这会儿没查准。你可以换个说法再问我；要是很急，就先问一下现场的人或者熟悉情况的人。",
     sources: [],
-    sourceStatus: "这次没有拿到能确认的来源",
   };
 }
 
@@ -164,7 +163,6 @@ export async function POST(request: Request) {
       return respond({
         answer: withoutUrls(rawAnswer),
         sources,
-        sourceStatus: sources.length ? "需要的时候可以打开来源再看一眼。" : "这段是小魔丸的说明，没有附上可打开的来源。",
         ...(sources.length ? { checkedAt: checkedAt() } : {}),
       });
     } finally {
