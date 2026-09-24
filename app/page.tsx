@@ -1,5 +1,6 @@
 import { MemberIdentity } from "@/components/MemberIdentity";
 import { HomeRoomStatus } from "@/components/HomeRoomStatus";
+import { LittleMarble } from "@/components/LittleMarble";
 import { MessageForSiyi } from "@/components/MessageForSiyi";
 import { WelcomeOpening } from "@/components/WelcomeOpening";
 import Link from "next/link";
@@ -23,12 +24,7 @@ export default function Home() {
           <p className="home-welcome__intro">想聊就聊两句，想记点东西也行。</p>
           <a className="home-welcome__action" href="/messages">去说两句 <span aria-hidden="true">↗</span></a>
         </div>
-        <div className="home-welcome__illustration" aria-hidden="true">
-          <span className="home-welcome__hello">小魔丸在这儿！</span>
-          <img src="/welcome/monster-poster.webp" alt="" width="400" height="400" />
-          <span className="home-welcome__sign">欢迎回家</span>
-          <span className="home-welcome__star">✧</span>
-        </div>
+        <LittleMarble />
       </section>
 
       <HomeRoomStatus />

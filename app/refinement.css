@@ -29,12 +29,31 @@
 .home-welcome__action { display: inline-flex; align-items: center; gap: 30px; border-radius: 30px; background: #76596f; color: #fffaf8; padding: 14px 24px; font-size: 14px; transition: background .2s,transform .2s; }
 .home-welcome__action:hover { background: #60475b; transform: translateY(-2px); }
 .molwan-site .home-welcome__action { color:#fffaf8; }
-.home-welcome__sign { position:absolute; left:50.5%; top:65%; transform:translate(-50%,-50%); color:#774658; font:600 18px var(--ui); white-space:nowrap; pointer-events:none; }
-.home-welcome__illustration { position: relative; justify-self: center; width: min(100%,340px); aspect-ratio: 1; isolation: isolate; }
-.home-welcome__illustration::before { content:""; position:absolute; inset: 18% 3% 0; background: #eee3e1; border-radius: 48% 48% 42% 42%; transform: rotate(-8deg); z-index: -1; }
-.home-welcome__illustration img { width: 100%; height: auto; display: block; position: relative; }
-.home-welcome__hello { position: absolute; right: 8px; top: 12px; border: 1px solid #e1cbd7; background:#fffcf9; color:#88647b; border-radius:18px 18px 18px 3px; padding:10px 18px; transform:rotate(6deg); font-size:13px; z-index:1; }
-.home-welcome__star { position: absolute; color: #b58598; font: 44px Georgia,serif; left: -4%; top: 38%; }
+.little-marble { position:relative; justify-self:center; width:min(100%,340px); aspect-ratio:1; isolation:isolate; }
+.little-marble::before { content:""; position:absolute; inset:18% 3% 0; background:#eee3e1; border-radius:48% 48% 42% 42%; transform:rotate(-8deg); z-index:-1; }
+.little-marble__button { position:relative; display:block; width:100%; height:100%; padding:0; border:0; background:transparent; cursor:pointer; touch-action:manipulation; }
+.little-marble__button img { width:100%; height:auto; display:block; position:relative; transition:transform .2s ease; }
+.little-marble__button:hover img { transform:translateY(-5px) rotate(-1deg); }
+.little-marble__button:active img { transform:translateY(2px) scale(.97); }
+.little-marble__sign { position:absolute; left:50.5%; top:65%; transform:translate(-50%,-50%); color:#774658; font:600 18px var(--ui); white-space:nowrap; pointer-events:none; }
+.little-marble__hello { position:absolute; right:8px; top:12px; max-width:220px; border:1px solid #e1cbd7; background:#fffcf9; color:#88647b; border-radius:18px 18px 18px 3px; padding:10px 18px; transform:rotate(6deg); font-size:13px; line-height:1.45; text-align:center; z-index:2; box-shadow:0 6px 16px #6d4a5b0a; transition:transform .22s ease,background .22s ease; }
+.little-marble__tap { position:absolute; right:15px; bottom:18px; border:1px solid #d5b5c4; border-radius:999px; background:#fffaf7d9; color:#9a6d82; font:700 10px var(--ui); letter-spacing:.08em; padding:6px 9px; opacity:0; transform:translateY(4px); transition:opacity .2s ease,transform .2s ease; }
+.little-marble__button:hover .little-marble__tap,.little-marble__button:focus-visible .little-marble__tap { opacity:1; transform:translateY(0); }
+.little-marble__star { position:absolute; color:#b58598; font:44px Georgia,serif; left:-4%; top:38%; pointer-events:none; }
+.little-marble__spark { position:absolute; left:50%; top:55%; color:#bd839d; font:31px Georgia,serif; opacity:0; pointer-events:none; z-index:3; }
+.little-marble__spark--one { margin-left:-10px; }
+.little-marble__spark--two { margin-left:-10px; }
+.little-marble__spark--three { margin-left:-10px; }
+.little-marble.is-playing .little-marble__button img { animation:little-marble-bounce .72s cubic-bezier(.2,.9,.3,1); }
+.little-marble.is-playing .little-marble__hello { animation:little-marble-hello .72s ease; background:#fff1f5; }
+.little-marble.is-playing .little-marble__spark--one { animation:little-marble-spark-one .72s ease-out; }
+.little-marble.is-playing .little-marble__spark--two { animation:little-marble-spark-two .72s ease-out .04s; }
+.little-marble.is-playing .little-marble__spark--three { animation:little-marble-spark-three .72s ease-out .08s; }
+@keyframes little-marble-bounce { 0%{transform:translateY(0) rotate(0)} 28%{transform:translateY(-18px) rotate(-3deg)} 52%{transform:translateY(0) rotate(3deg)} 76%{transform:translateY(-6px) rotate(-1deg)} 100%{transform:translateY(0) rotate(0)} }
+@keyframes little-marble-hello { 0%,100%{transform:rotate(6deg) scale(1)} 35%{transform:rotate(-3deg) scale(1.06)} 62%{transform:rotate(8deg) scale(1.02)} }
+@keyframes little-marble-spark-one { 0%{opacity:0;transform:translate(0,0) scale(.4)} 28%{opacity:1} 100%{opacity:0;transform:translate(-102px,-76px) rotate(70deg) scale(1.15)} }
+@keyframes little-marble-spark-two { 0%{opacity:0;transform:translate(0,0) scale(.4)} 28%{opacity:1} 100%{opacity:0;transform:translate(89px,-96px) rotate(-55deg) scale(.9)} }
+@keyframes little-marble-spark-three { 0%{opacity:0;transform:translate(0,0) scale(.4)} 28%{opacity:1} 100%{opacity:0;transform:translate(108px,16px) rotate(40deg) scale(1.05)} }
 .molwan-home__doors { max-width: 1200px; padding: 0 40px; gap: 20px; margin-bottom: 48px; }
 .molwan-home__doors--two { grid-template-columns:repeat(2,minmax(0,1fr)); max-width:850px; }
 .molwan-door { min-height: 230px; border: 1px solid #e5dcdf; border-radius: 22px; padding: 27px; box-shadow: 0 4px 8px #4a354003; }
@@ -143,9 +162,11 @@
   .home-welcome h1 { font-size:32px; line-height:1.5; }
   .home-welcome__eyebrow { margin-bottom:18px; font-size:11px; }
   .home-welcome__intro { font-size:13px; margin:14px 0 20px; max-width:280px; }
-  .home-welcome__illustration { width:190px; margin-top:-35px; justify-self:end; pointer-events:none; }
-  .home-welcome__hello { right:-3px; top:2px; font-size:11px; padding:7px 11px; }
-  .home-welcome__sign { font-size:11px; }
+  .little-marble { width:190px; margin-top:-35px; justify-self:end; }
+  .little-marble__hello { right:-3px; top:2px; font-size:11px; padding:7px 11px; }
+  .little-marble__sign { font-size:11px; }
+  .little-marble__tap { right:2px; bottom:10px; font-size:9px; padding:5px 7px; }
+  .little-marble__star { font-size:30px; }
   .home-welcome__action { font-size:13px; gap:20px; padding:12px 18px; }
   .molwan-home__doors { padding:0 20px; grid-template-columns:1fr; gap:12px; margin-bottom:30px; }
   .molwan-door { min-height:160px; border-radius:18px; padding:23px; }
@@ -178,6 +199,15 @@
   .anniversary-card { padding:24px 20px; grid-template-columns:24px 1fr 20px; gap:12px; }
   .anniversary-card::after { right:-70px; opacity:.3; }
   .anniversary-card h2 { font-size:38px; }
+}
+@media(prefers-reduced-motion:reduce){
+  .little-marble__button img,.little-marble__hello,.little-marble__tap { transition:none; }
+  .little-marble__button:hover img,.little-marble__button:active img { transform:none; }
+  .little-marble.is-playing .little-marble__button img,.little-marble.is-playing .little-marble__hello,.little-marble.is-playing .little-marble__spark { animation:none; }
+  .little-marble.is-playing .little-marble__spark { opacity:0; }
+}
+@media(hover:none){
+  .little-marble__tap { opacity:.92; transform:translateY(0); }
 }
 
 /* 魔族小窝：shared room, first-year notebook and selected member state. */
